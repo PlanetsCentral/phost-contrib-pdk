@@ -780,6 +780,8 @@ ReadAuxVersionInfo(FILE* pInFile)
     return False;
   }
 
+  Read_Turntime_File();         /* do it again. It will need the version numbers */
+
 #ifdef __MSDOS__
   if (1 NEQ fread(&lTurntime, sizeof(lTurntime), 1, pInFile))
     goto bad_read;
@@ -791,7 +793,7 @@ ReadAuxVersionInfo(FILE* pInFile)
 
   /* Check to make sure timestamp matches NEXTTURN.HST. If not, this file is
      stale. */
-  if (memcmp(&lTurntime, RawTurnTime(), sizeof(lTurntime))) {
+  if (memcmp(&lTurntime, RawAuxTime(), sizeof(lTurntime))) {
     Error ("AUXDATA.HST file is from turn %u. It is stale and must be deleted.\n",
            lTurntime.TurnNumber);
     return False;
