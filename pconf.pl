@@ -27,17 +27,19 @@
 #  -d    Print default parameter settings ("% PHOST" section).
 #  -n    Print non-default parameter settings only ("% PHOST" section).
 #  -h    Show help.
+#  -o    Force to use "old" (pre-3.4) config definitions
 
 
 use strict;
-use vars qw($opt_h $opt_d $opt_n);
+use vars qw($opt_h $opt_d $opt_n $opt_o);
 use Getopt::Std;
 
-my $defconfigfilename  = "config.hi";
 my $configfilename     = "pconfig.src";
 my %defconfigdata      = ();
 my %configdata         = ();
 my %configparamnames   = ();
+my @defconfigfilenames = ();
+my @defconfiglist      = ();
 
 $| = 1;  # activate autoflush
 
@@ -46,19 +48,27 @@ if (@ARGV < 1) {
     usage( $0 );
 }
 
-getopts( 'hdn' ) || usage( $0 );
+getopts( 'hdno' ) || usage( $0 );
 if (defined $opt_h) {
     usage ( $0 );
 }
 if (defined $opt_d && defined $opt_n) {
     usage( $0 );
 }
+push @defconfigfilenames, "config.hi4" unless defined $opt_o;
+push @defconfigfilenames, "config.hi";
+if (@ARGV) {
+    $configfilename = shift @ARGV;
+}
+if (@ARGV) {
+    usage ($0);
+}
 if (defined $opt_d) {
-    printdefaults( $defconfigfilename );
+    printdefaults( @defconfigfilenames );
     exit 0;
 }
 if (defined $opt_n) {
-    getdefaults( $defconfigfilename );
+    getdefaults( @defconfigfilenames );
     getconfig( $configfilename );
     &printnondefaults;
     exit 0;
@@ -69,21 +79,33 @@ usage( $0 );
 
 
 sub getdefaults {
-    my $defconfigfile = shift;
-
-    open( DEFCONFIG, $defconfigfile ) or die "Cannot open \"$defconfigfile\": $!";
-    while (<DEFCONFIG>) {
-	next unless /^CFDefine/;
-	chomp;
-	s/\s//g;
-	s/([A-Z])/\l$1/g;  # tolower
-	if (my ($defconfigparam, $defconfigvalue) = /^cfdefine\(([^,]+)[^"]+"(.+?)".+\)$/) {
-	    $defconfigdata{$defconfigparam} = $defconfigvalue;
-	}
+    foreach (@_) {
+        open( DEFCONFIG, "< $_" ) or next;
+        while (<DEFCONFIG>) {
+            next unless /^CFDefine/;
+            chomp;
+            s/\s//g;
+            s/([A-Z])/\l$1/g;  # tolower
+            s/\btrue\b/yes/g;
+            s/\bfalse\b/no/g;
+            if (my ($defconfigparam, $defconfigvalue) = /^cfdefine\(([^,]+)[^\"]+"(.+?)".+\)$/) {
+                $defconfigdata{$defconfigparam} = $defconfigvalue;
+                push @defconfiglist, $defconfigparam;
+            } elsif (($defconfigparam, $defconfigvalue) = /^cfdefine4\((\w+),[^\"]+"(.+?)".*\)$/) {
+                if ($defconfigvalue =~ /^\$(\w+)/) {
+                    die "Error: backwards reference `$defconfigvalue' in config definition\n"
+                        if not defined $defconfigdata{$1};
+                    $defconfigvalue = $defconfigdata{$1};
+                }
+                $defconfigdata{$defconfigparam} = $defconfigvalue;
+                push @defconfiglist, $defconfigparam;
+            }
+        }
+        close( DEFCONFIG );
+        return;
     }
-    close( DEFCONFIG );
+    die "Cannot open any of " . join(", ", @_) . "\n";
 }
-
 
 sub getconfig {
     my $configfile = shift;
@@ -92,13 +114,20 @@ sub getconfig {
     while (<CONFIG>) {
 	last if /^%\s*PCONTROL/;
 	next if /^%/;
-	next if /^#/;
+	next if /^\s*#/;
 	next if /^\s*$/;
 	chomp;
 	s/\s//g;
 	my ($configparamname) = split( /=/, $_, 2 );  # save original parameter name
 	s/([A-Z])/\l$1/g;  # tolower
+        s/\btrue\b/yes/g;
+        s/\bfalse\b/no/g;
 	if (my ($configparam, $configvalue) = split( /=/, $_, 2 )) {
+            if ($configvalue =~ /^\$(.*)/) {
+                die "Configuration Error: backwards reference `$configvalue'\n"
+                    if not defined $configdata{$1};
+                $configvalue = $configdata{$1};
+            }
 	    $configdata{$configparam} = $configvalue;
 	    $configparamnames{$configparam} = $configparamname;
 	}
@@ -108,21 +137,25 @@ sub getconfig {
 
 
 sub printdefaults {
-    my $defconfigfile = shift;
-
-    open( DEFCONFIG, $defconfigfile ) or die "Cannot open \"$defconfigfile\": $!";
+#    my $defconfigfile = shift;
+#
+#    open( DEFCONFIG, $defconfigfile ) or die "Cannot open \"$defconfigfile\": $!";
+#    print "% PHOST\n";
+#    while (<DEFCONFIG>) {
+#	next unless /^CFDefine/;
+#	chomp;
+#	s/\s//g;
+#	if (my ($defconfigparam, $defconfigvalue) = /^CFDefine\(([^,]+)[^"]+"(.+?)".+\)$/) {
+#	    printf( "%-29s = %s\n", $defconfigparam, $defconfigvalue);
+#	}
+#    }
+#    close( DEFCONFIG );
+    getdefaults (@_);
     print "% PHOST\n";
-    while (<DEFCONFIG>) {
-	next unless /^CFDefine/;
-	chomp;
-	s/\s//g;
-	if (my ($defconfigparam, $defconfigvalue) = /^CFDefine\(([^,]+)[^"]+"(.+?)".+\)$/) {
-	    printf( "%-29s = %s\n", $defconfigparam, $defconfigvalue);
-	}
+    foreach (@defconfiglist) {
+        printf( "%-29s = %s\n", $_, $defconfigdata{$_});
     }
-    close( DEFCONFIG );
 }
-
 
 sub printnondefaults {
     my $param = "";
@@ -143,5 +176,5 @@ sub usage {
     my $commandname = shift;
 
     $commandname =~ s#.*/##g;
-    die "usage: $commandname [-h (help)] [-d (defaults)] [-n (non-defaults)]\n";
+    die "usage: $commandname [-h (help)] [-d (defaults)] [-n (non-defaults)] [-o (old config.hi only)] [pconfig.src]\n";
 }

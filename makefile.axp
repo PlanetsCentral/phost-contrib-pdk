@@ -5,7 +5,7 @@ SRCS=auxdata.c configio.c crc.c enum.c hostio.c main.c portable.c \
 	 vgapdata.c vgapmsg.c vgaputil.c worm.c doscvt.c vgapdat1.c \
 	 vgapdat2.c vgapdat3.c vgapdat4.c vgapdat5.c msgtmp.c \
 	 rstmsg.c pgetopt.c points.c alldata.c vgapdat6.c vgapdat7.c vgapdat8.c vgapdat9.c \
-	 vgapdatb.c vgapdatc.c battle.c fcode.c
+	 vgapdatb.c vgapdatc.c battle.c fcode.c commands.c
 OBJS=$(SRCS:.c=.o)
 
 CC=cc -O2 -taso -std1 -check  -I/sys/include

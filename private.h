@@ -386,6 +386,7 @@ extern "C" {
   extern Planet_Struct *GetPlanet(Uns16 pID);
   extern Ship_Struct *GetShip(Uns16 pID);
   extern Base_Struct *GetBase(Uns16 pID);
+  extern MineField_Struct *GetMinefield(Uns16 pID);
 
 /* functions store requested structure and generate them new if necessary */
 

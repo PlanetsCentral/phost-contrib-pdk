@@ -94,8 +94,6 @@ IsBasePresent(Uns16 pID)
 Boolean
 IsBaseExist(Uns16 pID)
 {
-  InitBases();
-
   return IsBasePresent(pID) AND(PlanetOwner(pID) NEQ NoOwner);
 }
 

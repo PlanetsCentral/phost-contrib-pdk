@@ -257,6 +257,12 @@ extern "C" {
   } BuildQueue_Def;
 
   typedef enum {
+    TS_No,                      /* Feature is off */
+    TS_Yes,                     /* Feature is on */
+    TS_Allies                   /* Feature is available to allies only */
+  } Tristate;
+    
+  typedef enum {
     UTIL_Ext,
     UTIL_Dat,
     UTIL_Tmp
@@ -329,7 +335,7 @@ typedef struct
              MineDecay[12],         /*!< mines decay rate percentage */
              MaxMineRadius[12],     /*!< maximum minefield radius */
              TransuraniumRate,      /*!< new mineral formation rate */
-             StructureDecay[12];    /*!< structure decay rate */
+             StructureDecay[12];    /*!< structure decay rate (0'th is StructureDecayOnUnowned) */
     Boolean  EatSupplies,           /*!< overpopulated planets eat supplies */
              NoFuelMove;            /*!< ships without fuel can move */
     Uns16    MineOdds[12],          /*!< percentage odds of hitting a mine */
@@ -505,6 +511,7 @@ typedef struct
     Uns16    PALImperialAssault[12];        /*!< Points for performing one */
     Uns16    PALRGA[12];                    /*!< Points for performing one */
     Uns16    PALPillage[12];                /*!< Points for performing one */
+    Boolean  PALIncludesESB[12];            /*!< True iff PAL includes ESB in mass computations */
 
     Boolean  FilterPlayerMessages[12];      /*!< Elide messages for which there are
                                                UTIL.DAT equivalents? */
@@ -513,6 +520,9 @@ typedef struct
     Boolean  AllowMoreThan500Minefields[12]; /*!< allow receipt of more than 500 minefields */
     Uns16    CPNumMinefields;                /*!< total number of minefields */
     Uns16    PALShipMinekillPer10KT[12];     /*!< PAL for destroying ship by minehit */
+
+    /* Brand-New Options */
+    Tristate AllowShipnames;
 
     /* Combat-related Options -- always leave these at the end */
 
@@ -1483,7 +1493,32 @@ Pconfig_Struct;
   extern Boolean IsPlanetFCodeSpecial(Uns16 pPlanet);
   extern Boolean IsFCodeMatch(const char* p1, const char* p2);
 
-
+  /* command messages */
+  typedef Boolean (*CommandReader_Func) (Uns16 pRace,
+                                         const char* pCommand,
+                                         const char* pArgs,
+                                         const char* pWholeLine,
+                                         void* pData);
+  typedef void (*CommandComplain_Func) (Uns16 pRace,
+                                        const char* pLine,
+                                        const char* pReason,
+                                        void* pData);
+  extern void CommandFileReader(Uns16 pRace,
+                                CommandReader_Func pFunc,
+                                CommandComplain_Func pComplain,
+                                const char* pProgName,
+                                const char* pPrivateFile,
+                                void* pData);
+  extern void CommandFileReaderFP(Uns16 pRace,
+                                  Uns16 pFileIsFor,
+                                  CommandReader_Func pFunc,
+                                  CommandComplain_Func pComplain,
+                                  const char* pProgName,
+                                  FILE* pFile,
+                                  void* pData);
+  extern void ComplainWithSubspaceMessage(Uns16 pRace, const char* pLine, const char* pReason, void* pData);
+  extern void ComplainWithWarningMessage(Uns16 pRace, const char* pLine, const char* pReason, void* pData);
+    
 #ifdef __cplusplus
 }
 #endif

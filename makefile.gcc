@@ -5,14 +5,17 @@ SRCS=auxdata.c pconfig.c crc.c enum.c hostio.c main.c portable.c \
 	 vgapdata.c vgapmsg.c vgaputil.c worm.c doscvt.c vgapdat1.c \
 	 vgapdat2.c vgapdat3.c vgapdat4.c vgapdat5.c msgtmp.c \
 	 rstmsg.c pgetopt.c points.c alldata.c vgapdat6.c vgapdat7.c vgapdat8.c vgapdat9.c \
-	 vgapdatb.c vgapdatc.c battle.c hullfunc.c listmat.c utildata.c fcode.c
+	 vgapdatb.c vgapdatc.c battle.c hullfunc.c listmat.c utildata.c fcode.c commands.c
 HDRS=battle.h doscvt.h listmat.h phostpdk.h ptscore.h squishio.h version.h \
 	 conf.h includes.h pgetopt.h private.h shrouds.h stdtyp.h
 OBJS=$(SRCS:.c=.o)
 
+SPLITSRC=$(patsubst %.c, split/%.mc, $(SRCS))
+SPLITOBJ=$(patsubst %.c, split/%.mo, $(SRCS))
+
 #.SUFFIXES: .o
 
-CC=gcc -Wall -O3
+CC=gcc -Wall -O3 -I.
 
 all: libpdk.a sendmess crack ptscore killrace pmaster pally
 
@@ -55,3 +58,37 @@ clean:
 
 %.o: %.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+############################ The Small Library ############################
+
+# Idea: when the split version of a file is made, we also make a "marker
+# file" split/foo.mc. When the snippets are all successfully compiled,
+# we make a marker split/foo.mo. This way we don't need to hardwire the
+# names of the snippets in the makefile.
+# This is supposed to be `echo foo >...', not `touch'; echo also works
+# on DOS.
+
+libpdks.a: $(SPLITOBJ)
+	-rm -f libpdks.a
+	ar r libpdks.a split/*.o
+	$(RANLIB) libpdks.a
+
+split/%.mc: split/00 %.c
+	-rm -f split/$*_* split/$*.*
+	perl splitmod.pl $*.c split/$*_%.c
+	echo foo >split/$*.mc
+
+# This rule is split, because we want the wildcard to be expanded
+# after generating the .mc file, not when Make reads the makefile.
+# Someone please explain to me why we have to call make explicitly
+# again instead of relying on dependencies.
+split/%.mo: split/%.mc
+	$(MAKE) -fmakefile.gcc split/$*.mo-helper
+	echo foo >split/$*.mo
+
+split/%.mo-helper:
+	@$(MAKE) -fmakefile.gcc $(patsubst %.c,%.o, $(wildcard split/$*_*.c))
+
+split/00:
+	-mkdir split
+	echo foo >split/00

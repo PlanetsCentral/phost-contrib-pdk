@@ -1,0 +1,118 @@
+;
+;  Definition file for splitmod.
+;
+;  Syntax is:
+;    groupname: symbol, symbol, symbol
+;       - symbols go in one group
+;    keep file, file, file
+;       - do not split these files
+;
+
+; alldata.c
+hostdata: gPlanetControl, gShipControl, gBaseControl1, gBaseControl2
+hostdata: ReadHostData, WriteHostData
+
+; auxdata.c -- this should be fixed
+keep auxdata.c
+
+; battle.c -- splitting makes no sense
+; crc.c -- splitting makes no sense
+keep auxdata.c, battle.c, crc.c
+
+; doscvt.c
+DOSStructConvert: DOS16Convert, DOS32Convert, DOSStructConvert
+Ship_Struct: ShipStruct_Convert, NumShipStruct_Convert
+Planet_Struct: PlanetStruct_Convert, NumPlanetStruct_Convert
+Base_Struct: BaseStruct_Convert, NumBaseStruct_Convert
+Mine_Struct: MineStruct_Convert, NumMineStruct_Convert
+Hullspec_Struct: HullspecStruct_Convert, NumHullspecStruct_Convert
+Turntime_Struct: TurntimeStruct_Convert, NumTurntimeStruct_Convert
+BaseOrder_Struct: BaseOrderStruct_Convert, NumBaseOrderStruct_Convert
+HostGen_Struct: HostGenStruct_Convert, NumHostGenStruct_Convert
+Engspec_Struct: EngspecStruct_Convert, NumEngspecStruct_Convert
+Beamspec_Struct: BeamspecStruct_Convert, NumBeamspecStruct_Convert
+Torpspec_Struct: TorpspecStruct_Convert, NumTorpspecStruct_Convert
+XYData_Struct: XyplanStruct_Convert, NumXyplanStruct_Convert
+Shipxy_Struct: ShipxyStruct_Convert, NumShipxyStruct_Convert
+Vcr_Struct: VcrStruct_Convert, NumVcrStruct_Convert
+TargetShip_Struct: TargetShipStruct_Convert, NumTargetShipStruct_Convert
+ExtMessage_Struct: ExtMessageStruct_Convert, NumExtMessageStruct_Convert
+UFO_Struct: UFOStruct_Convert, NumUFOStruct_Convert
+Tons_Struct: TonsStruct_Convert, NumTonsStruct_Convert
+
+; enum.c -- should be fixed
+keep enum.c
+
+; fcode.c
+FCodes: EXTRA_FCODES_FILE, gExtraFCodes, gNumExtraFCodes, gSizeExtraFCodes
+FCodes: gFCodesChanged, gFCodesInitialized, gFCodesRegistered, PushFCode
+FCodes: isFCodeExtraSpecial, AddPHostFCodes, ReadExtraFCodes, DumpExtraFCodes
+FCodes: DefineSpecialFCode, InitFCodes, ShutdownFCodes, IsFCodeSpecial
+
+; hostio.c -- small enough
+keep hostio.c
+
+; hullfunc.c -- fixme
+keep hullfunc.c
+
+; main.c
+Main: gCleanupFuncs, NumCleanupFuncs, RegisterCleanupFunction, InitPHOSTLib
+Main: FreePHOSTLib
+
+; mscxtra.c -- this one's not used with normal compilers
+; msgtmp.c -- small enough(?)
+; pconfig.c -- small enough(?)
+; pgetopt.c -- small enough(?)
+keep mscxtra.c, msgtmp.c, pconfig.c, pgetopt.c
+
+; points.c
+CargoPoints: PointsForCargo, PointsFor, PutPointsFor
+MinePoints: MineFieldMultiplier, PointsForMinefield
+MineMinerals: MineralsForMinefieldUnit, MineralsForMinefield
+
+; portable.c -- don't split
+keep portable.c
+
+; utildata.c
+UtilMain: UtilHeaderStruct_Convert, NumUtilHeaderStruct_Convert
+UtilMain: gUtilMode, SetUtilMode, PutUtilRecord
+
+; vgapdat1.c -- planets
+Planet: PLANET_FILE, gAllPlanets, FreePlanets, InitPlanets, GetPlanet
+Planet: PutPlanet, IsPlanetExist, Read_Planets_File, Write_Planets_File
+Planet: InitializePlanets
+
+; vgapdat2.c -- ships
+Ship: SHIP_FILE, gAllShips, FreeShips, InitShips, GetShip, PutShip
+Ship: DeleteShip, IsShipExist, CreateShip, Read_Ships_File, Write_Ships_File
+Ship: InitializeShips
+
+; vgapdat3.c -- bases
+Base: BASE_FILE, gAllBases, FreeBases, InitBases, GetBase, PutBase
+Base: DeleteBase, IsBasePresent, CreateBase, Read_Bases_File, Write_Bases_File
+Base: InitializeBases
+
+; vgapdat4.c -- mines
+Mine: MINE_FILE, MINE_EXT_FILE, gMinesPtr, FreeMines, InitMines, GetMinefield
+Mine: PutMinefield, Read_Mines_File, Write_Mines_File, InitializeMines
+
+; vgapdat5.c -- hulls (pretty small)
+; vgapdat6.c -- engines (pretty small)
+; vgapdat7.c -- torps (pretty small)
+; vgapdat8.c -- beams (pretty small)
+; vgapdat9.c -- planet names (pretty small)
+; vgapdata.c -- race names (pretty small)
+; vgapdatb.c -- planet x,y (pretty small)
+; vgapdatc.c -- gen.hst (pretty small)
+; vgapmsg.c -- messages (pretty small)
+keep vgapdat5.c, vgapdat6.c, vgapdat7.c, vgapdat8.c, vgapdat9.c
+keep vgapdata.c, vgapdatb.c, vgapdatc.c, vgapmsg.c
+
+; vgaputil.c
+Memory: gAllocFailed, quickExit, MemAlloc, MemRealloc, MemCalloc, MemFree
+Memory: reportMessage, Error, VError, ErrorExit, VErrorExit, Warning
+Memory: VWarning, Info, VInfo
+Random: RandRawSeed, RandRaw, SetRandomSeed, RandomRange, RandomReal
+
+; worm.c -- fixme?
+keep worm.c

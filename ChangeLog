@@ -1,3 +1,17 @@
+Wed May  1 14:56:25 2002  Stefan  <Streu@gmx.de>
+
+	* commands.c: new
+
+	* pconfig.c: new config reader from PHost 3.4
+
+	* pconf.pl: updated for PHost 3.4 / 4.0 config.hi format. Let it
+	know that Yes and True mean the same thing.
+
+Sun Apr 21 16:16:44 2002  Stefan  <Streu@gmx.de>
+
+	* splitmod.pl, splitmod.def: re-diddled this to do splitting
+	without having to modify source code
+
 2002-04-08 01:34  hschlen
 
 	* pdk.texi, phostpdk.h: Added MineralsFor...() functions, removed

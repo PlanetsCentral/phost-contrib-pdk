@@ -19,6 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *****************************************************************************/
 
+#include <ctype.h>
 #include "phostpdk.h"
 #include "private.h"
 #include "battle.h"
@@ -30,10 +31,7 @@ static const char *CONFIG_FILE  = "pconfig.src";
 static const char *HCONFIG_FILE = "hconfig.hst";
 static const char* gCurrentConfigFile;
 
-/** Used to mirror gConfigInfo. This is char * so we can
-    index into it based upon byte position. */
-static char *Data = 0;
-
+static void ClearConfig();
 static void DoDefaultAssignments(void);
 static Boolean DoAssignment(const char *name, char *val,
                             const char *pInputLine);
@@ -199,23 +197,21 @@ IO_Def
 Read_HConfig_File(void)
 {
   FILE *lConfigFile;
-  IO_Def lRes;
 
   lConfigFile = OpenInputFile(CONFIG_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR);
   if (lConfigFile == NULL)
     return IO_FAILURE;
 
-  Data = (char *) gConfigInfo;
   gCurrentConfigFile = CONFIG_FILE;
 
+  ClearConfig();
+  ConfigFileReaderEx(lConfigFile, CONFIG_FILE, "phost", True,
+                     DoAssignment, Warning, True);
   DoDefaultAssignments();
-
-  lRes = ConfigFileReaderEx(lConfigFile, CONFIG_FILE, "phost", True,
-                            DoAssignment, Warning, True);
 
   fclose(lConfigFile);
 
-  return lRes;
+  return IO_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -223,581 +219,532 @@ Read_HConfig_File(void)
 /* Scoring info is put in here just because it's too trivial */
 typedef Uns16 ScoreMethod_Def;
 
+/************************* PHost 4 Config Reader *************************/
+
+struct ConfigItem_Struct;
+
 typedef enum {
-  CFType_Uns8,
-  CFType_Uns16,
-  CFType_Int16,
-  CFType_Uns32,
-  CFType_Boolean,
-  CFType_Language_Def,
-  CFType_ScoreMethod_Def,
-  CFType_char,
-  CFType_BuildQueue_Def,
-  CFType_NoType
+    CFType_Uns16,
+    CFType_Int16,
+    CFType_Uns32,
+    CFType_Boolean,
+    CFType_Language_Def,
+    CFType_ScoreMethod_Def,
+    CFType_String,
+    CFType_BuildQueue_Def,
+    CFType_Tristate,
+    CFType_MAX
 } CFType;
-typedef char NoType;
 
-#define CFDefine(name, member, num, type, def, MA, Min, Max) #name,
-static const char *Names[] = {
-#include "config.hi"
-  0
+static const int sConfigItemSize[CFType_MAX] = {
+    sizeof(Uns16),
+    sizeof(Int16),
+    sizeof(Uns32),
+    sizeof(Boolean),
+    sizeof(Language_Def),
+    sizeof(ScoreMethod_Def),
+    sizeof(char),
+    sizeof(BuildQueue_Def),
+    sizeof(Tristate)
 };
 
-#define CF_NumItems ((sizeof(Names)/sizeof(Names[0]))-1)
-
-#define CFDefine(name, member, num, type, def, MA, Min, Max) offsetof(Hconfig_Struct, member),
-static size_t Pos[] = {
-#include "config.hi"
-  0
+static const char* const sConfigItemNames[CFType_MAX] = {
+    "unsigned 16 bit",
+    "signed 16 bit",
+    "unsigned 32 bit",
+    "boolean",
+    "language",
+    "scoring method",
+    "string",
+    "build queue",
+    "tristate"
 };
 
-#define CFDefine(name, member, num, type, def, MA, Min, Max) num,
-static Uns16 Elements[] = {
-#include "config.hi"
-  0
-};
+typedef Boolean (*ConfigReader_Func)(const struct ConfigItem_Struct*, char* value);
 
-#define CFDefine(name, member, num, type, def, MA, Min, Max) CFType_ ## type ,
-static CFType Types[] = {
-#include "config.hi"
-  CFType_NoType
-};
+typedef struct ConfigItem_Struct {
+    const char* mName;          /* Name of config item */
+    size_t      mOffset;        /* Position in gConfigInfo */
+    Uns16       mCount;         /* Number of entries (for strings: length) */
+    CFType      mType;          /* Type */
+    Int32       mMin, mMax;     /* Range */
+    Uns16       mFlags;         /* Options (arrayized, obsolete, ...) */
+    Uns16       mDepend;        /* Dependency */
+    const char* mDefault;       /* Default value */
+} ConfigItem_Struct;
 
-#define CFDefine(name, member, num, type, def, MA, Min, Max) def,
-static const char *Defaults[] = {
-#include "config.hi"
-  0
-};
-
-#define CFDefine(name, member, num, type, def, MA, Min, Max) MA,
-static Boolean gAllowMA[] = {
-#include "config.hi"
-  0
-};
-
-#define CFDefine(name, member, num, type, def, MA, Min, Max) CFI_ ## name,
 enum {
-#include "config.hi"
-    CFI_MAX_INDEX
+#define CFDefine4(name, ofs, count, typ, min, max, flags, dep, def) CF_ ## name,
+#include "config.hi4"
+    CF_NumItems
 };
 
-static Boolean UserSet[CF_NumItems];
+/*
+   Type checking. This checks *at compile time* that all dependency
+   settings are correct (i.e. refer to a single boolean option).
+   When such a dependency is invalid, you'll get an error message
+   about TYPECK_name_Boolean_1 being undefined, where name is the name
+   of the referred-to option.
 
-static int readUns8(Uns16 ix, char *val);
-static int readUns16(Uns16 ix, char *val);
-static int readInt16(Uns16 ix, char *val);
-static int readUns32(Uns16 ix, char *val);
-static int readBooleanType(Uns16 ix, char *val);
-static int readLanguageType(Uns16 ix, char *val);
-static int readScoreMethodType(Uns16 ix, char *val);
-static int readCharType(Uns16 ix, char *val);
-static int readBuildQueueType(Uns16 ix, char* val);
+   config.hi4:35: `TYPECK_RecycleRate_Boolean_1' undeclared here (not in a function)
+   config.hi4:35: enumerator value for `TYPECK2_DisablePasswords' not integer constant
+*/
+enum {
+#define CFDefine4(name, ofs, count, typ, min, max, flags, dep, def) \
+    TYPECK_ ## name ## _ ## typ ## _ ## count,
+#include "config.hi4"
+#undef CFDefine4
+#define IFYES(x) TYPECK_ ## x ## _Boolean_1
+#define IFNO(x) TYPECK_ ## x ## _Boolean_1
+#define CFDefine4(name, ofs, count, typ, min, max, flags, dep, def) \
+    TYPECK2_ ## name = dep,
+#include "config.hi4"
+    TYPECK3_Ends_here
+#undef CFDefine4
+#undef IFYES
+#undef IFNO
+};
 
-/** Get name of a language. \internal */
+enum {
+    CFOPT_Arrayized = 1,
+    CFOPT_Obsolete  = 2
+};
+
+enum {
+    CF_MAX_ARRAY_SIZE = 20      /* 3.3f: actual limit is 12 */
+};
+
+static const ConfigItem_Struct sConfigDef[CF_NumItems] = {
+#define ARRAYIZED CFOPT_Arrayized
+#define OBSOLETE  CFOPT_Obsolete
+#define RACEARRAY 0     /* PHost does not need this (yet?) */
+#define IFYES(x)  (2 * CF_ ## x + 2)
+#define IFNO(x)   (2 * CF_ ## x + 3)
+#define CFDefine4(name, ofs, count, typ, min, max, flags, dep, def) \
+    { #name, offsetof(Hconfig_Struct, ofs), count, CFType_ ## typ, min, max, flags, dep, def },
+#include "config.hi4"
+#undef ARRAYIZED
+#undef OBSOLETE
+#undef RACEARRAY
+#undef IFYES
+#undef IFNO
+};
+
+/** nonzero if option has been set. Use `char' not Boolean, because
+    that occupies less space */
+static char sOptionSet[CF_NumItems];
+
+/** Look up an option, by name.
+    \return index into sConfigDef, or -1 */
+static int
+lookupOptionByName(const char* pName)
+{
+    int i;
+    for (i = 0; i < CF_NumItems; ++i)
+        if (stricmp(pName, sConfigDef[i].mName) == 0)
+            return i;
+    return -1;
+}
+
+/*---------- Assignment Functions ---------*/
+
+/** Generic Tokenizer. Handles the following
+    - splitting into pieces (a, b, c)
+    - arrayisation and verification of array bounds
+    - comments
+    \param pItem   Config item we're parsing
+    \param pValue  Value (string), must be modifyable
+    \param pFunc   Function to call for each item (if everything goes
+                   well, this function is called exactly pItem->mCount times,
+                   with index \in [0, pItem->mCount-1])
+    \param pData   Data pointer to pass to pFunc. */
+static Boolean Tokenize(const struct ConfigItem_Struct* pItem,
+                        char* pValue,
+                        Boolean (*pFunc)(const ConfigItem_Struct*,
+                                         char* value, int index, void* data),
+                        void* pData)
+{
+    /* We treat CR and C-z as whitespace. Why not. */
+    static const char SEPARATORS[] = " \t,\r\032";
+    int lIndex;
+    int lLength;
+    char lEol;
+    char* lStr;
+
+    /* Kill comment */
+    if ((lStr = strchr(pValue, '#')) != 0)
+        *lStr = 0;
+
+    lStr = 0;
+    lIndex = 0;
+    while (1) {
+        pValue += strspn(pValue, SEPARATORS);
+        lLength = strcspn(pValue, SEPARATORS);
+        if (lLength == 0)
+            break;
+        /* we have an item we can assign now */
+        lStr = pValue;
+        lEol = pValue[lLength];
+        pValue[lLength] = 0;
+        pValue += lLength+1;
+
+        if (lIndex >= pItem->mCount) {
+            Warning("%s: too many values in assignment to '%s'",
+                    gCurrentConfigFile, pItem->mName);
+            return False;
+        }
+        if (! pFunc(pItem, lStr, lIndex, pData))
+            return False;
+
+        ++lIndex;
+        if (lEol == 0)
+            break;
+    }
+
+    /* End of line reached. Valid? */
+    if (lIndex < pItem->mCount) {
+        if ((pItem->mFlags & CFOPT_Arrayized) && lStr) {
+            while (lIndex < pItem->mCount) {
+                if (! pFunc(pItem, lStr, lIndex, pData))
+                    return False;
+                ++lIndex;
+            }
+        } else {
+            Warning("%s: too few values in assignment to '%s'", gCurrentConfigFile, pItem->mName);
+            return False;
+        }
+    }
+    return True;
+}
+
+/** Parse integer into a Int32 array. For use with Tokenize. This one
+    checks bounds. */
+static Boolean
+parseInteger(const ConfigItem_Struct* pItem,
+             char* pValue, int pIndex, void* pData)
+{
+    long i;
+    char* p;
+
+    i = strtol(pValue, &p, 10);
+    if (*pValue == 0 || *p != 0) {
+        Warning("%s: invalid value '%s' in assignment to '%s'", gCurrentConfigFile,
+                pValue, pItem->mName);
+        return False;
+    }
+    if (i < pItem->mMin || i > pItem->mMax) {
+        Warning("%s: value %ld outside allowed range [%d, %d] in assignment to '%s'",
+                gCurrentConfigFile, i, pItem->mMin, pItem->mMax, pItem->mName);
+        return False;
+    }
+
+    ((Int32*)pData)[pIndex] = i;
+    return True;
+}
+
+/** Parse boolean, into a boolean array. For use with Tokenize. */
+static Boolean
+parseBoolean(const ConfigItem_Struct* pItem,
+             char* pValue, int pIndex, void* pData)
+{
+    int match = ListMatch(pValue, "False True No Yes"); /* order is important */
+    if (match < 0) {
+        Warning("%s: invalid boolean value for option '%s'", gCurrentConfigFile, pItem->mName);
+        return False;
+    } else {
+        if (match >=2 )
+            match -= 2;
+        ((Boolean*) pData)[pIndex] = match;
+        return True;
+    }
+}
+
+/** Parse tristate, into a trisate array. For use with Tokenize. */
+static Boolean
+parseTristate(const ConfigItem_Struct* pItem,
+             char* pValue, int pIndex, void* pData)
+{
+    int match = ListMatch(pValue, "False True Allies No Yes"); /* order is important */
+    if (match < 0) {
+        Warning("%s: invalid tristate value for option '%s'", gCurrentConfigFile, pItem->mName);
+        return False;
+    } else {
+        if (match >= 3)
+            match -= 3;
+        ((Tristate*) pData)[pIndex] = match;
+        return True;
+    }
+}
+
+/** Parse language into a Language_Def array. For use with Tokenize. */
+static Boolean
+parseLanguage(const ConfigItem_Struct* pItem,
+              char* pValue, int pIndex, void* pData)
+{
+    /* The order of languages in the following list is important and
+       must match the order of definitions in strlang.h */
+    int match = ListMatch(pValue,
+                          "ENglish German French Spanish Italian Dutch "
+                          "Russian EStonian");
+    if (match < 0) {
+        Warning("%s: invalid language '%s'", gCurrentConfigFile, pValue);
+        return False;
+    } else {
+        ((Language_Def*) pData)[pIndex] = match;
+        return True;
+    }
+}
+
+/** Parse score method into an array of ScoreMethod_Def. For use with
+    Tokenize. */
+static Boolean
+parseScoreMethod(const ConfigItem_Struct* pItem,
+                 char* pValue, int pIndex, void* pData)
+{
+    int match = ListMatch(pValue, "None Compatible");
+    if (match < 0) {
+        Warning("%s: invalid scoring method '%s'", gCurrentConfigFile, pValue);
+        return False;
+    } else {
+        ((ScoreMethod_Def*) pData)[pIndex] = match;
+        return True;
+    }
+}
+
+/** Parse build queue method into an (array of) BuildQueue_Def. For use
+    with Tokenize. */
+static Boolean
+parseBuildQueue(const ConfigItem_Struct* pItem,
+                 char* pValue, int pIndex, void* pData)
+{
+    int match = ListMatch(pValue, "PALs Fifo PBPs");
+    if (match < 0) {
+        Warning("%s: invalid build queue mode '%s'", gCurrentConfigFile, pValue);
+        return False;
+    } else {
+        ((BuildQueue_Def*) pData)[pIndex] = match;
+        return True;
+    }
+}
+
+/** Read String-type option. Only for `GameName', so far. Unlike for
+    other options, we do not accept comments or commas in string
+    options, to allow for things like `GameName = Game #3'. */
+static Boolean
+readString(const struct ConfigItem_Struct* pItem, char* pValue)
+{
+    Uns16  n = pItem->mCount - 1;
+    size_t l = strlen(pValue);
+    if (l > n) {
+        Warning("%s: assignment to '%s' exceeds string length", gCurrentConfigFile, pItem->mName);
+        l = n;
+    }
+
+    memset((char*)gConfigInfo + pItem->mOffset, 0, pItem->mCount);
+    memcpy((char*)gConfigInfo + pItem->mOffset, pValue, l);
+    return True;
+}
+
+static Boolean
+readUns32(const struct ConfigItem_Struct* pItem, char* pValue)
+{
+    Int32 lData[CF_MAX_ARRAY_SIZE];
+    Uns32* lOption = (Uns32*) ((char*)gConfigInfo + pItem->mOffset);
+    int i;
+
+    if (!Tokenize(pItem, pValue, parseInteger, &lData))
+        return False;
+    for (i = 0; i < pItem->mCount; ++i)
+        lOption[i] = lData[i];
+    return True;
+}
+
+static Boolean
+readUns16(const struct ConfigItem_Struct* pItem, char* pValue)
+{
+    Int32 lData[CF_MAX_ARRAY_SIZE];
+    Int16* lOption = (Int16*) ((char*)gConfigInfo + pItem->mOffset);
+    int i;
+
+    if (!Tokenize(pItem, pValue, parseInteger, &lData))
+        return False;
+    for (i = 0; i < pItem->mCount; ++i)
+        lOption[i] = lData[i];
+    return True;
+}
+
+static Boolean
+readInt16(const struct ConfigItem_Struct* pItem, char* pValue)
+{
+    Int32 lData[CF_MAX_ARRAY_SIZE];
+    Int16* lOption = (Int16*) ((char*)gConfigInfo + pItem->mOffset);
+    int i;
+
+    if (!Tokenize(pItem, pValue, parseInteger, &lData))
+        return False;
+    for (i = 0; i < pItem->mCount; ++i)
+        lOption[i] = lData[i];
+    return True;
+}
+
+/* FIXME: this one's the same as above */
 static const char *
 languageName(Language_Def pLanguage)
 {
-  static const char *lLang[] = {
-    "English",
-    "German",
-    "French",
-    "Spanish",
-    "Italian",
-    "Dutch",
-    "Russian",
-    "Estonian"
-  };
-
-  return lLang[pLanguage];
+    static const char *lLang[] = {
+        "English",
+        "German",
+        "French",
+        "Spanish",
+        "Italian",
+        "Dutch",
+        "Russian",
+        "Estonian"
+    };
+    return lLang[pLanguage];
 }
 
-/** Check assignment for a valid parameter value. Boolean-type
-    assignments need not be checked since they've already been
-    verified by ListMatch.
-    \param ix index into config.hi (number of config option)
-    \param val desired value for that option
-    \internal */
-static int
-checkValue(Uns16 ix, long val)
+/** Assign one option. */
+static Boolean
+DoAssignOption(int pOptInd, char* pValue)
 {
-  static struct {
-    long minval;
-    long maxval;
-  } sCheck[CF_NumItems] = {
-#define CFDefine(name, member, num, type, def, MA, Min, Max) { Min, Max },
-#include "config.hi"
-  };
-  passert(ix < CF_NumItems);
-  return (val >= sCheck[ix].minval AND val <= sCheck[ix].maxval);
+    static const char SEPARATORS[] = " \t\r\032";
+    const ConfigItem_Struct* lItem = &sConfigDef[pOptInd];
+
+    pValue += strspn(pValue, SEPARATORS);
+    if (*pValue == '$') {
+        /* It is a reference */
+        char* lEnd = ++pValue;
+        char* p;
+        const ConfigItem_Struct* lRef;
+        int   lRefIndex;
+
+        while (*lEnd && isalnum(*lEnd))
+            ++lEnd;
+        p = lEnd + strspn(lEnd, SEPARATORS);
+        if (*p && *p != '#') {
+            Warning("%s: syntax error in reference for option '%s'",
+                  gCurrentConfigFile, lItem->mName);
+            return False;
+        }
+        *lEnd = 0;
+        lRefIndex = lookupOptionByName(pValue);
+        if (lRefIndex < 0) {
+            Warning("%s: unknown option name '%s'", gCurrentConfigFile, pValue);
+            return False;
+        }
+        lRef = &sConfigDef[lRefIndex];
+        if (lRef->mType != lItem->mType
+            || lRef->mCount != lItem->mCount
+            || lRef->mMin < lItem->mMin
+            || lRef->mMax > lItem->mMax)
+        {
+            Warning("%s: option '%s' and '%s' have incompatible types",
+                    gCurrentConfigFile, lItem->mName, pValue);
+            return False;
+        }
+        if (!sOptionSet[lRefIndex]) {
+            Warning("%s: option '%s' was not yet set", gCurrentConfigFile, pValue);
+            return False;
+        }
+        memcpy((char*) gConfigInfo + lItem->mOffset,
+               (char*) gConfigInfo + lRef->mOffset,
+               lItem->mCount * sConfigItemSize[lItem->mType]);
+        return True;
+    }
+
+    switch(lItem->mType) {
+     case CFType_Uns16:
+        return readUns16(lItem, pValue);
+     case CFType_Int16:
+        return readInt16(lItem, pValue);
+     case CFType_Uns32:
+        return readUns32(lItem, pValue);
+     case CFType_Boolean:
+        return Tokenize(lItem, pValue, parseBoolean,
+                        (char*) gConfigInfo + lItem->mOffset);
+     case CFType_Language_Def:
+        return Tokenize(lItem, pValue, parseLanguage,
+                        (char*) gConfigInfo + lItem->mOffset);
+     case CFType_ScoreMethod_Def:
+        return Tokenize(lItem, pValue, parseScoreMethod,
+                        (char*) gConfigInfo + lItem->mOffset);
+     case CFType_String:
+        return readString(lItem, pValue);
+     case CFType_BuildQueue_Def:
+        return Tokenize(lItem, pValue, parseBuildQueue,
+                        (char*) gConfigInfo + lItem->mOffset);
+     case CFType_Tristate:
+        return Tokenize(lItem, pValue, parseTristate,
+                        (char*) gConfigInfo + lItem->mOffset);
+     case CFType_MAX:
+        return False;
+    }
+    return False;
 }
 
-/** true while DoDefaultAssignments is active.
-    When this variable is true, we don't print out any errors w.r.t.
-    assigning to obsolete variables
-    \internal */
-static Boolean gAssigningDefaults = False;
-
-/** Assign default values to config options. \internal */
+/** Assign default values to all config options that were not assigned
+    by the user. */
 static void
 DoDefaultAssignments(void)
 {
-  int ix;
-  char defstr[1024];
+    int i, j;
+    char defstr[1024];
+    for (i = 0; i < CF_NumItems; ++i) {
+        if (sOptionSet[i])
+            continue;
+        strcpy(defstr, sConfigDef[i].mDefault);
+        DoAssignOption(i, defstr);
 
-  gAssigningDefaults = True;
-
-  for (ix = 0; ix < CF_NumItems; ix++) {
-    strcpy(defstr, Defaults[ix]);
-    DoAssignment(Names[ix], defstr, 0);
-  }
-  memset(UserSet, 0, sizeof(UserSet));
-
-  gAssigningDefaults = False;
+        if (sConfigDef[i].mFlags & CFOPT_Obsolete)
+            continue;
+        if ((j = sConfigDef[i].mDepend) != 0) {
+            /* omit warning for some cases */
+            int lDepOpt = j / 2;
+            if (lDepOpt == 0)
+                continue;
+            if (*(Boolean*)((char*)gConfigInfo + sConfigDef[lDepOpt-1].mOffset) == (j & 1))
+                continue;
+        }
+        Warning("%s: A default value will be used for '%s'",
+                gCurrentConfigFile, sConfigDef[i].mName);
+    }
 }
 
-/** Return address of specified PConfig key.
-    Usage as `if (*(Boolean*)PConfigValueFromName("AllowAlliedChunneling")))'
-    When programs use this function instead of directly accessing gPconfigInfo,
-    pdk can be turned into a DLL eventually. */
-void*
-PConfigValueFromName(const char* name)
-{
-  int ix;
-  for (ix = 0; ix < CF_NumItems; ix++) {
-    if (!stricmp(Names[ix], name))
-      return (char*)gPconfigInfo + Pos[ix];
-  }
-  return 0;
-}
-
-/** Assign one config option. This is the configAssignment_Func used
-    to parse pconfig.src. \internal */
+/** Assign one config option. For use with ConfigFileReader. */
 static Boolean
-DoAssignment(const char *name, char *val, const char *lInputLine)
+DoAssignment(const char *name, char *val, const char *pInputLine)
 {
-  Uns16 ix;
+    int lOptInd;
 
-  if (name EQ 0 OR val EQ 0)
+    (void) pInputLine;
+
+    if (!name)
+        return True;
+
+    lOptInd = lookupOptionByName(name);
+    if (lOptInd < 0)
+        return False;           /* unknown option */
+
+    if (sOptionSet[lOptInd])
+        return False;           /* option being assigned twice */
+
+    if (!DoAssignOption(lOptInd, val))
+        return False;
+    sOptionSet[lOptInd] = 1;
     return True;
-
-  (void) lInputLine;
-
-  for (ix = 0; ix < CF_NumItems; ix++) {
-    if (!stricmp(Names[ix], name))
-      break;
-  }
-  if (ix >= CF_NumItems) {
-    Warning("%s: Parameter '%s' is not recognized", gCurrentConfigFile, name);
-    return False;
-  }
-
-  if (!gAssigningDefaults AND UserSet[ix]) {
-    Warning("%s: Parameter '%s' is being assigned twice", gCurrentConfigFile,
-            Names[ix]);
-    return False;
-  }
-
-  UserSet[ix] = True;
-
-  /* Check for obsolete parameters */
-  if (!gAssigningDefaults) {
-    switch (ix) {
-    case 10:                   /* old TaxRate */
-    case 158:                  /* old ColFighterSweepRate */
-    case 159:                  /* old ColFighterSweepRange */
-      Warning("%s: the '%s' parameter is obsolete", gCurrentConfigFile, Names[ix]);
-      return False;
-
-    default:
-      break;
-    }
-  }
-
-  switch (Types[ix]) {
-  case CFType_Uns8:
-    return readUns8(ix, val);
-  case CFType_Uns16:
-    return readUns16(ix, val);
-  case CFType_Int16:
-    return readInt16(ix, val);
-  case CFType_Uns32:
-    return readUns32(ix, val);
-  case CFType_Boolean:
-    return readBooleanType(ix, val);
-  case CFType_Language_Def:
-    return readLanguageType(ix, val);
-  case CFType_ScoreMethod_Def:
-    return readScoreMethodType(ix, val);
-  case CFType_char:
-    return readCharType(ix, val);
-  case CFType_BuildQueue_Def:
-    return readBuildQueueType(ix, val);
-  default:
-    passert(0);
-  }
-
-  return True;
 }
 
-static int
-checkEOLGarbage(void)
-{
-  char *p;
-
-  p = strtok(0, ", \t");
-
-  if (p == 0)
-    return 1;
-
-  if (*p == '#')
-    return 1;
-
-  Warning("%s: extraneous data beyond assignment", gCurrentConfigFile);
-  return 0;
-}
-
+/** Set all options to "unset". */
 static void
-killComment(char* pString)
+ClearConfig(void)
 {
-    char* p = strchr(pString, '#');
-    if (p)
-        *p = 0;
+    int i;
+    for (i = 0; i < CF_NumItems; ++i)
+        sOptionSet[i] = 0;
 }
 
-static int
-getLong(char *str, long *retval, Boolean pAllowEOL)
-{
-  char *endptr;
-  char *p;
-
-  p = strtok(str, ", \t");
-  if (p EQ 0) {
-    if (!pAllowEOL) {
-      Warning("%s: not enough elements in assignment", gCurrentConfigFile);
-    }
-    return 0;
-  }
-
-  *retval = strtol(p, &endptr, 0);
-  if (*endptr NEQ 0) {
-    Warning("%s: illegal numeric value '%s'", gCurrentConfigFile, str);
-    return 0;
-  }
-  return 1;
-}
-
-static int
-readUns8(Uns16 ix, char *val)
-{
-  long uval;
-  Uns16 n = Elements[ix];
-  Uns16 i;
-  Boolean lAllowEOL = gAllowMA[ix];
-  Boolean lDoMA = False;
-
-  killComment(val);
-  for (i = 0; i < n; i++) {
-    if (!lDoMA) {
-      lAllowEOL = (i EQ 1) ? True : False;
-      if (!getLong(val, &uval, lAllowEOL)) {
-        if (!lAllowEOL)
-          return 0;
-
-        lDoMA = True;
-      }
-    }
-
-    if (!lDoMA) {
-      val = 0;
-      if (uval < 0 OR uval > 255) {
-        Warning("%s: illegal 8-bit quantity '%ld'", gCurrentConfigFile, uval);
-        return 0;
-      }
-      if (!checkValue(ix, uval))
-        return 0;
-    }
-
-    *(Uns8 *) (Data + Pos[ix] + i * sizeof(Uns8)) = (Uns8) uval;
-  }
-
-  return checkEOLGarbage();
-}
-
-static int
-readUns16(Uns16 ix, char *val)
-{
-  long uval;
-  Uns16 n = Elements[ix];
-  Uns16 i;
-  Boolean lAllowEOL = gAllowMA[ix];
-  Boolean lDoMA = False;
-
-  killComment(val);
-  for (i = 0; i < n; i++) {
-    if (!lDoMA) {
-      lAllowEOL = (i EQ 1) ? True : False;
-      if (!getLong(val, &uval, lAllowEOL)) {
-        if (!lAllowEOL)
-          return 0;
-
-        lDoMA = True;
-      }
-    }
-
-    if (!lDoMA) {
-      val = 0;
-      if (uval < 0 OR uval > 65535U) {
-        Warning("%s: illegal 16-bit unsigned quantity '%ld'", gCurrentConfigFile,
-                uval);
-        return 0;
-      }
-      if (!checkValue(ix, uval))
-        return 0;
-    }
-
-    *(Uns16 *) (Data + Pos[ix] + i * sizeof(Uns16)) = (Uns16) uval;
-  }
-
-  return checkEOLGarbage();
-}
-
-static int
-readInt16(Uns16 ix, char *val)
-{
-  long uval;
-  Uns16 n = Elements[ix];
-  Uns16 i;
-  Boolean lAllowEOL = gAllowMA[ix];
-  Boolean lDoMA = False;
-
-  killComment(val);
-  for (i = 0; i < n; i++) {
-    if (!lDoMA) {
-      lAllowEOL = (i EQ 1) ? True : False;
-      if (!getLong(val, &uval, lAllowEOL)) {
-        if (!lAllowEOL)
-          return 0;
-
-        lDoMA = True;
-      }
-    }
-
-    if (!lDoMA) {
-      val = 0;
-      if (uval < -32767 OR uval > 32767) {
-        Warning("%s: illegal 16-bit signed quantity '%ld'", gCurrentConfigFile, uval);
-        return 0;
-      }
-      if (!checkValue(ix, uval))
-        return 0;
-    }
-
-    *(Int16 *) (Data + Pos[ix] + i * sizeof(Int16)) = (Int16) uval;
-  }
-
-  return checkEOLGarbage();
-}
-
-static int
-readUns32(Uns16 ix, char *val)
-{
-  long uval;
-  Uns16 n = Elements[ix];
-  Uns16 i;
-  Boolean lAllowEOL = gAllowMA[ix];
-  Boolean lDoMA = False;
-
-  killComment(val);
-  for (i = 0; i < n; i++) {
-    if (!lDoMA) {
-      lAllowEOL = (i EQ 1) ? True : False;
-      if (!getLong(val, &uval, lAllowEOL)) {
-        if (!lAllowEOL)
-          return 0;
-
-        lDoMA = True;
-      }
-    }
-
-    if (!lDoMA) {
-      val = 0;
-
-      if (!checkValue(ix, uval))
-        return 0;
-    }
-    *(Uns32 *) (Data + Pos[ix] + i * sizeof(Uns32)) = (Uns32) uval;
-  }
-
-  return checkEOLGarbage();
-}
-
-static int
-readBooleanType(Uns16 ix, char *val)
-{
-  Uns16 n = Elements[ix];
-  Uns16 i;
-  char *p;
-  Boolean lDoMA = False;
-  int match;
-
-  killComment(val);
-  for (i = 0; i < n; i++) {
-    if (!lDoMA) {
-      p = strtok(val, ", \t");
-      val = 0;
-
-      if (p EQ 0) {
-        if (i EQ 1 AND gAllowMA[ix]) {
-          lDoMA = True;
-        } else {
-          Warning("%s: not enough elements in assignment", gCurrentConfigFile);
-          return 0;
-        }
-      }
-
-      if (!lDoMA) {
-        match = ListMatch(p, "False True No Yes"); /* order is important */
-        if (match < 0) {
-          Warning("%s: illegal boolean parameter '%s'", gCurrentConfigFile, p);
-          return 0;
-        }
-        if (match > 1)
-          match -= 2;           /* Convert no/yes to false/true */
-      }
-    }
-
-    *(Boolean *) (Data + Pos[ix] + i * sizeof(Boolean)) = (Boolean) match;
-  }
-
-  return checkEOLGarbage();
-}
-
-static int
-readLanguageType(Uns16 ix, char *val)
-{
-  Uns16 n = Elements[ix];
-  Uns16 i;
-  char *p;
-  int match;
-  Boolean lDoMA = False;
-
-  killComment(val);
-  for (i = 0; i < n; i++) {
-    if (!lDoMA) {
-      p = strtok(val, ", \t");
-      val = 0;
-
-      if (p == 0) {
-        if (i EQ 1 AND gAllowMA[ix]) {
-          lDoMA = True;
-        } else {
-          Warning("%s: not enough elements in assignment", gCurrentConfigFile);
-          return 0;
-        }
-      }
-
-      if (!lDoMA) {
-        /* The order of languages in the following list is important and must 
-           match the order of definitions in strlang.h */
-        match =
-              ListMatch(p,
-              "ENglish German French Spanish Italian Dutch Russian EStonian");
-
-        if (match < 0) {
-          Warning("%s: illegal language '%s'", gCurrentConfigFile, p);
-          return 0;
-        }
-      }
-    }
-    *(Language_Def *) (Data + Pos[ix] + i * sizeof(Language_Def)) =
-          (Language_Def) match;
-  }
-
-  return checkEOLGarbage();
-}
-
-static int
-readBuildQueueType(Uns16 ix, char* val)
-{
-    /* I think this one's overkill as we always parse one item only. */
-    Uns16 n = Elements[ix];
-    Uns16 i;
-    char *p;
-    int match;
-    
-    killComment(val);
-    for (i=0; i<n; i++) {
-        p = strtok(val, ", \t");
-        val = 0;
-
-        if (p == 0) {
-            Error("%s: not enough elements in assignment", CONFIG_FILE);
-            return 0;
-        }
-
-        /* The order of methods in the following list is important and
-           must match the order of definitions in pconfig.h */
-        match = ListMatch(p, "PALs Fifo PBPs");
-
-        if (match < 0) {
-            Error("%s: invalid build queue mode '%s'", CONFIG_FILE, p);
-            return 0;
-        }
-        *(BuildQueue_Def *)(Data + Pos[ix] + i*sizeof(BuildQueue_Def)) = (BuildQueue_Def)match;
-    }
-
-    return checkEOLGarbage();
-}
-
-static int
-readScoreMethodType(Uns16 ix, char *val)
-{
-  Uns16 n = Elements[ix];
-  Uns16 i;
-  char *p;
-  int match;
-
-  killComment(val);
-  for (i = 0; i < n; i++) {
-    p = strtok(val, ", \t");
-    val = 0;
-
-    if (p == 0) {
-      Warning("%s: not enough elements in assignment", gCurrentConfigFile);
-      return 0;
-    }
-
-    /* The order of methods in the following list is important and must match 
-       the order of definitions in auxdata.c */
-    match = ListMatch(p, "None Compatible");
-
-    if (match < 0) {
-      Warning("%s: illegal scoring method '%s'", gCurrentConfigFile, p);
-      return 0;
-    }
-    *(ScoreMethod_Def *) (Data + Pos[ix] + i * sizeof(ScoreMethod_Def)) =
-          (ScoreMethod_Def) match;
-  }
-
-  return checkEOLGarbage();
-}
-
-static int
-readCharType(Uns16 ix, char *val)
-{
-  Uns16 n = Elements[ix] - 1;
-
-  if (strlen(val) > n) {
-    Warning("%s: assignment to '%s' exceeds string length", gCurrentConfigFile,
-          Names[ix]);
-  }
-  n = min(n, strlen(val));
-
-  memset(Data + Pos[ix], 0, Elements[ix]);
-  strncpy(Data + Pos[ix], val, n);
-
-  return 1;
-}
+/**************************** HConfig Reading ****************************/
 
 typedef struct {
     CFType   mType;             /*!< type (CFType_Boolean, CFType_Uns16, CFType_Uns32) */
@@ -807,7 +754,7 @@ typedef struct {
 } Hconfig_Import_Struct;
 
 static Hconfig_Import_Struct gHconfigImport[] = {
-#define TCDefine(type, count, offset, name)  { CFType_ ## type, count, offset, CFI_ ## name },
+#define TCDefine(type, count, offset, name)  { CFType_ ## type, count, offset, CF_ ## name },
 #include "tconfig.hi"
 #undef TCDefine
 };
@@ -831,10 +778,10 @@ Read_THost_HConfig_File(void)
   if (lConfigFile == NULL)
     return IO_FAILURE;
 
-  Data = (char *) gConfigInfo;
   gCurrentConfigFile = HCONFIG_FILE;
 
-  DoDefaultAssignments();
+  ClearConfig();
+/*  DoDefaultAssignments();*/
 
   lBuffer = MemAlloc(THOST_HCONFIG_SIZE);
   lSize = fread(lBuffer, 1, THOST_HCONFIG_SIZE, lConfigFile);
@@ -872,23 +819,14 @@ Read_THost_HConfig_File(void)
     }
 
     /* lPtr now is a complete assignment string. */
-    switch(Types[lItem->mPIndex]) {
-     case CFType_Uns16:
-        if (!readUns16(lItem->mPIndex, lValue))
-          lRes = IO_FAILURE;
-        break;
-     case CFType_Uns32:
-        if (!readUns32(lItem->mPIndex, lValue))
-          lRes = IO_FAILURE;
-        break;
-     case CFType_Boolean:
-        if (!readBooleanType(lItem->mPIndex, lValue))
-          lRes = IO_FAILURE;
-        break;
-     default:;
+    if (!DoAssignOption(lItem->mPIndex, lValue)) {
+      Warning("HCONFIG.HST value for `%s' not accepted",
+              sConfigDef[lItem->mPIndex].mName);
+      lRes = IO_FAILURE;
     }
-  next_item:
+   next_item:
   }
+  DoDefaultAssignments();
   if (lRes == IO_FAILURE)
     Warning("%s: some options had invalid values and were ignored", HCONFIG_FILE);
 
