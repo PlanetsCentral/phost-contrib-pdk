@@ -74,7 +74,8 @@ main(int argc, char *argv[])
 
   InitPHOSTLib();
 
-/*    if (! ReadGlobalData()) exit(1); */
+  if (!ReadGlobalData())
+    exit(1);
   if (!ReadHostData())
     exit(1);
 

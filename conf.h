@@ -18,6 +18,7 @@
 #define LITTLE_ENDIAN
 #define HAVE_ANSI_INCLUDES
 #define FILES_HAVE_CRLF
+#undef __MSDOS__
 #endif
 
 #ifdef _SCO_COFF
@@ -336,6 +337,14 @@
 #define LITTLE_ENDIAN
 #define HAVE_ANSI_INCLUDES
 #define FILES_HAVE_CRLF
+#endif
+
+#ifndef SYSTEM_ID
+/*
+ *  If your system is not recognized, compilation aborts here.
+ *  Add the appropriate #defines then.
+ */
+# error "System not recognized. Check `conf.h'."
 #endif
 
 #endif /* _CONF_H_ */

@@ -11,7 +11,11 @@ typedef enum {
   DOSCVT_Boolean = 3            /* same as an enum */
 } DOSCVT_Def;
 
-typedef struct {
+/* This structure must have both a structure tag and a typedef name,
+   so that it can be forward-declared in phostpdk.h. This way, people
+   who do not want the DOS I/O functions need not pull them into their
+   namespace. --streu */
+typedef struct DOSConvertElement {
   size_t mOffset;
   Uns16 mSize;                  /* for char arguments */
   DOSCVT_Def mType;
@@ -32,6 +36,11 @@ extern Boolean DOSWriteStruct(const DOSConvertElement * pStruct,
       Uns16 pNumElements, const void *pData, FILE * pOutFile);
 extern Boolean DOSReadStruct(const DOSConvertElement * pStruct,
       Uns16 pNumElements, void *pData, FILE * pInFile);
+extern Uns16 DOSStructSize(const DOSConvertElement *pStruct, Uns16 pNumElem);
+extern Boolean DOSStructConvert(const DOSConvertElement *pStruct,
+      Uns16 pNumElements, const void *pSrc, void *pDst);
+extern void UnixConvertStruct(const DOSConvertElement *pStruct,
+      Uns16 pNumElements, const void *pData, void *pDst);
 
 /* Some structure definitions */
 extern const DOSConvertElement ShipStruct_Convert[];

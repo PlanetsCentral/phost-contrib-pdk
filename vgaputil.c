@@ -390,6 +390,9 @@ MemRealloc(void *pPtr, size_t pAmount)
 {
   void *lPtr;
 
+  if(pPtr EQ 0)
+    return MemAlloc(pAmount);    /* like ANSI C does it */
+
   if (gAllocFailed)
     quickExit();
 

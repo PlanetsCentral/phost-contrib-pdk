@@ -248,6 +248,11 @@ extern "C" {
     NumLanguages
   } Language_Def;
 
+  typedef enum {
+    UTIL_Ext,
+    UTIL_Dat
+  } UtilMode_Def;
+
   typedef struct {
     Uns16 RecycleRate,          /*!< % of ore recovered from colonizing
                                    ships */
@@ -1213,6 +1218,21 @@ extern "C" {
   extern void PutWormholeWaypointStartY(Uns16 pID, Uns16 pY);
   extern void PutWormholeWaypointEndX(Uns16 pID, Uns16 pX);
   extern void PutWormholeWaypointEndY(Uns16 pID, Uns16 pY);
+
+/*
+ *  util.dat writing
+ */
+  struct DOSConvertElement;
+  extern void SetUtilMode(UtilMode_Def pDat);
+  extern Boolean PutUtilRecordSimple(RaceType_Def pRace, Uns16 pRecordId,
+                                     Uns16 pSize, void* pData);
+  extern Boolean PutUtilRecordStruct(RaceType_Def pRace, Uns16 pRecordId,
+                                     void* pData, const struct DOSConvertElement *pStruct,
+                                     Uns16 pNumElements);
+  extern Boolean PutUtilRecord(RaceType_Def pRace, Uns16 pRecordId, Uns16 pCount,
+                               Uns16* pSizes, void** pData);
+  extern Boolean PutUtilFileTransfer(RaceType_Def pRace, const char* pName,
+                                     Boolean pText, Uns16 pSize, void* pData);
 
 #ifdef __cplusplus
 }

@@ -291,6 +291,178 @@ bad_write:
   return False;
 }
 
+static
+void DOS16Convert(const void *pData, Uns16 pNum, void *pOut)
+{
+#ifdef LITTLE_ENDIAN
+  passert(pData NEQ NULL);
+  passert(pOut NEQ NULL);
+  passert(pNum NEQ 0);
+  
+  memcpy(pOut, pData, pNum*sizeof(Uns16));
+#else
+  Uns16 *pDst = pOut;
+  const Uns8  *pSrc = pData;
+  Uns16 lVal;
+  
+  passert(pData NEQ NULL);
+  passert(pOut NEQ NULL);
+  passert(pNum NEQ 0);
+  
+  while (pNum--) {
+    lVal  = (Uns16) *pSrc++;
+    lVal |= ((Uns16) (*pSrc++)) << 8;
+    memcpy(pDst, &lVal, sizeof(Uns16));
+    pDst++;
+  }
+#endif
+}
+
+/* This routine is used to read 32-bit DOS data into the target Unix format */
+
+static void
+DOS32Convert(const void *pData, Uns16 pNum, void *pOut)
+{
+#ifdef LITTLE_ENDIAN
+  memcpy(pOut, pData, pNum*sizeof(Uns32));
+#else
+  Uns32 *pDst = pOut;
+  const Uns8  *pSrc = pData;
+  Uns32 lVal;
+  
+  while (pNum--) {
+    lVal  = (Uns32) *pSrc++;
+    lVal |= ((Uns32) (*pSrc++)) << 8;
+    lVal |= ((Uns32) (*pSrc++)) << 16;
+    lVal |= ((Uns32) (*pSrc++)) << 24;
+    memcpy(pDst, &lVal, sizeof(Uns32));
+    pDst++;
+  }
+#endif
+}
+
+/* This routine converts a DOS-sized structure to the target format. */
+Boolean
+DOSStructConvert(const DOSConvertElement *pStruct, Uns16 pNumElements,
+                 const void *pSrc, void *pDst)
+{
+  Uns16 lCount;
+  
+  for (lCount = 0; lCount < pNumElements; lCount++) {
+    char *lData = ((char *)pDst) + pStruct[lCount].mOffset;
+    
+    switch (pStruct[lCount].mType) {
+    case DOSCVT_char:
+      memcpy(lData, (const char *)pSrc, pStruct[lCount].mSize);
+      pSrc = ((char *)pSrc) + pStruct[lCount].mSize;
+      break;
+      
+    case DOSCVT_enum:
+      /* In DOS, enums are word-sized (2 bytes). Ours may be bigger
+         so we must set it to 0 to ensure that higher order words aren't
+         garbled. This is important for checksum generation, too. */
+      {
+        DOSCVT_Def lJunk = 0;
+        lJunk = ReadDOSUns16(pSrc);
+        memcpy(lData, &lJunk, sizeof(lJunk));
+      }
+      pSrc = ((Uns16 *)pSrc) + 1;
+      break;
+       
+    case DOSCVT_Uns16:
+      DOS16Convert(pSrc, 1, lData);
+      pSrc = ((Uns16 *)pSrc) + 1;
+      break;
+        
+    case DOSCVT_Uns32:
+      DOS32Convert(pSrc, 1, lData);
+      pSrc = ((Uns32 *)pSrc) + 1;
+      break;
+      
+    default:
+      passert(0);
+    }
+  }
+  
+  return True;
+}
+
+/* This routine converts a Unix structure into DOS format */
+
+void
+UnixConvertStruct(const DOSConvertElement *pStruct, Uns16 pNumElements,
+                  const void *pData, void *pDst)
+{
+  Uns16 lCount;
+  char *lDst = (char *) pDst;
+  
+  for (lCount = 0; lCount < pNumElements; lCount++) {
+    char *lData = ((char *)pData) + pStruct[lCount].mOffset;
+    
+    switch (pStruct[lCount].mType) {
+    case DOSCVT_char:
+      memcpy(lDst, lData, pStruct[lCount].mSize);
+      lDst += pStruct[lCount].mSize;
+      break;
+       
+    case DOSCVT_Uns16:
+      *(Uns16 *)lDst = *(Uns16 *)lData;
+      EndianSwap16(lDst, 1);
+      lDst += sizeof(Uns16);
+      break;
+      
+    case DOSCVT_Uns32:
+      *(Uns32 *)lDst = *(Uns32 *)lData;
+      EndianSwap32(lDst, 1);
+      lDst += sizeof(Uns32);
+      break;
+        
+    case DOSCVT_enum:
+      *(Uns16 *)lDst = *(DOSCVT_Def *)lData;
+      EndianSwap16(lDst, 1);
+      lDst += sizeof(Uns16);
+      break;
+      
+    default:
+      passert(0);
+    }
+  }
+}
+
+/* This routine returns the size in bytes of an equivalent DOS structure. */
+
+Uns16
+DOSStructSize(const DOSConvertElement *pStruct, Uns16 pNumElem)
+{
+  Uns16 lCount;
+  Uns16 lSize = 0;
+  
+  if (pStruct EQ 0 OR pNumElem EQ 0)
+    return 0;
+  
+  for (lCount = 0; lCount < pNumElem; lCount++) {
+    switch (pStruct[lCount].mType) {
+    case DOSCVT_char:
+      lSize += pStruct[lCount].mSize;
+      break;
+      
+    case DOSCVT_enum:
+    case DOSCVT_Uns16:
+      lSize += 2;
+      break;
+        
+    case DOSCVT_Uns32:
+      lSize += 4;
+      break;
+      
+    default:
+      passert(0);
+    }
+  }
+  
+  return lSize;
+}
+
 #pragma warn .par
 
 /*
