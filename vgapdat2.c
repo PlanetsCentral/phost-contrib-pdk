@@ -266,6 +266,167 @@ ShipTransferShip(Uns16 pID)
   return (GetShip(pID)->TransferShip);
 }
 
+Uns16 
+ShipTotalMass(Uns16 sID)
+{
+  Uns16 mass=0;
+
+  passert((sID >= 1) AND(sID <= SHIP_NR));
+ 
+  mass = HullMass(ShipHull(sID));
+
+  if (ShipBeamNumber(sID)>0) mass += ShipBeamNumber(sID)*BeamMass(ShipBeamType(sID));
+  if (ShipTubeNumber(sID)>0) mass += ShipTubeNumber(sID)*TorpTubeMass(ShipTorpType(sID));
+
+  mass += ShipCargo(sID,NEUTRONIUM);
+  mass += ShipCargo(sID,TRITANIUM);
+  mass += ShipCargo(sID,DURANIUM);
+  mass += ShipCargo(sID,MOLYBDENUM);
+  mass += ShipCargo(sID,COLONISTS);
+  mass += ShipCargo(sID,SUPPLIES);
+  mass += ShipAmmunition(sID);
+
+  return mass;
+}
+
+Uns16 
+ShipTravelMass(Uns16 sID)
+{
+  Uns16 mass=0;
+
+  passert((sID >= 1) AND(sID <= SHIP_NR));
+  mass = ShipTotalMass(sID);
+
+  if (ShipMission(sID)==Tow)
+       if (IsShipExist(ShipTowTarget(sID)))
+       mass+=ShipTotalMass(ShipTowTarget(sID));
+
+  return mass;
+}
+
+Uns16 
+ShipCargoMass(Uns16 sID)
+{
+  Uns16 mass=0;
+
+  passert((sID >= 1) AND(sID <= SHIP_NR));
+
+  mass  = ShipCargo(sID,TRITANIUM);
+  mass += ShipCargo(sID,DURANIUM);
+  mass += ShipCargo(sID,MOLYBDENUM);
+  mass += ShipCargo(sID,COLONISTS);
+  mass += ShipCargo(sID,SUPPLIES);
+  mass += ShipAmmunition(sID);
+
+  return mass;
+}
+
+char *
+ShipMissionString(Uns16 sID, char *pBuffer)
+{
+
+  static char miss[21];
+  static char spm [21];
+  char *lPtr = pBuffer;
+  int mission,i;
+  Uns16 tmprace;
+
+  passert((sID >= 1) AND(sID <= SHIP_NR));
+  if (lPtr EQ NULL)
+    lPtr = miss;  
+    
+  mission=ShipMission(sID);
+  tmprace   =gPconfigInfo->PlayerRace[ShipOwner(sID)];
+
+  switch (tmprace)
+  {
+   case 1:  strcpy(spm,"Super Refit"); break; 	
+   case 2:  strcpy(spm,"Hissssss!"); break;
+   case 3:  strcpy(spm,"Super Spy"); break;
+   case 4:  strcpy(spm,"Pillage"); break;
+   case 5:  strcpy(spm,"Rob Ship"); break;
+   case 6:  strcpy(spm,"Repair Self"); break;
+   case 7:  strcpy(spm,"Web Mines"); break;
+   case 8:  strcpy(spm,"Dark Sense"); break;
+   case 9:  strcpy(spm,"Bld Fighters"); break;
+   case 10: strcpy(spm,"Grnd Attack"); break;
+   case 11: strcpy(spm,"Bld Fighters"); break;
+  }
+
+  switch (mission)
+  {
+   case 0:  strcpy(lPtr,"NoMission"); break;
+   case 1:  strcpy(lPtr,"Exploration"); break;
+   case 2:  strcpy(lPtr,"Mine Sweep"); break;
+   case 3:  strcpy(lPtr,"Lay Mines"); break;
+   case 4:  strcpy(lPtr,"KILL!!!"); break;
+   case 5:  strcpy(lPtr,"Sensor Sweep"); break;
+   case 6:  strcpy(lPtr,"Colonize"); break;
+   case 7:  strcpy(lPtr,"Tow"); break;
+   case 8:  strcpy(lPtr,"Intercept"); break;
+   case 9:  strcpy(lPtr,spm); break;
+   case 10: strcpy(lPtr,"Cloak"); break;
+   case 11: strcpy(lPtr,"Beam up Fuel"); break;
+   case 12: strcpy(lPtr,"Beam up Du"); break;
+   case 13: strcpy(lPtr,"Beam up Tr"); break;
+   case 14: strcpy(lPtr,"Beam up Mo"); break;
+   case 15: strcpy(lPtr,"Beam up Supp"); break;
+  }
+
+  for (i=0;i<50;i++) /* 50 - max external missions */
+   if (mission==i+gPconfigInfo->ExtMissionsStartAt)
+     sprintf(lPtr,"Ext. %2d I:%d T:%d",mission,ShipInterceptTarget(sID),ShipTowTarget(sID));
+
+  return lPtr;
+}
+
+Boolean 
+IsShipFCSpecial(Uns16 sID)
+{
+   char fc[4];
+ 
+  passert((sID >= 1) AND(sID <= SHIP_NR));
+
+   ShipFC(sID,fc);
+ 
+   if (strcmp(fc,"mkt")==0) return True;
+   if (strcmp(fc,"mdh")==0) return True;
+   if (strcmp(fc,"mdq")==0) return True;
+   if (strcmp(fc,"msc")==0) return True;
+   if (strcmp(fc,"alt")==0) return True;
+   if (strcmp(fc,"ald")==0) return True;
+   if (strcmp(fc,"alm")==0) return True;
+   if (strcmp(fc,"NAL")==0) return True;
+   if (strcmp(fc,"HYP")==0) return True;
+   if (strcmp(fc,"NTP")==0) return True;
+   if (strcmp(fc,"WRS")==0) return True;
+   if (strcmp(fc,"WRT")==0) return True;
+   if (strcmp(fc,"lfm")==0) return True;
+   if (strcmp(fc,"bdm")==0) return True;
+   if (strcmp(fc,"nat")==0) return True;
+   if (strcmp(fc,"nad")==0) return True;
+   if (strcmp(fc,"nam")==0) return True;
+   if (strcmp(fc,"cln")==0) return True;
+   if (strcmp(fc,"btt")==0) return True;
+   if (strcmp(fc,"btf")==0) return True;
+   if (strcmp(fc,"btm")==0) return True;
+   if (strcmp(fc,"pop")==0) return True;
+   if (strcmp(fc,"trg")==0) return True;
+   if (strcmp(fc,"nbr")==0) return True;
+   if (strcmp(fc,"gs1")==0) return True;
+   if (strcmp(fc,"gs2")==0) return True;
+   if (strcmp(fc,"gs3")==0) return True;
+   if (strcmp(fc,"gs4")==0) return True;
+   if (strcmp(fc,"gs5")==0) return True;
+   if (strcmp(fc,"gs6")==0) return True;
+   if (strcmp(fc,"gs7")==0) return True;
+   if (strcmp(fc,"gs8")==0) return True;
+   if (strcmp(fc,"gs9")==0) return True;
+   if (strcmp(fc,"gsa")==0) return True;
+   if (strcmp(fc,"gsb")==0) return True;
+   return False;
+}
+
 void
 PutShipOwner(Uns16 pID, RaceType_Def pOwner)
 {
