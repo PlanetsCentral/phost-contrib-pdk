@@ -1263,7 +1263,7 @@ void
 ReadCLOAKCFile(void)
 {
   Uns16 lShip;
-  FILE *lFile = OpenInputFile("cloakc.hst", GAME_DIR_ONLY);
+  FILE *lFile = OpenInputFile("cloakc.hst", GAME_DIR_ONLY | NO_MISSING_ERROR);
   Uns16 lStatus;
 
   if (lFile EQ 0) {

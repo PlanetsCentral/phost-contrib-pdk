@@ -33,7 +33,6 @@
 #define gAllPlanets                 T_0040
 #define gAllShips                   T_0041
 #define gAllBases                   T_0042
-#define enumPointer                 T_0043
 #define RawTurnTime                 T_0044
 #define RegisterCleanupFunction     T_0045
 #define EffRace                     T_0046

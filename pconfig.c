@@ -736,7 +736,7 @@ typedef struct {
     CFType   mType;             /*!< type (CFType_Boolean, CFType_Uns16, CFType_Uns32) */
     short    mCount;            /*!< number of items  */
     unsigned mHOffset;          /*!< offset into HCONFIG */
-    unsigned mPOffset;          /*!< number of Pconfig_Struct member (HCI_xxx) */
+    unsigned mPIndex;           /*!< number of Pconfig_Struct member (CFI_xxx) */
 } Hconfig_Import_Struct;
 
 static Hconfig_Import_Struct gHconfigImport[] = {
@@ -805,17 +805,17 @@ Read_THost_HConfig_File(void)
     }
 
     /* lPtr now is a complete assignment string. */
-    switch(lItem->mType) {
+    switch(Types[lItem->mPIndex]) {
      case CFType_Uns16:
-        if (!readUns16(lItem->mPOffset, lValue))
+        if (!readUns16(lItem->mPIndex, lValue))
           lRes = IO_FAILURE;
         break;
      case CFType_Uns32:
-        if (!readUns32(lItem->mPOffset, lValue))
+        if (!readUns32(lItem->mPIndex, lValue))
           lRes = IO_FAILURE;
         break;
      case CFType_Boolean:
-        if (!readBooleanType(lItem->mPOffset, lValue))
+        if (!readBooleanType(lItem->mPIndex, lValue))
           lRes = IO_FAILURE;
         break;
      default:;

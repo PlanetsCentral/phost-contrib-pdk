@@ -1,3 +1,26 @@
+Sun Aug 19 17:24:09 2001  Stefan  <Streu@gmx.de>
+
+	* enum.c: dynamically resize enumPointer. Renamed it to
+	newEnumPointer to have the compiler find places that were not
+	updated. The old version bombed when querying for more than
+	500 minefields. mscxtra.c contains these, too, but since
+	`MICROSQUISH' is never defined, we can probably dump these
+	anyway.
+
+Sat Aug 18 14:31:29 2001  Stefan  <Streu@gmx.de>
+
+	* pconfig.c (Read_THost_HConfig_File): when assigning PConfig
+ 	entries, use pconfig type, not hconfig. This explains the problem
+ 	from 25/Jul/2001.
+
+	* auxdata.c (ReadCLOAKCFile): do not complain when cloakc.hst
+	is missing
+
+Wed Jul 25 23:37:14 2001  Stefan  <Streu@gmx.de>
+
+	* tconfig.hi: types were wrong for two HCONFIG.HST entries
+	(why didn't it complain!?)
+
 Sat Jul 21 17:07:16 2001  Stefan  <Streu@gmx.de>
 
 	* pconfig.c (Read_THost_HConfig_File): new function

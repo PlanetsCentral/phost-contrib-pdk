@@ -1,4 +1,3 @@
-
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -26,29 +25,49 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "phostpdk.h"
 #include "private.h"
 
-/* This pointer points to memory returned by enumeration functions. It
-   is allocated to point to 500 Uns16 objects hence takes up about
-   1K. It's not worth dynamically sizing it. The elements of this list
-   are ID numbers of planets, ships, bases, etc. and a 0 element indicates
-   the end of the list. */
-Uns16 *enumPointer = 0;
+/** Pointer to memory for enumeration functions. This one is shared
+    between all the functions. This used to be statically sized to
+    500 objects, but that failed with CPNumMinefields>500 on things
+    like EnumerateMinesWithinRadius(2000,2000,5000). */
+static Uns16 *newEnumPointer = 0;
+
+/** Number of Uns16's at newEnumPointer */
+static Uns16 newEnumSize = 0;
+
+/** Current index. */
+static Uns16 newEnumIndex = 0;
 
 static void
 FreeEnumerations(void)
 {
-  MemFree(enumPointer);
-  enumPointer = 0;
+  MemFree(newEnumPointer);
+  newEnumPointer = 0;
+  newEnumSize = newEnumIndex = 0;
 }
 
+/** Initialize Enumerations. Call this before doing an enumeration. */
 static void
 InitEnumerations(void)
 {
-  if (enumPointer EQ 0) {
-    /* Add an extra element so we can insert a 0 to indicate end-of-list */
-    enumPointer = (Uns16 *) MemCalloc(SHIP_NR + 1, sizeof(Uns16));
-
+  if (! newEnumIndex) {
+    /* later on, we assume that newEnumPointer is non-NULL */
+    newEnumSize = SHIP_NR + 1;
+    newEnumPointer = (Uns16 *) MemCalloc(newEnumSize, sizeof(Uns16));
     RegisterCleanupFunction(FreeEnumerations);
   }
+  newEnumIndex = 0;
+}
+
+/** Push an item on the enumeration list. Resizes the list when needed. */
+static void
+PushEnum(Uns16 id)
+{
+  if (newEnumIndex >= newEnumSize) {
+    Uns16 lNewSize = newEnumSize + 500;
+    newEnumPointer = MemRealloc (newEnumPointer, lNewSize * sizeof(Uns16));
+    newEnumSize = lNewSize;
+  }
+  newEnumPointer[newEnumIndex++] = id;
 }
 
 /* Right now, all enumeration functions use drop-dead stupid algorithms
@@ -56,11 +75,14 @@ InitEnumerations(void)
    quickly and for 500 ships it really doesn't take too long. A better
    way of doing things is left for future work */
 
-/* This routine is called by:
-        DoWebDraining()
-        Ship scans at the end of host processing
+/** Enumerate ships within radius.
+    \param pX,pY    coordinates
+    \param pRadius  radius (circle)
+    \returns pointer to an array of Uns16 containing ship Ids,
+    zero-terminated. This pointer is shared between the EnumerateXXX
+    functions.
 
-   Optimizations:
+    Optimizations:
       For the purpose of this routine, an approximate radius is good
       enough. Thus, we don't really need a double-valued radius except that
       it is related to a minefield radius hence is naturally double. So we
@@ -69,24 +91,19 @@ InitEnumerations(void)
       calculations. Also, we compare absolute distances along the X and Y
       dimensions separately so we can quickly weed out most candidates.
 
-   Real Time Burden:
+    Real Time Burden:
       Using 500 random ship locations, running EnumerateShipsWithinRadius()
       for all 500 ships (i.e., 500 invocations of this routine) uses an
       average of 0.27 s on a 486/66 machine with coprocessor and 0.33 s
       without a coprocessor. Each ship was randomly placed within the
-      region [1500,1500]-[2500,2500].
-
-*/
-
+      region [1500,1500]-[2500,2500]. */
 #ifndef MICROSQUISH
 Uns16 *
 EnumerateShipsWithinRadius(Int16 pX, Int16 pY, double pRadius)
 {
   Uns16 lShip;
   Uns16 lRadius = (Uns16) (pRadius + 0.5);
-  Uns16 lIndex = 0;             /* Index into enumeration list */
-  Int16 lDistX,
-    lDistY;
+  Int16 lDistX, lDistY;
 
   InitEnumerations();
 
@@ -104,22 +121,21 @@ EnumerateShipsWithinRadius(Int16 pX, Int16 pY, double pRadius)
 
     if (((Int32) lDistX * lDistX + (Int32) lDistY * lDistY)
           <= ((Uns32) lRadius * lRadius)) {
-      enumPointer[lIndex++] = lShip;
+      PushEnum(lShip);
     }
   }
-  enumPointer[lIndex] = 0;
-  return enumPointer;
+  PushEnum(0);
+  return newEnumPointer;
 }
 
 #endif /* MICROSQUISH */
 
-/* This routine is called by (either directly or indirectly by
-   EnumerateShipsAtPlanet):
-       DoRobMission
-       doLoadTorps (starbase Load Torps mission)
-       doForceSurrender (starbase Force Surrender mission)
-       doRefuel (starbase Refuel mission)
-       doUnloadFreighters (starbase Unload Freighters mission)
+/** Enumerate ships at a particular place.
+    \param pX,pY    coordinates
+    \param pRadius  radius (circle)
+    \returns pointer to an array of Uns16 containing ship Ids,
+    zero-terminated. This pointer is shared between the EnumerateXXX
+    functions.
 
    Optimizations:
        none
@@ -128,14 +144,11 @@ EnumerateShipsWithinRadius(Int16 pX, Int16 pY, double pRadius)
        Using 500 random ship locations, running EnumerateShipsAt() for all
        500 ships uses about 0.16 seconds on a 486/66 machine (with or
        without a coprocessor). Each ship was randomly placed within the
-       region [1500,1500]-[2500,2500].
-*/
-
+       region [1500,1500]-[2500,2500]. */
 Uns16 *
 EnumerateShipsAt(Uns16 pX, Uns16 pY)
 {
   Uns16 lShip;
-  Uns16 lIndex = 0;             /* Index into enumeration list */
 
   InitEnumerations();
 
@@ -145,18 +158,21 @@ EnumerateShipsAt(Uns16 pX, Uns16 pY)
 
     if ((ShipLocationX(lShip) EQ pX)
           AND(ShipLocationY(lShip) EQ pY)) {
-      enumPointer[lIndex++] = lShip;
+      PushEnum(lShip);
     }
   }
-  enumPointer[lIndex] = 0;
-  return enumPointer;
+  PushEnum(0);
+  return newEnumPointer;
 }
 
-/* This routine is called by (either directly or through
-   EnumerateMinesCovering or EnumerateOverlappingMines):
-        DoMineSweeping
-        DoMineLaying
-
+/** Enumerate minefields within radius. A minefield is considered
+    to be within radius if at least one point of it is within radius.
+    \param pX,pY    coordinates
+    \param pRadius  distance
+    \returns pointer to an array of Uns16 containing minefield Ids,
+    zero-terminated. This pointer is shared between the EnumerateXXX
+    functions.
+    
    Optimizations:
         IsDistanceLTRadius is called to avoid taking unnecessary square roots.
         The absolute distance in X and Y directions is checked first to
@@ -169,22 +185,20 @@ EnumerateShipsAt(Uns16 pX, Uns16 pY)
         between 900 and 90000 (radii between 30 and 300), running
         EnumerateMinesWithinRadius() for all 500 ships uses about 0.33
         seconds on a 486/66 with coprocessor and about 5.8 seconds without
-        the coprocessor.
-*/
+        the coprocessor. */
 
 #ifndef MICROSQUISH
 Uns16 *
 EnumerateMinesWithinRadius(Int16 pX, Int16 pY, Uns16 pRadius)
 {
   Uns16 lMine;
-  Uns16 lIndex = 0;
   Uns16 lRadius;
-  Int16 lDistX,
-    lDistY;
+  Int16 lDistX, lDistY;
+  Uns16 lNum = GetNumMinefields();
 
   InitEnumerations();
 
-  for (lMine = 1; lMine <= GetNumMinefields(); lMine++) {
+  for (lMine = 1; lMine <= lNum; lMine++) {
     if (MinefieldUnits(lMine) EQ 0)
       continue;
 
@@ -200,22 +214,19 @@ EnumerateMinesWithinRadius(Int16 pX, Int16 pY, Uns16 pRadius)
 
     if (((Int32) lDistX * lDistX + (Int32) lDistY * lDistY)
           <= ((Uns32) lRadius * lRadius)) {
-      enumPointer[lIndex++] = lMine;
+      PushEnum(lMine);
     }
   }
-  enumPointer[lIndex] = 0;
-  return enumPointer;
+  PushEnum(0);
+  return newEnumPointer;
 }
 
 #endif /* ! MICROSQUISH */
 
-/* This routine is called by:
-        InitShipFormulas
-        RedeterminePlanetsOfOrbit
-
-   Basically, this routine is used to find planets of orbit -- once before
-   ships move and again after they move.
-
+/** Find planet at ship.
+    \returns Id of the planet where the specified ship is, or
+    zero if the ship is in free space.
+   
    Optimizations:
         none
 
@@ -223,17 +234,13 @@ EnumerateMinesWithinRadius(Int16 pX, Int16 pY, Uns16 pRadius)
         With 500 randomly placed ships on the region [1500,1500 - [2500,2500]
         and 500 randomly placed planets in the same region, calling
         FindPlanetAtShip() for all 500 ships uses about 0.05 seconds on
-        a 486/66, with or without a coprocessor.
-*/
-
+        a 486/66, with or without a coprocessor. */
 Uns16
 FindPlanetAtShip(Uns16 pShip)
 {
   Uns16 lPlanet;
   Uns16 pX = ShipLocationX(pShip);
   Uns16 pY = ShipLocationY(pShip);
-
-  InitEnumerations();
 
   for (lPlanet = 1; lPlanet <= PLANET_NR; lPlanet++) {
     if (!IsPlanetExist(lPlanet))
@@ -247,8 +254,11 @@ FindPlanetAtShip(Uns16 pShip)
   return 0;
 }
 
-/* This routine is called by:
-        doGravityWell       (movement function)
+/** Find planet that does gravity wells at the specified place.
+    That is the highest-id planet in range for gravity wells.
+    PConfig settings are taken into account: size of gravity wells,
+    round vs. square, wrap.
+    \returns planet Id, or zero
 
    Optimizations:
         IsDistanceLTRadius is called to avoid unnecesary square roots. The
@@ -259,18 +269,13 @@ FindPlanetAtShip(Uns16 pShip)
         With 500 ships placed randomly over the region [1500,1500] - [2500,2500]
         and 500 randomly placed planets over the same region, calling
         FindGravityPlanet() for all 500 ships uses about 0.11 seconds on
-        a 486/66 with or without a coprocessor.
-*/
-
+        a 486/66 with or without a coprocessor. */
 Uns16
 FindGravityPlanet(Int16 pX, Int16 pY)
 {
   Uns16 lPlanet;
-  Int16 lDistX,
-    lDistY;
+  Int16 lDistX, lDistY;
   Int16 lRange = gConfigInfo->GravityWellRange;
-
-  InitEnumerations();
 
   for (lPlanet = PLANET_NR; lPlanet >= 1; lPlanet--) {
     if (!IsPlanetExist(lPlanet))
@@ -295,9 +300,12 @@ FindGravityPlanet(Int16 pX, Int16 pY)
   return 0;
 }
 
-/* This routine is called by:
-        DoSensorSweep
-        doDarkSense
+/** Enumerate planets within radius.
+    \param pX,pY    coordinates
+    \param pRadius  radius (circle)
+    \returns pointer to an array of Uns16 containing planet Ids,
+    zero-terminated. This pointer is shared between the EnumerateXXX
+    functions.
 
    Optimizations:
         Absolute X and Y dimensions are checked in absolute value to
@@ -308,15 +316,11 @@ FindGravityPlanet(Int16 pX, Int16 pY)
         With 500 randomly spaced ships over the region [1500,1500]-[2500,2500]
         and 500 randomly placed planets over the same region, calling
         EnumeratePlanetsWithin() for all 500 ships uses about 0.27 seconds
-        on a 486/66 with or without a coprocessor.
-
-*/
-
+        on a 486/66 with or without a coprocessor. */
 Uns16 *
 EnumeratePlanetsWithin(Int16 pX, Int16 pY, Uns16 pRadius)
 {
   Uns16 lPlanet;
-  Uns16 lIndex = 0;
   Int16 lDistX,
     lDistY;
 
@@ -336,19 +340,26 @@ EnumeratePlanetsWithin(Int16 pX, Int16 pY, Uns16 pRadius)
 
     if (((Int32) lDistX * lDistX + (Int32) lDistY * lDistY)
           <= ((Uns32) pRadius * pRadius)) {
-      enumPointer[lIndex++] = lPlanet;
+      PushEnum(lPlanet);
     }
   }
-  enumPointer[lIndex++] = 0;
-  return enumPointer;
+  PushEnum(0);
+  return newEnumPointer;
 }
 
+/** Enumerate ships at planet.
+    \see EnumerateShipsAt */
 Uns16 *
 EnumerateShipsAtPlanet(Uns16 pPlanet)
 {
   return EnumerateShipsAt(PlanetLocationX(pPlanet), PlanetLocationY(pPlanet));
 }
 
+/** Enumerate minefields covering a particular point.
+    \param pX,pY  coordinates
+    \returns pointer to an array of Uns16 containing minefield Ids,
+    zero-terminated. This pointer is shared between the EnumerateXXX
+    functions. */
 #ifndef MICROSQUISH
 Uns16 *
 EnumerateMinesCovering(Int16 pX, Int16 pY)
@@ -357,6 +368,10 @@ EnumerateMinesCovering(Int16 pX, Int16 pY)
 }
 #endif
 
+/** Enumerate minefields overlapping the specified minefield.
+    \returns pointer to an array of Uns16 containing minefield Ids,
+    zero-terminated. This pointer is shared between the EnumerateXXX
+    functions. */    
 #ifndef MICROSQUISH
 Uns16 *
 EnumerateOverlappingMines(Uns16 pMinefield)

@@ -1112,6 +1112,7 @@ Pconfig_Struct;
   extern Uns32 MinefieldUnits(Uns16 pID);
   extern Boolean IsMinefieldWeb(Uns16 pID);
   extern void PutMinefieldUnits(Uns16 pID, Uns32 pUnits);
+  extern void PutMinefieldOwner(Uns16 pID, RaceType_Def pRace);
   extern Uns16 CreateMinefield(Uns16 pXloc, Uns16 pYloc, RaceType_Def pRace,
         Uns32 pUnits, Boolean pIsWeb);
 
