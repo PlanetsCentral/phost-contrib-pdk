@@ -1,0 +1,69 @@
+#
+#  Makefile for PDK on Borland C++ 5.5 / Win32
+#
+#  Updated 10/Mar/2004, Stefan Reuther
+#
+#  Targets:
+#    all        build pdk.lib and utils
+#    clean      clean up
+#    putils     build utilities distro
+#
+
+.autodepend
+
+SRCS = auxdata.c pconfig.c crc.c enum.c hostio.c main.c portable.c \
+	 vgapdata.c vgapmsg.c vgaputil.c worm.c doscvt.c vgapdat1.c \
+	 vgapdat2.c vgapdat3.c vgapdat4.c vgapdat5.c msgtmp.c \
+	 rstmsg.c pgetopt.c points.c alldata.c vgapdat6.c vgapdat7.c vgapdat8.c vgapdat9.c \
+	 vgapdatb.c vgapdatc.c battle.c hullfunc.c listmat.c utildata.c fcode.c commands.c
+OBJS = $(SRCS:.c=.obj)
+
+CC      = bcc32
+CFLAGS  = -O
+LDFLAGS =
+TLIB    = tlib
+ZIP     = zip -9
+
+all: pdk.lib ptscore.exe sendmess.exe crack.exe killrace.exe pmaster.exe
+
+# Rules for individual .exe files
+killrace.exe: killrace.c phostpdk.h pdk.lib
+	$(CC) $(CFLAGS) killrace.c pdk.lib
+
+sendmess.exe: sendmess.c phostpdk.h pdk.lib
+	$(CC) $(CFLAGS) sendmess.c pdk.lib
+
+crack.exe: crack.c phostpdk.h pdk.lib
+	$(CC) $(CFLAGS) crack.c pdk.lib
+
+ptscore.exe: ptscore.c ptscore.h phostpdk.h pdk.lib
+	$(CC) $(CFLAGS) ptscore.c pdk.lib
+
+pmaster.exe: pmaster.c phostpdk.h pdk.lib
+	$(CC) $(CFLAGS) pmaster.c pdk.lib
+
+# Library
+pdk.lib: $(OBJS)
+	-@del pdk.lib
+	$(TLIB) pdk.lib @&&!
++$(OBJS:.obj=.obj +)
+!
+
+# Administrivia
+clean:
+	-del *.obj
+	-del pdk.lib
+	-del *.exe
+	-del *.log
+	-del *.zip
+	-del *.uue
+
+realclean: clean
+
+putils: all
+	-del putils.zip
+	$(ZIP) putils.zip ptscore.exe sendmess.exe crack.exe killrace.exe \
+	  pmaster.exe utils.txt phost4.txt ptscore.txt pmaster.cfg
+
+.c.obj:
+	$(CC) -c $(CFLAGS) $<
