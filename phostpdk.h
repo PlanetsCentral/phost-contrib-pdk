@@ -1681,6 +1681,19 @@ Pconfig_Struct;
   extern Uns32 ExperiencePoints(Exp_Handle pH);
   extern void  PutExperiencePoints(Exp_Handle pH, Uns32 pPoints);
   extern Uns32 NewExperiencePoints(Exp_Handle pH);
+
+  /* Tons */
+  enum Tons {
+    Tons_Destroyed,
+    Tons_DestroyedThisTurn,
+    Tons_Lost,
+    Tons_LostThisTurn
+  };
+
+  void  AddToTonsScore(RaceType_Def pWinner, RaceType_Def pLoser, Uns32 pTonnage);
+  Uns32 GetTons(enum Tons pWhich, RaceType_Def pPlayer);
+  void  PutTons(enum Tons pWhich, RaceType_Def pPlayer, Uns32 pValue);
+  void  ClearThisTurnTons(void);
 #ifdef __cplusplus
 }
 #endif

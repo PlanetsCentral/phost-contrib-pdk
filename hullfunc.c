@@ -199,7 +199,7 @@ setSpecialRaces(Uns16 pHull, Special_Def pSpecial, Uns16 pRaceMask)
      Simply ignore it. */
   if (pSpecial == NumSpecials)
       return;
-    
+
   passert(pHull >= 1 AND pHull <= HULL_NR);
   passert(pSpecial >= 0 AND pSpecial < NumSpecials);
   passert(gHullfunc);
@@ -723,8 +723,10 @@ doHullAssignment(char *pName)
   /* pName can be either a hull number or hull name */
   if (isdigit(*pName)) {
     gHull = (Uns16) atoi(pName);
-    if (gHull < 1 OR gHull > HULL_NR)
+    if (gHull < 1 OR gHull > HULL_NR) {
+      gHull = 0;
       return False;
+    }
 
     return True;
   }
@@ -738,6 +740,7 @@ doHullAssignment(char *pName)
       return True;
   }
 
+  gHull = 0;
   return False;
 }
 

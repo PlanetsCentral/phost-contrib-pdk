@@ -1,7 +1,8 @@
-2004-08-25  Maurits van Rees <maurits@vanrees.org>
+2004-12-28  Stefan Reuther  <Streu@gmx.de>
 
-	* Added .cvsignore file to ignore auto generated files: crack
-	killrace pally pdk-api.txt pdk.inf pmaster ptscore sendmess
+	* hullfunc.c (doHullAssignment): don't die on invalid hull names
+
+	* tons.c, ex11.c: new
 
 2004-08-23  Maurits van Rees <maurits@vanrees.org>
 
