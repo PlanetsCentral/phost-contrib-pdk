@@ -1,14 +1,50 @@
-Sun Mar 17 18:41:31 2002  Stefan  <Streu@gmx.de>
+2002-04-08 01:34  hschlen
 
-	* fcode.c (IsFCodeSpecial et al): new
+	* pdk.texi, phostpdk.h: Added MineralsFor...() functions, removed
+	influence of hissing ships on PlanetNatHappyChange() and
+	PlanetColHappyChange() (Piotr Winiarczyk).
 
+2002-04-08 01:31  hschlen
+
+	* vgapdat1.c: Removed influence of hissing ships on
+	PlanetNatHappyChange() and PlanetColHappyChange() (Piotr
+	Winiarczyk).
+
+2002-04-08 01:29  hschlen
+
+	* points.c: Added MineralsFor...() functions (Piotr Winiarczyk).
+
+2002-03-19 12:17  streu
+
+	* fcode.c: bummer!
+
+2002-03-18 18:31  hschlen
+
+	* pconf.pl: removed \n from die() calls
+
+2002-03-18 14:18  streu
+
+	* ChangeLog, api.txt, doscvt.h, makefile.32, makefile.aix,
+	makefile.axp, makefile.bor, makefile.cyg, makefile.dj,
+	makefile.gcc, makefile.nxt, makefile.os2, makefile.ult, pconf.pl,
+	pdk.texi, phostpdk.h, private.h, shrouds.h, utildata.c, vgapdat1.c,
+	vgapdat2.c: * fcode.c (IsFCodeSpecial et al): new
+	
 	* phostpdk.h (PutShipFC, ShipFC): added alternate names
- 	PutShipFCode, ShipFCode, PutPlanetFCode
-
-	* vgapdat2.c (IsShipFCSpecial): removed in favour of new version
-	* vgapdat1.c (IsPlanetFCSpecial): likewise
-
+	PutShipFCode, ShipFCode, PutPlanetFCode
+	
+	* vgapdat2.c (IsShipFCSpecial): removed in favour of new version *
+	vgapdat1.c (IsPlanetFCSpecial): likewise
+	
 	* pdk.texi: updated
+
+2002-01-22 16:27  hschlen
+
+	* ChangeLog: [no log message]
+
+2002-01-22 16:26  hschlen
+
+	* pconf.pl: cosmetical corrections
 
 2002-01-21 23:58  hschlen
 
