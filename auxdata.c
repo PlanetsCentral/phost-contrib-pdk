@@ -213,6 +213,131 @@ static Uns16 gNumBaseOrders = 0;
    routine does *NOT* remove the order from the queue */
 
 Uns16
+BuildQueueBaseID(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+  return QueueMember->mBase;
+}
+
+Uns32
+BuildQueuePriority(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+  return QueueMember->mPriority;
+}
+
+Boolean
+BuildQueueIsCloning(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+  return QueueMember->mByCloning;
+}
+
+RaceType_Def
+BuildQueueShipOwner(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+  return QueueMember->mShipOwner;
+}
+
+RaceType_Def
+BuildQueueOwner(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+  return BaseOwner(QueueMember->mBase);
+}
+
+Uns16
+BuildQueueHullType(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+/* Clonning is a special case */
+
+  return (QueueMember->mByCloning?
+  (&QueueMember->mOrder)->mHull:
+  TrueHull(BaseOwner(QueueMember->mBase),(&QueueMember->mOrder)->mHull));
+}
+
+Uns16
+BuildQueueEngineType(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+  return (&QueueMember->mOrder)->mEngineType;
+}
+
+Uns16
+BuildQueueBeamType(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+  return (&QueueMember->mOrder)->mBeamType;
+}
+
+Uns16
+BuildQueueTorpType(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+  return (&QueueMember->mOrder)->mTubeType;
+}
+
+Uns16
+BuildQueueBeamNumber(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+  return (&QueueMember->mOrder)->mNumBeams;
+}
+
+Uns16
+BuildQueueTorpNumber(Uns16 pPosition)
+{
+  BaseOrder_Struct *QueueMember;
+  
+  QueueMember=BuildQueueAccess(pPosition);
+
+  return (&QueueMember->mOrder)->mNumTubes;
+}
+
+void
+PutBuildQueuePriority(Uns16 pPosition, Uns32 pPriority)
+{
+  BaseOrder_Struct *QueueMember;
+
+  QueueMember=BuildQueueAccess(pPosition);
+
+  QueueMember->mPriority = pPriority;
+}
+
+
+Uns16
 BuildQueuePeek(BaseOrder_Struct * pOrder)
 {
   InitAuxData();
