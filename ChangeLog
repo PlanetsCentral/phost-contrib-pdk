@@ -1,11 +1,23 @@
-Wed Nov 21 15:09:41 2001  Stefan  <Streu@gmx.de>
+2001-12-19 17:11  hschlen
 
-	* pconfig.c (PConfigValueFromName): new function.
+	* ex8.c, points.c: initial import into CVS (Piotr Winiarczyk)
 
-	* alldata.c (ReadHostData): HandleMissingAuxdata() if gNewlyMastered.
-	PDK add-ons crash with segfault otherwise in first turn.
+2001-12-19 17:10  hschlen
 
-	* pconfig.c (killComment): new function. Used throughout.
+	* api.txt, changes.txt, makefile.32, makefile.aix, makefile.axp,
+	makefile.bor, makefile.cyg, makefile.dj, makefile.gcc,
+	makefile.nxt, makefile.os2, makefile.ult, pdk.texi, phostpdk.h:
+	Added ability to evaluate scores (Piotr Winiarczyk).
+
+2001-11-22 15:43  streu
+
+	* ChangeLog, alldata.c, auxdata.c, changes.txt, pconfig.c,
+	phostpdk.h, private.h: bugfix in ReadHostData for turn 0 updated
+	config parser
+
+2001-11-13 15:51  streu
+
+	* battle.c, private.h: added prototype for RND() sped up Combat()
 
 2001-11-12 18:40  hschlen
 
@@ -24,6 +36,8 @@ Wed Nov 21 15:09:41 2001  Stefan  <Streu@gmx.de>
 
 	* vgapdat9.c: New routines PutPlanetName(), Write_Planetname_File()
 	(Piotr Winiarczyk).
+
+2001-11-12 18:37  hschlen
 
 	* vgapdat8.c: New routines PutBeamName(), PutBeamMoneyCost(),
 	PutBeamTritCost(), PutBeamDurCost(), PutBeamMolyCost(),
@@ -100,100 +114,190 @@ Wed Nov 21 15:09:41 2001  Stefan  <Streu@gmx.de>
 
 	* pdk.texi: initial import into CVS (Piotr Winiarczyk)
 
-Mon Nov 12 21:58:22 2001  Stefan  <Streu@gmx.de>
+2001-11-07 16:07  hschlen
 
-	* battle.c (doBeamFire): one small change to make it faster
+	* api.txt, auxdata.c, phostpdk.h: BuildQueueAccess() is a public
+	routine now
 
-Sun Sep 16 17:00:49 2001  Stefan  <Streu@gmx.de>
+2001-09-17 15:54  streu
 
-	* bumped version number to 3.2.4.2
+	* ChangeLog, Doxyfile, api.txt, changes.txt, config.hi, enum.c,
+	faq.txt, install.txt, legal.txt, main.c, makefile.gcc, pconfig.c,
+	pdk.txt, phostpdk.h, version.h: updated for PHost 3.3c and polished
+	for 4.2 release.
+
+2001-08-20 17:32  streu
+
+	* ChangeLog, auxdata.c, enum.c, pconfig.c, phostpdk.h, shrouds.h,
+	tconfig.hi: bugfix in hconfig parsing bugfix in enum.c which until
+	now assumed SHIP_NR = PLANET_NR = MINE_NR bugfix in cloakc reading
+	(do not abort) added prototype for PutMinefieldOwner
+
+2001-07-23 16:43  streu
+
+	* ChangeLog, alldata.c, api.doc, api.txt, changes.doc, changes.txt,
+	config.hi, doscvt.c, doscvt.h, faq.doc, makefile.gcc, pconfig.c,
+	pdk.doc, phostpdk.h, shrouds.h, tconfig.hi: added ability to read
+	hconfig.hst files.  updated with newest phost config options. 
+	removed `.doc' files that are just plain copies of the `.txt'. 
+	updated api.txt (utildata API, new config reader).
+
+2001-06-25 15:36  streu
+
+	* vgapdat4.c: fixed(?) loading/saving of minefields #501 .. #10000
+
+2001-04-19 16:53  streu
+
+	* config.hi, makefile.gcc, pconfig.c, phostpdk.h, private.h:
+	updated pconfig loader for PHost 3.3 changed loader errors to be
+	non-fatal
+
+2001-02-26 16:54  streu
+
+	* conf.h, crack.c, doscvt.c, doscvt.h, ex7.c, ex7.sh, makefile.gcc,
+	phostpdk.h, utildata.c, vgaputil.c: Fri Feb 23 21:25:43 2001 
+	Stefan	<Streu@gmx.de>
 	
-	* *.txt: updated
-
-	* main.c (InitPHOSTLib): changed copyright banner
-	* version.h (PHOST_VERSION_MINOR): set to 3;
-	added PDK_VERSION_MAJOR, PDK_VERSION_MINOR
-	* enum.c (WrapMapX, WrapMapY, IsPointOnWrapMap): updated for 3.3c
-	* phostpdk.h: added new 3.3c config options
-	* pconfig.c (readBuildQueueType etc.): new
-
-Sun Aug 19 17:24:09 2001  Stefan  <Streu@gmx.de>
-
-	* enum.c: dynamically resize enumPointer. Renamed it to
-	newEnumPointer to have the compiler find places that were not
-	updated. The old version bombed when querying for more than
-	500 minefields. mscxtra.c contains these, too, but since
-	`MICROSQUISH' is never defined, we can probably dump these
-	anyway.
-
-Sat Aug 18 14:31:29 2001  Stefan  <Streu@gmx.de>
-
-	* pconfig.c (Read_THost_HConfig_File): when assigning PConfig
- 	entries, use pconfig type, not hconfig. This explains the problem
- 	from 25/Jul/2001.
-
-	* auxdata.c (ReadCLOAKCFile): do not complain when cloakc.hst
-	is missing
-
-Wed Jul 25 23:37:14 2001  Stefan  <Streu@gmx.de>
-
-	* tconfig.hi: types were wrong for two HCONFIG.HST entries
-	(why didn't it complain!?)
-
-Sat Jul 21 17:07:16 2001  Stefan  <Streu@gmx.de>
-
-	* pconfig.c (Read_THost_HConfig_File): new function
-	gCurrentConfigFile: new variable. Used throughout the code.
-
-	* phostpdk.h: added #defines to use pconfig.src names in 
-	source code (from Piotr Winiarczyk)
-	included new config options
-	restored single-read routine prototypes (seem to have got
-	lost in PDK v3.x)
-
-Mon Apr 16 23:13:06 2001  Stefan  <Streu@gmx.de>
-
-	* pconfig.c (Read_HConfig_File): use new ConfigFileReaderEx, 
-	giving warnings instead of errors
-	(DoAssignment): give warnings instead of errors
-
-	* config.hi: new version from PHost 3.3 (new options)
-
-	* pconfig.c (ConfigFileReaderEx): ConfigFileReader with two
-	new arguments to allow reading of config files *with* continuing
-	after error
-	(checkValue): use new config.hi format from PHost 3.3
-
-	* phostpdk.h: IO_Def now typdef'd here (was #defined to
-	Boolean in private.h before). Allows better prototype for
-	ConfigFileReader &c.
+		* ex7.c, ex7.sh: new example for PutUtilFileTransfer API
 	
-
-Fri Feb 23 21:25:43 2001  Stefan  <Streu@gmx.de>
-
-	* ex7.c, ex7.sh: new example for PutUtilFileTransfer API
-
-	* phostpdk.h: prototypes for utildata stuff
-
-	* utildata.c: new file (approx. the same as before, but with
-	other doscvt functions).
-
-	* doscvt.c (DOS16Convert, DOS32Convert, DOSStructConvert,
-	UnixConvertStruct, DOSStructSize): copied from PHost source and
-	reindented
-
-	* Makefile: attempt to reduce the mess of makefiles we currently
- 	have: all the main rules in `common.mak', configuration in
- 	`Makefile'. First design study only ;-)
-
-	* crack.c (main): ReadGlobalData, else it will fail parsing
- 	hullfunc files.
-
-	* vgaputil.c (MemRealloc): if pPtr is NULL, behave like
- 	MemAlloc. This is what ANSI C does for malloc/realloc, and I think
- 	it's very convenient.
+		* phostpdk.h: prototypes for utildata stuff
 	
-	* conf.h (#ifdef __DJGPP__): #undef __MSDOS__. IMHO this is better
- 	done here than in the makefile. Simply because I don't have a
- 	`make' which understands `makefile.dj' on my DOS partition ;-)
-	(#ifndef SYSTEM_ID): #error
+		* utildata.c: new file (approx. the same as before, but
+	with
+		other doscvt functions).
+	
+		* doscvt.c (DOS16Convert, DOS32Convert, DOSStructConvert,
+		UnixConvertStruct, DOSStructSize): copied from PHost source
+	and
+		reindented
+	
+		* crack.c (main): ReadGlobalData, else it will fail parsing
+		hullfunc files.
+	
+		* vgaputil.c (MemRealloc): if pPtr is NULL, behave like
+		MemAlloc. This is what ANSI C does for malloc/realloc, and
+	I think
+		it's very convenient.
+	
+		* conf.h (#ifdef __DJGPP__): #undef __MSDOS__. IMHO this is
+	better
+		done here than in the makefile. Simply because I don't have
+	a
+		`make' which understands `makefile.dj' on my DOS partition
+	;-)
+		(#ifndef SYSTEM_ID): #error
+	
+	NOTES:	* The doscvt stuff should be added to the API, so users can
+	write	    portable files. I think it's best to simply ship the
+	`doscvt.h'	   header as an extra entry point to the PDK.
+	
+		* The Makefile mess should be cleaned. At least, extract
+	the
+		source file name list and include it into the others.
+	Document
+		which Makefile is for which system. I currently only
+	updated
+		`makefile.gcc' which I use on Linux.
+
+2001-01-24 08:11  lastberserker
+
+	* vgapdat3.c, vgapdat4.c, vgapdat5.c, vgapdat6.c, vgapdat7.c,
+	vgapdat8.c, vgapdat9.c, vgapdata.c, vgapdatb.c, vgapdatc.c,
+	vgapmsg.c, vgaputil.c, worm.c: 1. Added Doxygen project 2. Changed
+	phostpdk.h a little ;) to support Doxygen 3. Modified gcc makefile
+	to process .h/.c with "ident"
+
+2001-01-24 08:06  lastberserker
+
+	* vgapdat2.c: 1. Added Doxygen project 2. Changed phostpdk.h a
+	little ;) to support Doxygen 3. Modified gcc makefile to process
+	.h/.c with "ident"
+
+2001-01-24 08:02  lastberserker
+
+	* sendmess.c, squishio.h, stdtyp.h, version.h, vgapdat1.c: 1. Added
+	Doxygen project 2. Changed phostpdk.h a little ;) to support
+	Doxygen 3. Modified gcc makefile to process .h/.c with "ident"
+
+2001-01-24 07:59  lastberserker
+
+	* includes.h, killrace.c, listmat.c, listmat.h, main.c,
+	makefile.gcc, msgtmp.c, pconfig.c, pgetopt.c, pgetopt.h, pmaster.c,
+	portable.c, private.h, ptscore.c, ptscore.h, rstmsg.c: 1. Added
+	Doxygen project 2. Changed phostpdk.h a little ;) to support
+	Doxygen 3. Modified gcc makefile to process .h/.c with "ident"
+
+2001-01-24 07:56  lastberserker
+
+	* battle.c, battle.h, conf.h, crack.c, crc.c, doscvt.c, doscvt.h,
+	enum.c, hostio.c, hullfunc.c: 1. Added Doxygen project 2. Changed
+	phostpdk.h a little ;) to support Doxygen 3. Modified gcc makefile
+	to process .h/.c with "ident"
+
+2001-01-24 07:52  lastberserker
+
+	* .indent.pro, Doxyfile, alldata.c, auxdata.c: 1. Added Doxygen
+	project 2. Changed phostpdk.h a little ;) to support Doxygen 3.
+	Modified gcc makefile to process .h/.c with "ident"
+
+2001-01-24 07:22  lastberserker
+
+	* phostpdk.h: 1. Added Doxygen project 2. Changed phostpdk.h a
+	little ;) to support Doxygen 3. Modified gcc makefile to process
+	.h/.c with "ident"
+
+2001-01-14 11:50  lastberserker
+
+	* vgapdat7.c, vgapdat8.c: Correction to char* SmthName patch
+
+2001-01-14 11:44  lastberserker
+
+	* vgapdat6.c, vgapdat7.c, vgapdat8.c: char* SmthName patch for NULL
+
+2001-01-14 10:49  lastberserker
+
+	* api.doc, changes.doc, battle.h, faq.doc, install.doc, legal.doc,
+	makefile.gcc, mkfdist.gcc, pdk.doc, conf.h, doscvt.h, includes.h,
+	listmat.h, pgetopt.h, phostpdk.h, private.h, ptscore.h, shrouds.h,
+	squishio.h, stdtyp.h, version.h, config.hi, makefile.nxt,
+	mkfdist.nxt, pmaster.hi, makefile.os2, api.txt, changes.txt,
+	faq.txt, gpl.txt, install.txt, legal.txt, pdk.txt, ptscore.txt,
+	makefile.ult, mkfdist.ult, readme.txt, todo.txt: Initial revision
+
+2001-01-14 10:49  lastberserker
+
+	* api.doc, changes.doc, battle.h, faq.doc, install.doc, legal.doc,
+	makefile.gcc, mkfdist.gcc, pdk.doc, conf.h, doscvt.h, includes.h,
+	listmat.h, pgetopt.h, phostpdk.h, private.h, ptscore.h, shrouds.h,
+	squishio.h, stdtyp.h, version.h, config.hi, makefile.nxt,
+	mkfdist.nxt, pmaster.hi, makefile.os2, api.txt, changes.txt,
+	faq.txt, gpl.txt, install.txt, legal.txt, pdk.txt, ptscore.txt,
+	makefile.ult, mkfdist.ult, readme.txt, todo.txt: Initial sourcecode
+	upload
+
+2001-01-14 10:45  lastberserker
+
+	* makefile.32, makefile.aix, makefile.axp, mkfdist.aix,
+	mkfdist.axp, makefile.bor, pdk.bpr, alldata.c, auxdata.c, battle.c,
+	crack.c, crc.c, doscvt.c, enum.c, ex1.c, ex2.c, ex3.c, ex4.c,
+	ex5.c, ex6.c, hostio.c, hullfunc.c, killrace.c, listmat.c, main.c,
+	mscxtra.c, msgtmp.c, pally.c, pconfig.c, pgetopt.c, pmaster.c,
+	portable.c, ptscore.c, rstmsg.c, sendmess.c, vgapdat1.c,
+	vgapdat2.c, vgapdat3.c, vgapdat4.c, vgapdat5.c, vgapdat6.c,
+	vgapdat7.c, vgapdat8.c, vgapdat9.c, vgapdata.c, vgapdatb.c,
+	vgapdatc.c, vgapmsg.c, vgaputil.c, worm.c, pdk.cpp, pmaster.cfg,
+	makefile.cyg, makefile.dj: Initial revision
+
+2001-01-14 10:45  lastberserker
+
+	* makefile.32, makefile.aix, makefile.axp, mkfdist.aix,
+	mkfdist.axp, makefile.bor, pdk.bpr, alldata.c, auxdata.c, battle.c,
+	crack.c, crc.c, doscvt.c, enum.c, ex1.c, ex2.c, ex3.c, ex4.c,
+	ex5.c, ex6.c, hostio.c, hullfunc.c, killrace.c, listmat.c, main.c,
+	mscxtra.c, msgtmp.c, pally.c, pconfig.c, pgetopt.c, pmaster.c,
+	portable.c, ptscore.c, rstmsg.c, sendmess.c, vgapdat1.c,
+	vgapdat2.c, vgapdat3.c, vgapdat4.c, vgapdat5.c, vgapdat6.c,
+	vgapdat7.c, vgapdat8.c, vgapdat9.c, vgapdata.c, vgapdatb.c,
+	vgapdatc.c, vgapmsg.c, vgaputil.c, worm.c, pdk.cpp, pmaster.cfg,
+	makefile.cyg, makefile.dj: Initial sourcecode upload
+
