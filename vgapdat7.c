@@ -141,6 +141,107 @@ TorpDestructivePower(Uns16 pTorpNr)
   return (gTorpspecPtr[pTorpNr].DestructivePower);
 }
 
+void
+PutTorpName(Uns16 pTorpNr, char *pName)
+{  
+  static char lName[21];
+  int i;
+
+  InitTorp();
+
+  passert((pTorpNr >= 1) AND(pTorpNr <= TORP_NR));
+  passert(pName NEQ NULL);
+
+  memcpy(lName, pName, 20);
+  lName[20] = 0;
+  for (i = strlen(lName); i < 20; i++)
+    lName[i] = ' ';
+  
+  memcpy(gTorpspecPtr[pTorpNr].Name, lName, 20);   
+  
+}
+
+void
+PutTorpTorpCost(Uns16 pTorpNr, Uns16 pTorpCost)
+{
+  InitTorp();
+
+  passert((pTorpNr >= 1) AND(pTorpNr <= TORP_NR));
+  gTorpspecPtr[pTorpNr].TorpCost = pTorpCost;
+}
+
+void
+PutTorpTubeCost(Uns16 pTorpNr, Uns16 pTubeCost)
+{
+  InitTorp();
+
+  passert((pTorpNr >= 1) AND(pTorpNr <= TORP_NR));
+  gTorpspecPtr[pTorpNr].TubeCost = pTubeCost;
+}
+
+void
+PutTorpTritCost(Uns16 pTorpNr, Uns16 pTubeTritCost)
+{
+  InitTorp();
+
+  passert((pTorpNr >= 1) AND(pTorpNr <= TORP_NR));
+  gTorpspecPtr[pTorpNr].TubeTritCost = pTubeTritCost;
+}
+
+void
+PutTorpDurCost(Uns16 pTorpNr, Uns16 pTubeDurCost)
+{
+  InitTorp();
+
+  passert((pTorpNr >= 1) AND(pTorpNr <= TORP_NR));
+  gTorpspecPtr[pTorpNr].TubeDurCost = pTubeDurCost;
+}
+
+void
+PutTorpMolyCost(Uns16 pTorpNr, Uns16 pTubeMolyCost)
+{
+  InitTorp();
+
+  passert((pTorpNr >= 1) AND(pTorpNr <= TORP_NR));
+  gTorpspecPtr[pTorpNr].TubeMolyCost = pTubeMolyCost;
+}
+
+void
+PutTorpTubeMass(Uns16 pTorpNr, Uns16 pTubeMass)
+{
+  InitTorp();
+
+  passert((pTorpNr >= 1) AND(pTorpNr <= TORP_NR));
+  gTorpspecPtr[pTorpNr].TubeMass = pTubeMass;
+}
+
+void
+PutTorpTechLevel(Uns16 pTorpNr, Uns16 pTechLevel)
+{
+  InitTorp();
+
+  passert((pTorpNr >= 1) AND(pTorpNr <= TORP_NR));
+  gTorpspecPtr[pTorpNr].TechLevel = pTechLevel;
+}
+
+void
+PutTorpKillPower(Uns16 pTorpNr, Uns16 pKillPower)
+{
+  InitTorp();
+
+  passert((pTorpNr >= 1) AND(pTorpNr <= TORP_NR));
+  gTorpspecPtr[pTorpNr].KillPower = pKillPower;
+}
+
+void
+PutTorpDestructivePower(Uns16 pTorpNr, Uns16 pDestructivePower)
+{
+  InitTorp();
+
+  passert((pTorpNr >= 1) AND(pTorpNr <= TORP_NR));
+  gTorpspecPtr[pTorpNr].DestructivePower = pDestructivePower;
+}
+
 IO_Def
 Read_Torpspec_File(void)
 {
@@ -165,6 +266,43 @@ Read_Torpspec_File(void)
       if (!DOSReadStruct(TorpspecStruct_Convert, NumTorpspecStruct_Convert,
                   gTorpspecPtr + lTorp, lTorpFile)) {
         Error("Can't read file '%s'", TORPSPEC_FILE);
+        lError = IO_FAILURE;
+        break;
+      }
+    }
+#endif
+
+    fclose(lTorpFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return (lError);
+}
+
+IO_Def
+Write_Torpspec_File(void)
+{
+  FILE *lTorpFile;
+  IO_Def lError = IO_SUCCESS;
+
+  InitTorp();
+
+  if ((lTorpFile =
+              OpenOutputFile(TORPSPEC_FILE,
+               ROOT_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+#ifdef __MSDOS__
+    if (TORP_NR NEQ fwrite(gTorpspecPtr + 1, sizeof(Torpspec_Struct), TORP_NR,
+                lTorpFile)) {
+      Error("Can't write file '%s'", TORPSPEC_FILE);
+      lError = IO_FAILURE;
+    }
+#else
+    Uns16 lTorp;
+
+    for (lTorp = 1; lTorp <= TORP_NR; lTorp++) {
+      if (!DOSWriteStruct(TorpspecStruct_Convert, NumTorpspecStruct_Convert,
+                  gTorpspecPtr + lTorp, lTorpFile)) {
+        Error("Can't write file '%s'", TORPSPEC_FILE);
         lError = IO_FAILURE;
         break;
       }
