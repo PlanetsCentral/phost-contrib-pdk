@@ -27,6 +27,7 @@ static const char LASTTURN_FILE[] = "lastturn.hst";
 
 /* True static data (i.e., takes up space in DATA segment) */
 static Turntime_Struct gTurntime;
+static Turntime_Struct gAuxTime;
 
 IO_Def
 Read_Turntime_File(void)
@@ -43,6 +44,7 @@ Read_Turntime_File(void)
     const char* lFile;
     GameFilesVersion(&lMajor, &lMinor);
 
+    gNewlyMastered = False;
     if ((lTurntimeFile = OpenInputFile(NEXTTURN_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
         if (!DOSReadStruct(TurntimeStruct_Convert, NumTurntimeStruct_Convert,
                            &gTurntime, lTurntimeFile)) {
@@ -54,8 +56,10 @@ Read_Turntime_File(void)
     } else
         gNewlyMastered = True;
 
+    gAuxTime = gTurntime;
     if (gNewlyMastered) {
         memset(&gTurntime, 0, sizeof(gTurntime));
+        memset(&gAuxTime, 0, sizeof(gAuxTime));
     } else if (gUsingTHost || lMajor >= 4) {
         /* Get real timestamp. Should we do something interesting
            when an error occurs? */
@@ -63,6 +67,8 @@ Read_Turntime_File(void)
         if (lTurntimeFile) {
             fread(&gTurntime.HostTime, sizeof gTurntime.HostTime, 1, lTurntimeFile);
             fclose(lTurntimeFile);
+            gAuxTime = gTurntime;
+            gAuxTime.TurnNumber--;
         }
     }
 
@@ -87,6 +93,13 @@ const Turntime_Struct *
 RawTurnTime(void)
 {
   return &gTurntime;
+}
+
+/* Timestamp expected in auxdata file */
+const Turntime_Struct *
+RawAuxTime(void)
+{
+  return &gAuxTime;
 }
 
 /*************************************************************

@@ -55,7 +55,8 @@ static Boolean gInitialized = False;
 enum {
     P3_SHIP_NR   = 500,
     P3_PLANET_NR = 500,
-    P3_RACE_NR   = RACE_NR
+    P3_RACE_NR   = RACE_NR,
+    P4_SHIP_NR   = 999
 };
 
 #ifdef PDK_PHOST4_SUPPORT
@@ -771,6 +772,8 @@ ReadAuxVersionInfo(FILE* pInFile)
     return False;
   }
 
+  Read_Turntime_File();         /* do it again. It will need the version numbers */
+
 #ifdef __MSDOS__
   if (1 NEQ fread(&lTurntime, sizeof(lTurntime), 1, pInFile))
     goto bad_read;
@@ -782,7 +785,7 @@ ReadAuxVersionInfo(FILE* pInFile)
 
   /* Check to make sure timestamp matches NEXTTURN.HST. If not, this file is
      stale. */
-  if (memcmp(&lTurntime, RawTurnTime(), sizeof(lTurntime))) {
+  if (memcmp(&lTurntime, RawAuxTime(), sizeof(lTurntime))) {
     Error ("AUXDATA.HST file is from turn %u. It is stale and must be deleted.\n",
            lTurntime.TurnNumber);
     return False;
@@ -1625,12 +1628,17 @@ WriteCLOAKCFile(void)
   Uns16 lShip;
   FILE *lFile = OpenOutputFile("cloakc.hst", GAME_DIR_ONLY);
   Uns16 lStatus;
+#ifdef PDK_PHOST4_SUPPORT
+  const Uns16 lLimit = gVersionMajor >= 4 ? P4_SHIP_NR : P3_SHIP_NR;
+#else
+  const Uns16 lLimit = P3_SHIP_NR;
+#endif
 
   /* Info(StringRetrieve(S__Writing_File, gConfigInfo->Language[0]),
      "CLOAKC.HST"); */
 
   /* Write cloak status from scaninfo */
-  for (lShip = 1; lShip <= SHIP_NR; lShip++) {
+  for (lShip = 1; lShip <= lLimit; lShip++) {
     if (IsShipExist(lShip)) {
       lStatus = IsShipCloaked(lShip) ? 1 : 0;
     }
@@ -1642,7 +1650,7 @@ WriteCLOAKCFile(void)
   }
 
   /* Write shield levels */
-  for (lShip = 1; lShip <= SHIP_NR; lShip++) {
+  for (lShip = 1; lShip <= lLimit; lShip++) {
     if (IsShipExist(lShip)) {
       lStatus = ShipCombatShieldLevel(lShip);
     }
@@ -1664,6 +1672,11 @@ ReadCLOAKCFile(void)
   Uns16 lShip;
   FILE *lFile = OpenInputFile("cloakc.hst", GAME_DIR_ONLY | NO_MISSING_ERROR);
   Uns16 lStatus;
+#ifdef PDK_PHOST4_SUPPORT
+  const Uns16 lLimit = gVersionMajor >= 4 ? P4_SHIP_NR : P3_SHIP_NR;
+#else
+  const Uns16 lLimit = P3_SHIP_NR;
+#endif
 
   if (lFile EQ 0) {
     Warning("CLOAKC.HST file does not exist!");
@@ -1675,7 +1688,7 @@ ReadCLOAKCFile(void)
      "CLOAKC.HST"); */
 
   /* Read cloak status */
-  for (lShip = 1; lShip <= SHIP_NR; lShip++) {
+  for (lShip = 1; lShip <= lLimit; lShip++) {
     if (!DOSRead16(&lStatus, 1, lFile)) {
       Error("Unable to read info for ship %u in CLOAKC.HST file", lShip);
       return;
@@ -1695,7 +1708,7 @@ ReadCLOAKCFile(void)
   /* Read shield levels */
   passert(gCombatShields);
 
-  for (lShip = 1; lShip <= SHIP_NR; lShip++) {
+  for (lShip = 1; lShip <= lLimit; lShip++) {
     if (!DOSRead16(&lStatus, 1, lFile)) {
       Error("Unable to read shield info for ship %u in CLOAKC.HST file",
             lShip);

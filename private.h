@@ -394,7 +394,7 @@ extern "C" {
   extern void PutShip(Uns16 pID, Ship_Struct * pShip);
   extern void PutBase(Uns16 pID, Base_Struct * pBase);
 
-  extern const Turntime_Struct *RawTurnTime(void);
+  extern const Turntime_Struct *RawTurnTime(void), *RawAuxTime(void);
 
   extern void SquishError(const char *str);
 
