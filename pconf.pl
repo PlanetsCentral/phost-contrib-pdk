@@ -39,6 +39,8 @@ my %defconfigdata      = ();
 my %configdata         = ();
 my %configparamnames   = ();
 
+$| = 1;  # activate autoflush
+
 
 if (@ARGV < 1) {
     usage( $0 );
@@ -53,13 +55,13 @@ if (defined $opt_d && defined $opt_n) {
 }
 if (defined $opt_d) {
     printdefaults( $defconfigfilename );
-    exit( 0 );
+    exit 0;
 }
 if (defined $opt_n) {
     getdefaults( $defconfigfilename );
     getconfig( $configfilename );
     &printnondefaults;
-    exit( 0 );
+    exit 0;
 }
 
 usage( $0 );
@@ -137,10 +139,9 @@ sub printnondefaults {
 }
 
 
-sub usage{
+sub usage {
     my $commandname = shift;
 
     $commandname =~ s#.*/##g;
-    print "usage: $commandname [-h (help)] [-d (defaults)] [-n (non-defaults)]\n";
-    exit( 1 );
+    die "usage: $commandname [-h (help)] [-d (defaults)] [-n (non-defaults)]\n";
 }
