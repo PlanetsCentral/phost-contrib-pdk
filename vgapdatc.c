@@ -19,11 +19,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *****************************************************************************/
 
+#include <time.h>
 #include "phostpdk.h"
 #include "private.h"
 
 static const char *GEN_FILE = "gen.hst";
 static HostGen_Struct *gHostGenPtr = 0;
+
+static Boolean KillConfig[NumKILL] = { True, True, True,
+                                       True, True, True };
+
 
 static void
 FreeGen(void)
@@ -192,6 +197,146 @@ PutPlayerPassword(RaceType_Def pPlayer, const char *pPasswd)
   handleNewPassword(pPlayer, lPwd);
 }
 
+/*
+  Kill functions, based on killrace.c
+ */
+ 
+Boolean
+KillPlayerConfigure(PlayerKillType_Def lKillConf)
+{
+   return KillConfig[lKillConf];
+}
+
+void
+PutKillPlayerConfigure(PlayerKillType_Def lKillConf, Boolean lValue)
+{
+   KillConfig[lKillConf]=lValue;
+}
+
+void
+KillPlayer(RaceType_Def Race)
+{
+    Uns16 lIx;
+
+    if (KillConfig[KILL_Ships])      KillPlayerShips(Race);
+    if (KillConfig[KILL_Bases])      KillPlayerBases(Race);
+    if (KillConfig[KILL_Planets])    KillPlayerPlanets(Race);
+    if (KillConfig[KILL_Minefields]) KillPlayerMinefields(Race);
+
+    for (lIx = 1; lIx <= RACE_NR; lIx++)
+        AllyDropRequest(Race, lIx);
+
+    PutPlayerIsActive(Race, False);
+
+}
+
+void
+KillPlayerShips(RaceType_Def Race)
+{
+    Uns16 lIx;
+    Boolean lShipRemoved[SHIP_NR+1];
+
+    /* Delete Race ships */
+
+    for (lIx = 1; lIx <= SHIP_NR; lIx++)
+        {
+        lShipRemoved[lIx] = False;
+        
+        if (IsShipExist(lIx) AND ShipOwner(lIx) EQ Race) {
+            DeleteShip(lIx);
+            ResetShipRemoteControl(lIx);
+            lShipRemoved[lIx] = True;
+        }
+        }
+
+    /* Now go through and clear tow/intercept missions on ships which
+       were towing/intercepting a ship that we just deleted. */
+
+    for (lIx = 1; lIx <= SHIP_NR; lIx++) {
+        if (! IsShipExist(lIx)) continue;
+
+        if (    (ShipMission(lIx) EQ Tow)
+            AND lShipRemoved[ShipTowTarget(lIx)]
+           )
+            PutShipMission(lIx, NoMission);
+
+        if (    (ShipMission(lIx) EQ Intercept)
+            AND lShipRemoved[ShipInterceptTarget(lIx)]
+           )
+            PutShipMission(lIx, NoMission);
+
+    }
+}
+
+void
+KillPlayerPlanets(RaceType_Def Race)
+{
+    Uns16 lIx;
+    char FC[4];
+    time_t now;
+
+    for (lIx = 1; lIx <= PLANET_NR; lIx++) {
+        if (IsPlanetExist(lIx) AND PlanetOwner(lIx) EQ Race) {
+
+            if (IsBaseExist(lIx)) {
+                BuildQueueInvalidate(lIx);
+                DeleteBase(lIx);
+            }
+        
+            PutPlanetCargo(lIx, COLONISTS, 0);
+            PutPlanetOwner(lIx, NoOwner);
+            PutPlanetColHappy(lIx,100);
+
+            time(&now);
+            SetRandomSeed(now % 32000 );
+            sprintf(FC,"%03d",RandomRange(1000));
+            PutPlanetFC  (lIx,FC);
+
+            if (KillConfig[KILL_Cash_Supplies])
+            {
+              PutPlanetCargo(lIx, SUPPLIES, 0);
+              PutPlanetCargo(lIx, CREDITS, 0);
+            }
+
+            if (KillConfig[KILL_Structures])
+            {
+              PutPlanetMines    (lIx,0);
+              PutPlanetFactories(lIx,0);
+              PutPlanetDefense  (lIx,0);
+            }
+        }
+    }
+}
+
+void
+KillPlayerBases(RaceType_Def Race)
+{
+    Uns16 lIx;
+
+    for (lIx = 1; lIx <= BASE_NR; lIx++) {
+        if (IsPlanetExist(lIx) AND PlanetOwner(lIx) EQ Race) {
+            if (IsBaseExist(lIx)) {
+                BuildQueueInvalidate(lIx);
+                DeleteBase(lIx);
+            }
+        }
+    }
+}
+
+void
+KillPlayerMinefields(RaceType_Def Race)
+{
+    Uns16 lIx;
+
+    for (lIx = 1; lIx <= MINE_NR; lIx++) {
+        if (IsMinefieldExist(lIx) AND MinefieldOwner(lIx) EQ Race )
+           PutMinefieldUnits(lIx,0);
+    }
+}
+
 /*************************************************************
    $HISTORY:$
+   22.12.2001 Added race kill functions - Piotr Winiarczyk
+              Kill functions are heavy based on killrace.c
+   
  **************************************************************/
