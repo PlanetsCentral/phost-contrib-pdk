@@ -132,6 +132,97 @@ BeamDestructivePower(Uns16 pBeamNr)
   return (gBeamspecPtr[pBeamNr].DestructivePower);
 }
 
+void
+PutBeamName(Uns16 pBeamNr, char *pName)
+{
+  static char lName[21];
+  int i;
+
+  InitBeam();
+
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  passert(pName NEQ NULL);
+
+  memcpy(lName, pName, 20);
+  lName[20] = 0;
+  for (i = strlen(lName); i < 20; i++)
+    lName[i] = ' ';
+  
+  memcpy(gBeamspecPtr[pBeamNr].Name, lName, 20);     
+}
+
+void
+PutBeamMoneyCost(Uns16 pBeamNr, Uns16 pMoneyCost)
+{
+  InitBeam();
+
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  gBeamspecPtr[pBeamNr].MoneyCost = pMoneyCost;
+}
+
+void
+PutBeamTritCost(Uns16 pBeamNr, Uns16 pTritCost)
+{
+  InitBeam();
+
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  gBeamspecPtr[pBeamNr].TritCost = pTritCost;
+}
+
+void
+PutBeamDurCost(Uns16 pBeamNr, Uns16 pDurCost)
+{
+  InitBeam();
+
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  gBeamspecPtr[pBeamNr].DurCost = pDurCost;
+}
+
+void
+PutBeamMolyCost(Uns16 pBeamNr, Uns16 pMolyCost)
+{
+  InitBeam();
+
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  gBeamspecPtr[pBeamNr].MolyCost = pMolyCost;
+}
+
+void
+PutBeamMass(Uns16 pBeamNr, Uns16 pMass)
+{
+  InitBeam();
+
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  gBeamspecPtr[pBeamNr].Mass = pMass;
+}
+
+void
+PutBeamTechLevel(Uns16 pBeamNr, Uns16 pTechLevel)
+{
+  InitBeam();
+
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  gBeamspecPtr[pBeamNr].TechLevel = pTechLevel;
+}
+
+void
+PutBeamKillPower(Uns16 pBeamNr, Uns16 pKillPower)
+{
+  InitBeam();
+
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  gBeamspecPtr[pBeamNr].KillPower = pKillPower;
+}
+
+void
+PutBeamDestructivePower(Uns16 pBeamNr, Uns16 pDestructivePower)
+{
+  InitBeam();
+
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  gBeamspecPtr[pBeamNr].DestructivePower = pDestructivePower;
+}
+
 IO_Def
 Read_Beamspec_File(void)
 {
@@ -161,7 +252,42 @@ Read_Beamspec_File(void)
       }
     }
 #endif
+    fclose(lBeamFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return (lError);
+}
 
+IO_Def
+Write_Beamspec_File(void)
+{
+  FILE *lBeamFile;
+  IO_Def lError = IO_SUCCESS;
+
+  InitBeam();
+
+  if ((lBeamFile =
+              OpenOutputFile(BEAMSPEC_FILE,
+               ROOT_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+#ifdef __MSDOS__
+    if (BEAM_NR NEQ fwrite(gBeamspecPtr + 1, sizeof(Beamspec_Struct), BEAM_NR,
+                lBeamFile)) {
+      Error("Can't write file '%s'", BEAMSPEC_FILE);
+      lError = IO_FAILURE;
+    }
+#else
+    Uns16 lBeam;
+
+    for (lBeam = 1; lBeam <= BEAM_NR; lBeam++) {
+      if (!DOSWriteStruct(BeamspecStruct_Convert, NumBeamspecStruct_Convert,
+                  gBeamspecPtr + lBeam, lBeamFile)) {
+        Error("Can't write file '%s'", BEAMSPEC_FILE);
+        lError = IO_FAILURE;
+        break;
+      }
+    }
+#endif
     fclose(lBeamFile);
   }
   else
