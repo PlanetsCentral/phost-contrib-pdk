@@ -1,3 +1,11 @@
+2002-01-21 23:58  hschlen
+
+	* pconf.pl: initial import into CVS
+
+2001-12-23 22:00  hschlen
+
+	* ChangeLog: [no log message]
+
 2001-12-23 21:58  hschlen
 
 	* vgapdatc.c: New functions KillPlayerConfigure(),
