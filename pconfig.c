@@ -219,14 +219,12 @@ Read_HConfig_File(void)
   fclose(lConfigFile);
   lConfigFile = OpenInputFile(SHIPLIST_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR);
   if (lConfigFile) {
+      gCurrentConfigFile = SHIPLIST_FILE;
       ConfigFileReaderEx(lConfigFile, SHIPLIST_FILE, "phost", False,
                          DoAssignment, gConfigWarnings ? Warning : Ignore, True);
       fclose(lConfigFile);
   }
   DoDefaultAssignments();
-
-  fclose(lConfigFile);
-
   ReinitWraparound();
   
   return IO_SUCCESS;
