@@ -822,7 +822,7 @@ WriteAuxVersionInfo(FILE* pOutFile)
     return False;
   }
 
-  lTurnPtr = RawTurnTime();
+  lTurnPtr = RawAuxTime();
 #ifdef __MSDOS__
   if (1 NEQ fwrite(lTurnPtr, sizeof(*lTurnPtr), 1, pOutFile))
     goto bad_write;

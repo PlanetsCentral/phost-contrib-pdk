@@ -1,3 +1,7 @@
+Sat Apr 26 12:34:25 2003  Stefan  <Streu@gmx.de>
+
+	* auxdata.c (WriteAuxVersionInfo): fixed another timestamp issue
+
 Sun Mar 16 17:16:03 2003  Stefan  <Streu@gmx.de>
 
 	* vgaputil.c: removed Borland #pragmas
