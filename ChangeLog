@@ -1,3 +1,16 @@
+Sun Sep 16 17:00:49 2001  Stefan  <Streu@gmx.de>
+
+	* bumped version number to 3.2.4.2
+	
+	* *.txt: updated
+
+	* main.c (InitPHOSTLib): changed copyright banner
+	* version.h (PHOST_VERSION_MINOR): set to 3;
+	added PDK_VERSION_MAJOR, PDK_VERSION_MINOR
+	* enum.c (WrapMapX, WrapMapY, IsPointOnWrapMap): updated for 3.3c
+	* phostpdk.h: added new 3.3c config options
+	* pconfig.c (readBuildQueueType etc.): new
+
 Sun Aug 19 17:24:09 2001  Stefan  <Streu@gmx.de>
 
 	* enum.c: dynamically resize enumPointer. Renamed it to
@@ -80,10 +93,6 @@ Fri Feb 23 21:25:43 2001  Stefan  <Streu@gmx.de>
 	(#ifndef SYSTEM_ID): #error
 
 NOTES:
-	* The doscvt stuff should be added to the API, so users can write
-	portable files. I think it's best to simply ship the `doscvt.h'
-	header as an extra entry point to the PDK.  
-
 	* The Makefile mess should be cleaned. At least, extract the
- 	source file name list and include it into the others. Document
+ 	source file name list and #include it into the others. Document
  	which Makefile is for which system.

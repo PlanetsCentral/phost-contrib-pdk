@@ -1,11 +1,15 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                             Summary of Revisions
-                              Version 3.2.4.1
+                              Version 3.2.4.2
 
 
+Version 3.2.4.2 --  Released September 2001
+====================
 
 * Added ability to read HCONFIG.HST
-* Updated for latest PHost config options
+* Updated for latest PHost config options (3.3c)
+  - The PDK is now able to read config options of PHOSTs newer then the
+    PDK. The new options will silently be ignored.
 * Added UTILx.DAT/.EXT writing utilities
 * Added DOSCVT functions to `official' API
 

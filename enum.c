@@ -482,7 +482,7 @@ WrapMapX(Int16 pX)
   InitWraparound();
 
   if (gWrap) {
-    while (pX > gWrapMaxX)
+    while (pX >= gWrapMaxX)
       pX -= gWrapDimX;
     while (pX < gWrapMinX)
       pX += gWrapDimX;
@@ -497,7 +497,7 @@ WrapMapY(Int16 pY)
   InitWraparound();
 
   if (gWrap) {
-    while (pY > gWrapMaxY)
+    while (pY >= gWrapMaxY)
       pY -= gWrapDimY;
     while (pY < gWrapMinY)
       pY += gWrapDimY;
@@ -542,10 +542,10 @@ IsPointOnWrapMap(Int16 pX, Int16 pY)
   InitWraparound();
 
   if (gWrap) {
-    return (Boolean) (pX >= gWrapMinX)
-          AND(pX <= gWrapMaxX)
-          AND(pY >= gWrapMinY)
-          AND(pY <= gWrapMaxY);
+    return  (pX >= gWrapMinX)
+        AND (pX <  gWrapMaxX)
+        AND (pY >= gWrapMinY)
+        AND (pY <  gWrapMaxY);
   }
   else
     return True;

@@ -1,6 +1,6 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                          Frequently Asked Questions
-                             Version 3.2.4.1
+                             Version 3.2.4.2
 
 This file provides answers to many common questions about the PDK. The
 questions are broken up into two parts:

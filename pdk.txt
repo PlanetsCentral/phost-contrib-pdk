@@ -1,5 +1,5 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
-                             Version 3.2.4.1
+                             Version 3.2.4.2
 
 What is the Portable Host Development Kit ?
 ===========================================
@@ -56,7 +56,9 @@ For Win32 systems several PDK versions are available to support different
 compilers. Currently we support BorlandC++ 5.0, Borland/Inprise CBuilder 4
 and Cygwin GCC.
 
-DOS is no longer supported.
+For DOS, you should use DJGPP 2 to compile the PDK. Using an older compiler
+(Turbo C, for example), is still possible in theory, but if you run into
+problems you're probably on your own.
 
 
 How to get it?
@@ -67,7 +69,9 @@ WWW site:
 
     http://www.nefo.med.uni-muenchen.de/~phost/phost3.html
 
-The most recent version is 3.2.4.1 as of April 2, 2000.
+The most recent "official" version is 3.2.4.2 as of September 2001.
+
+You can at any time get the PDK via CVS from SourceForge, see install.txt.
 
 
 What does the PDK *NOT* do?
@@ -162,14 +166,9 @@ In all other distributions, there is:
 Feedback
 ========
 
-Your comments, suggestions, and bug reports are appreciated. Please
-send mails to
-
-                          phost@gmx.net
-
-Please understand that we will only be able to support specific questions
-regarding the PDK and will, in general, not be able to help with general
-programming or design issues.
+There is a mailing list for the PDK and VGA Planets programming in
+general. See http://groups.yahoo.com/group/phostdev for more information.
+All developers are invited to join this list.
 
 
 Credits

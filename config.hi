@@ -204,7 +204,7 @@ CFDefine(PALShipCapturePer10Crew,      PALShipCapturePer10Crew[1],      11, Uns1
 CFDefine(PALRecyclingPer10KT,          PALRecyclingPer10KT[1],          11, Uns16, "1", True, 0,  100)
 CFDefine(PALBoardingPartyPer10Crew,    PALBoardingPartyPer10Crew[1],    11, Uns16, "3", True, 0,  100)
 CFDefine(PALGroundAttackPer100Clans,   PALGroundAttackPer100Clans[1],   11, Uns16, "4", True, 0,  100)
-CFDefine(PALGloryDevice,               PALGloryDevice[1],               11, Uns16, "5", True, 0,  100)
+CFDefine(PALGloryDevice,               PALGloryDevice[1],               11, Uns16, "5", True, 0,  1000)
 CFDefine(PALGloryDamagePer10KT,        PALGloryDamagePer10KT[1],        11, Uns16, "2", True, 0,  100)
 CFDefine(PALImperialAssault,           PALImperialAssault[1],           11, Uns16, "5", True, 0,  100)
 CFDefine(PALRGA,                       PALRGA[1],                       11, Uns16, "5", True, 0,  100)
@@ -217,6 +217,10 @@ CFDefine(CPNumMinefields,              CPNumMinefields,                  1, Uns1
 CFDefine(PALShipMinekillPer10KT,       PALShipMinekillPer10KT[1],       11, Uns16,    "0",  True, 0,  100)
 CFDefine(MaximumMinefieldsPerPlayer,   MaximumMinefieldsPerPlayer[1],   11, Uns16, "10000", True, 0,  10000)
 CFDefine(MineIdNeedsPermission,        MineIdNeedsPermission,            1, Boolean, "No",  False, 0, 1)
+CFDefine(BuildQueue,                   BuildQueue,                       1, BuildQueue_Def, "PALs", False, 0, BQ_LAST_ITEM-1)
+CFDefine(PBPCostPer100KT,              PBPCostPer100KT[1],              11, Uns16,  "200",  True,  0, 10000)
+CFDefine(PBPMinimumCost,               PBPMinimumCost[1],               11, Uns16,  "400",  True,  0, 10000)
+CFDefine(PBPCloneCostRate,             PBPCloneCostRate[1],             11, Uns16,  "200",  True,  0, 10000)
 
 #endif /* PHOST */
 

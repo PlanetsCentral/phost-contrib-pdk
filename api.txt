@@ -1,6 +1,6 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                 Application Programming Interface Reference
-                             Version 3.2.4.1
+                             Version 3.2.4.2
 
 This document outlines the usage of the PDK for writing programs. A good
 understanding of the ANSI C language is assumed. The entire API is declared
@@ -54,7 +54,7 @@ in this file are as follows:
     - Config File Reader Interface
     - Special Ship Function Accessors
     - Wraparound Map Functions
-    - UTILx.DAT Functions (new - 4.1)
+    - UTILx.DAT Functions (new - 4.2)
 
 Manifest Constants
 ==================
@@ -173,7 +173,7 @@ not RACE number. For games in which PlayerRace is nonstandard, this is a
 significant distinction. It allows two players to play the same race yet
 have different configuration options, if so desired.
 
-PDK 4.1 can read HCONFIG.HST files and set up the configuration information
+PDK 4.2 can read HCONFIG.HST files and set up the configuration information
 accordingly. However, keep in mind that HOST is different from PHOST
 at several places, even with "identical" configuration.
 
@@ -238,7 +238,7 @@ that behavior may not be as expected. If a program works just as well for
 HOST games as for PHOST games then it is better to set this variable to
 False in order to not generate warning messages that are irrelevant.
 
-           Boolean gUsingTHost (NEW v4.1)
+           Boolean gUsingTHost (NEW v4.2)
 This variable is set to True by ReadHostData() if the game configuration
 was imported from HCONFIG.HST, not PCONFIG.SRC. Actually, it's
 Read_THost_HConfig_File() which sets this variable.
@@ -2786,7 +2786,7 @@ position of ships and/or mines to locations possibly outside the wraparound
 region. Note that PHOST automatically calls an equivalent function any time
 an external (AUXHOST) program returns control to PHOST.
 
-UTILx.DAT Functions (new - 4.1)
+UTILx.DAT Functions (new - 4.2)
 -------------------------------
 
 The following functions allow programs to write UTILx.DAT records.

@@ -1,6 +1,6 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                             Legal Information
-                             Version 3.2.4.1
+                             Version 3.2.4.2
 
 The PDK is distributed under the GNU General Public License. 
 A copy of this license is included to this distribution, please

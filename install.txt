@@ -1,6 +1,52 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                          Installation Instructions
-                             Version 3.2.4.1
+                             Version 3.2.4.2
+
+
+Getting The Source
+-------------------
+
+The PDK home page is at
+  http://phost-contrib.sourceforge.net/
+SourceForge's project description is at
+  http://sourceforge.net/projects/phost-contrib/
+
+You can get an "official" source archive there, or fetch the
+CVS version. In a nutshell (assuming bash, Linux):
+ $ mkdir src; cd src
+ $ cvs login
+ // just hit Enter at the password prompt
+ $ cvs co phostpdk
+ $ cvs logout
+ $ cd phostpdk
+
+
+Compiling
+----------
+
+Right now, the PDK does not configure itself 100% automatically. It
+comes with several makefiles (`makefile.XXX'), and you have to pick
+one. There should be one that works for you. The best-tested one is
+probably `makefile.gcc' which is for GNU make and gcc. Maybe the
+easiest way to go is to copy it, modifying it if needed. `makefile.dj'
+is for Borland make and DJGPP2 gcc.
+
+Install the following files to a place where the compiler will find
+them:
+    * phostpdk.h, doscvt.h: the API include files
+    * libpdk.a or pdk.lib: the library you'll be linking againgt
+
+To compile your own PDK programs, #include <phostpdk.h> (and
+<doscvt.h> if needed), and link against the library. For example,
+assume you have installed the PDK in a subdirectory `phostpdk', so you
+can do
+    gcc -c module.c -Iphostpdk
+to compile your modules, and
+    gcc -o program module.o -Lphostpdk -lpdk
+
+
+OLD INSTALLATION INSTRUCTIONS
+==============================
 
 The installation of the PDK is very straightforward.
 
@@ -25,6 +71,3 @@ Platform-Specific Notes
 * For Win32 systems are several PDK versions available to support different
   compilers. Currently we support BorlandC++ 5.0, Borland/Inprise CBuilder 4
   and Cygwin GCC.
-
-
-

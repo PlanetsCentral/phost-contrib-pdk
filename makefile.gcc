@@ -9,8 +9,6 @@ SRCS=auxdata.c pconfig.c crc.c enum.c hostio.c main.c portable.c \
 HDRS=battle.h doscvt.h listmat.h phostpdk.h ptscore.h squishio.h version.h \
 	 conf.h includes.h pgetopt.h private.h shrouds.h stdtyp.h
 OBJS=$(SRCS:.c=.o)
-INDC:=$(SRCS:.c=.c~)
-INDH:=$(HDRS:.h=.h~)
 
 #.SUFFIXES: .o
 

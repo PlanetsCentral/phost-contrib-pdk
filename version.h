@@ -18,6 +18,10 @@
 #define PHOST_VERSION_MAJOR 3
 
 /* A change in PHOST_VERSION_MINOR does *not* invalidate data file formats */
-#define PHOST_VERSION_MINOR 2
+#define PHOST_VERSION_MINOR 3
+
+/* PDK Version */
+#define PDK_VERSION_MAJOR 4
+#define PDK_VERSION_MINOR 2
 
 #endif /* _VERSION_H_ */

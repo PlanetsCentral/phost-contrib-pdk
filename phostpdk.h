@@ -250,6 +250,13 @@ extern "C" {
   } Language_Def;
 
   typedef enum {
+    BQ_PAL,                     /* Good ol' PAL system */
+    BQ_Fifo,                    /* Even older FIFO system */
+    BQ_PBP,                     /* Degi's PBP system */
+    BQ_LAST_ITEM    /* must be one bigger than last one */
+  } BuildQueue_Def;
+
+  typedef enum {
     UTIL_Ext,
     UTIL_Dat
   } UtilMode_Def;
@@ -445,12 +452,16 @@ typedef struct
     Uns16    DamageLevelForTerraformFail; /*!< Damage level at which terraforming fails */
 
     /* Build queue */
+    BuildQueue_Def BuildQueue;       /*!< Build Queue Mode (BQ_xxx) */
     Boolean  AllowPriorityBuild;     /*!< Allow "PBx" Fcodes */
     Uns16    SBQBuildPALBoost[12];   /*!< Multiplier for existing build orders */
     Uns16    SBQNewBuildPALBoost[12];/*!< Multiplier for new build orders */
     Uns32    SBQPointsForAging[12];  /*!< Constant offset for old build orders */
     Uns32    SBQBuildChangePenalty[12]; /*!< Constant offset for build changes */
     Uns16    SBQBoostExpX100[12];    /*!< Exponent for build order boosts X 100 */
+    Uns16    PBPCostPer100KT[12];    /*!< Cost for building a 100 kt hull */
+    Uns16    PBPMinimumCost[12];     /*!< Minimum cost for building a ship */
+    Uns16    PBPCloneCostRate[12];   /*!< Cost scaling for clone orders (%) */
     Uns16    PALDecayPerTurn[12];    /*!< Exponential decay term */
     Uns16    PALPlayerRate[12];      /*!< Player-dependent scaling */
     Uns16    PALCombatAggressor[12]; /*!< Points for being aggressor in combat */

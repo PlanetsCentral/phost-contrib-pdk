@@ -232,6 +232,7 @@ typedef enum {
   CFType_Language_Def,
   CFType_ScoreMethod_Def,
   CFType_char,
+  CFType_BuildQueue_Def,
   CFType_NoType
 } CFType;
 typedef char NoType;
@@ -290,6 +291,7 @@ static int readBooleanType(Uns16 ix, char *val);
 static int readLanguageType(Uns16 ix, char *val);
 static int readScoreMethodType(Uns16 ix, char *val);
 static int readCharType(Uns16 ix, char *val);
+static int readBuildQueueType(Uns16 ix, char* val);
 
 /** Get name of a language. \internal */
 static const char *
@@ -413,6 +415,8 @@ DoAssignment(const char *name, char *val, const char *lInputLine)
     return readScoreMethodType(ix, val);
   case CFType_char:
     return readCharType(ix, val);
+  case CFType_BuildQueue_Def:
+    return readBuildQueueType(ix, val);
   default:
     passert(0);
   }
@@ -681,6 +685,38 @@ readLanguageType(Uns16 ix, char *val)
   }
 
   return checkEOLGarbage();
+}
+
+static int
+readBuildQueueType(Uns16 ix, char* val)
+{
+    /* I think this one's overkill as we always parse one item only. */
+    Uns16 n = Elements[ix];
+    Uns16 i;
+    char *p;
+    int match;
+    
+    for (i=0; i<n; i++) {
+        p = strtok(val, ", \t");
+        val = 0;
+
+        if (p == 0) {
+            Error("%s: not enough elements in assignment", CONFIG_FILE);
+            return 0;
+        }
+
+        /* The order of methods in the following list is important and
+           must match the order of definitions in pconfig.h */
+        match = ListMatch(p, "PALs Fifo PBPs");
+
+        if (match < 0) {
+            Error("%s: invalid build queue mode '%s'", CONFIG_FILE, p);
+            return 0;
+        }
+        *(BuildQueue_Def *)(Data + Pos[ix] + i*sizeof(BuildQueue_Def)) = (BuildQueue_Def)match;
+    }
+
+    return checkEOLGarbage();
 }
 
 static int
