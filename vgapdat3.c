@@ -206,6 +206,31 @@ BaseBuildOrder(Uns16 pID, BuildOrder_Struct * pOrder)
   return False;
 }
 
+char *
+BaseOrderString(int bID, char *pBuffer)
+{
+   Uns16 OrderType;
+   static char OrderString[31];
+   char *lPtr = pBuffer;
+
+   passert((bID >= 1) AND(bID <= PLANET_NR));
+
+   if (lPtr EQ NULL)
+     lPtr = OrderString;              
+
+   OrderType = BaseOrder(bID);
+
+   if (OrderType==NoBaseMission)    strcpy(lPtr,"None");
+   if (OrderType==Refuel)           strcpy(lPtr,"Refuel");
+   if (OrderType==MaxDefense)       strcpy(lPtr,"Max Defense");
+   if (OrderType==LoadTorps)        strcpy(lPtr,"Load Torps onto ships");
+   if (OrderType==UnloadFreighters) strcpy(lPtr,"Unload Freighters");
+   if (OrderType==RepairBase)       strcpy(lPtr,"Repair Base");
+   if (OrderType==ForceSurrender)   strcpy(lPtr,"Force Surrender");
+
+   return lPtr;
+}
+
 void
 PutBaseOwner(Uns16 pID, RaceType_Def pOwner)
 {
