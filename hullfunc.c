@@ -356,6 +356,20 @@ HullCoolsTo50(Uns16 pHull, Uns16 Owner)
 }
 
 Boolean
+ShipCools(Uns16 pShip)
+{
+  /* NOTE: Added by Maurits 2004-08-22 */
+  return ShipCoolsTo50(pShip);
+}
+
+Boolean
+HullCools(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-08-22 */
+  return HullCoolsTo50(pHull, Owner);
+}
+
+Boolean
 ShipHeatsTo100(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_HeatsTo100);
@@ -366,6 +380,20 @@ HullHeatsTo100(Uns16 pHull, Uns16 Owner)
 {
   /* NOTE: Added by Maurits 2004-07-30 */
   return hullHasSpecial(pHull, SPC_HeatsTo100, Owner);
+}
+
+Boolean
+ShipHeats(Uns16 pShip)
+{
+  /* NOTE: Added by Maurits 2004-08-22 */
+  return (ShipHeatsTo50(pShip) OR ShipHeatsTo100(pShip));
+}
+
+Boolean
+HullHeats(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-08-22 */
+  return (HullHeatsTo50(pHull, Owner) OR HullHeatsTo100(pHull, Owner));
 }
 
 Boolean
