@@ -483,7 +483,7 @@ PutPlanetOwner(Uns16 pID, RaceType_Def pOwner)
 }
 
 void
-PutPlanetFC(Uns16 pID, char *pFCode)
+PutPlanetFC(Uns16 pID, const char *pFCode)
 {
   Planet_Struct *lPlanet = GetPlanet(pID);
 

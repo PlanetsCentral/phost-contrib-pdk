@@ -211,12 +211,12 @@ Read_HConfig_File(void)
   if (lConfigFile == NULL)
     return IO_FAILURE;
 
-  gCurrentConfigFile = CONFIG_FILE;
-
   ClearConfig();
+  gCurrentConfigFile = CONFIG_FILE;
   ConfigFileReaderEx(lConfigFile, CONFIG_FILE, "phost", True,
                      DoAssignment, gConfigWarnings ? Warning : Ignore, True);
   fclose(lConfigFile);
+
   lConfigFile = OpenInputFile(SHIPLIST_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR);
   if (lConfigFile) {
       gCurrentConfigFile = SHIPLIST_FILE;
@@ -225,6 +225,7 @@ Read_HConfig_File(void)
       fclose(lConfigFile);
   }
   DoDefaultAssignments();
+
   ReinitWraparound();
   
   return IO_SUCCESS;

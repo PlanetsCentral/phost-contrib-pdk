@@ -13,6 +13,11 @@ hostdata: gPlanetControl, gShipControl, gBaseControl1, gBaseControl2
 hostdata: ReadHostData, WriteHostData
 
 ; auxdata.c -- this should be fixed
+;static_aux: gReadAuxData, gNoAuxData, gAuxdataLoaded, gCloakcLoaded
+;static_aux: gCloakcLength, gScanInfo, gCombatShields, gVersionMajor
+;static_aux: gVersionMinor, gAuxilliaryInfo, gInitialized
+;static_aux: sFirstChunk, sLastChunk
+
 keep auxdata.c
 
 ; battle.c -- splitting makes no sense

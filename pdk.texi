@@ -1699,6 +1699,7 @@ functions. Your program will likely crash if this assumption isn't met.
 * PutPlanetLocationY::
 * PutPlanetName::
 * PutPlanetOwner::
+* ChangePlanetOwner::
 * PutPlanetFC::
 * PutPlanetMines::
 * PutPlanetFactories::
@@ -1760,6 +1761,7 @@ Functions in this section:
 @item PutPlanetLocationY
 @item PutPlanetName
 @item PutPlanetOwner
+@item ChangePlanetOwner
 @item PutPlanetFC
 @item PutPlanetMines
 @item PutPlanetFactories
@@ -2068,15 +2070,23 @@ parameter must point to a null-terminated string. Only the first
 PLANETNAME_SIZE characters will be used. To save changes use
 Write_Planetname_File() function.
 
-@node PutPlanetOwner,PutPlanetFC,PutPlanetName,Planet Accessors
+@node PutPlanetOwner, ChangePlanetOwner, PutPlanetName, Planet Accessors
 @subsection void PutPlanetOwner(Uns16 pID, RaceType_Def pOwner)
 @findex PutPlanetOwner
 
 This function sets the given planet's owner to the specified race. Note
 that care must be exercised to take into account any starbase that may be
-present at this planet.
+present at this planet. See also @xref{ChangePlanetOwner}.
 
-@node PutPlanetFC,PutPlanetMines,PutPlanetOwner,Planet Accessors
+@node ChangePlanetOwner, PutPlanetFC, PutPlanetOwner, Planet Accessors
+@subsection void ChangePlanetOwner(Uns16 pID, RaceType_Def pOwner)
+@findex ChangePlanetOwner
+
+This function changes ownership of the specified planet to the given race.
+If the planet has a starbase, that base's ownership is changed as well,
+the build order is cancelled and the hulls removed.
+
+@node PutPlanetFC, PutPlanetMines, ChangePlanetOwner, Planet Accessors
 @subsection void PutPlanetFC(Uns16 pID, char* pFCode)
 @findex PutPlanetFC
 
@@ -5566,6 +5576,8 @@ documentation file that comes with PHOST 3.
 * ForbidShipRemoteControl::
 * ShipRemoteController::
 * ShipRemoteOwner::
+* SetDefaultRemoteState::
+* DefaultRemoteState::
 @end menu
 
 @iftex
@@ -5581,6 +5593,8 @@ Functions in this section:
 @item ForbidShipRemoteControl
 @item ShipRemoteController
 @item ShipRemoteOwner
+@item SetDefaultRemoteState
+@item DefaultRemoteState
 @end itemize
 @end iftex
 
@@ -5664,14 +5678,33 @@ succeeds, it returns True.
 This function returns the number of the player currently possessing remote
 control of a ship, or 0 if the ship is not under remote control.
 
-@node ShipRemoteOwner,,ShipRemoteController,Remote Control Interface
+@node ShipRemoteOwner, SetDefaultRemoteState, ShipRemoteController, Remote Control Interface
 @subsection Uns16   ShipRemoteOwner(Uns16 pShipID)
 @findex ShipRemoteOwner
 
 This function returns the original owner of a ship that is currently under
 remote control.
 
-@node Config File Reader Interface,Special Ship Function Accessors,Remote Control Interface,Function Call Interface
+@node SetDefaultRemoteState, DefaultRemoteState, ShipRemoteOwner, Remote Control Interface
+@subsection void SetDefaultRemoteState(RaceType_Def pRace, Boolean pForbid)
+@findex SetDefaultRemoteState
+
+This function changes the default remote control status for player
+@code{pRace}. This is the same function as the "remote..default" command
+processor command.
+
+When the second parameter is True, remote control will be forbidden by
+default; when it is False, control will be enabled.
+
+@node DefaultRemoteState,  , SetDefaultRemoteState, Remote Control Interface
+@subsection Boolean DefaultRemoteState(RaceType_Def pRace)
+@findex DefaultRemoteState
+
+This function returns the default remote control status for race
+@code{pRace}. If it returns False, this player's ships will be
+remote-controllable by default, otherwise they won't.
+
+@node Config File Reader Interface, Special Ship Function Accessors, Remote Control Interface, Function Call Interface
 @section Config File Reader Interface
 
 The config file reader interface allows application programs to parse
@@ -5693,7 +5726,7 @@ Function in this section:
 @end iftex
 
 
-@node ConfigFileReaderEx,ConfigFileReader,,Config File Reader Interface
+@node ConfigFileReaderEx, ConfigFileReader, Config File Reader Interface, Config File Reader Interface
 @subsection void ConfigFileReaderEx(FILE *pInFile, const char *pFileName, const char *pSection, Boolean pUseDefaultSection, configAssignment_Func pAssignFunc, configError_Func pError, Boolean pContinue)
 @findex ConfigFileReaderEx
 

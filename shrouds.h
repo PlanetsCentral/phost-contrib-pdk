@@ -2,7 +2,6 @@
 #define _SHROUDS_H_
 
 #define ClearHostData               T_0005
-#define ChangePlanetOwner           T_0006
 #define HandleMissingAuxdata        T_0007
 #define ReadAuxData                 T_0008
 #define WriteAuxData                T_0009

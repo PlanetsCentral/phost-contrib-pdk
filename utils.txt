@@ -1,0 +1,77 @@
+PHOST UTILITIES
+================
+
+  These are the PHost Utilities.
+     CRACK       - decode player passwords
+     KILLRACE    - remove a race from the game
+     PALLY       - set up alliances
+     PTSCORE     - famous scoring system
+  This version of the utilities should work well with PHost 3.x as
+  well as 4.x.
+
+  Note that PMASTER has deliberately not been included, you should use
+  AMASTER instead. If you insist on PMASTER, you can use one of the
+  older versions which should work as well.
+
+
+Quickie docs for the utilities
+===============================
+
+  Here's a quick introduction to the utilities. PTSCORE has its own
+  documentation file.
+
+  All utilities have the basic syntax:
+     utility [options...] <gamedirectory> [<rootdirectory>]
+  All utilities (PTSCORE excluded) accept the options '-h' (display
+  help message) and '-v' (display version number).
+
+
+CRACK
+------
+
+  usage: crack <gamedirectory>
+
+  This will print out all player passwords.
+
+
+KILLRACE
+---------
+
+  usage: killrace [-k] <race> <gamedirectory>
+
+  This will remove the specified race (1..11) from the specified game,
+  after a prompt. If '-k' is specified, skips the prompt.
+
+
+PALLY
+------
+
+  usage: pally [-t <nnn>|-c <nnn>] <gamedirectory>
+
+  Without options, displays current alliances.
+
+  With option '-t', builds a full alliance between all players given in
+  <nnn> (e.g., '-t 12A' makes an alliance between Fed, Lizard and Rebel).
+
+  With option '-c', cancels all alliances involving races from <nnn>
+  (e.g., '-c 12A' cancels all alliances involving Feds, Lizards or Rebels).
+
+
+SENDMESS
+---------
+
+  usage: sendmess [-a] [-f <name>] <races> <gamedirectory>
+
+  Reads a message text from standard input, and sends it to all races
+  specified on the command line. <races> must be a sequences of digits
+  or letters not separated by spaces, e.g. '37B' for Bird, Crystals and
+  Colonies. 'E' sends to everyone in the game.
+
+  With option '-a', abort the message when it exceeds size limits (15x40).
+  By default SENDMESS truncates the message.
+
+  You can change your name with '-f'. By default, messages appear as
+  'FROM: Your Host'. With '-f "Fred vom Jupiter"', they will appear as
+  'FROM: Fred vom Jupiter'.
+
+

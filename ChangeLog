@@ -1,3 +1,17 @@
+Sat May 10 21:09:07 2003  Stefan  <Streu@gmx.de>
+
+	* pconfig.c (Read_HConfig_File): removed bogus 'fclose'
+
+	* vgapdat2.c (PutShipFC, PutPlanetFCode): added proper 'const'
+	qualifier
+
+	* vgapdat1.c (ChangePlanetOwner): published this function
+
+Wed May  7 21:16:58 2003  Stefan  <Streu@gmx.de>
+
+	* auxdata.c (DefaultRemoteState): added functions to mess with
+ 	default remote status
+
 Sat Apr 26 12:34:25 2003  Stefan  <Streu@gmx.de>
 
 	* auxdata.c (WriteAuxVersionInfo): fixed another timestamp issue

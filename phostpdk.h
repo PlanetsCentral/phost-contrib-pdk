@@ -1078,6 +1078,8 @@ Pconfig_Struct;
   extern Boolean ForbidShipRemoteControl(Uns16 pShipID, Uns16 pOrigOwner);
   extern Uns16 ShipRemoteController(Uns16 pShipID);
   extern Uns16 ShipRemoteOwner(Uns16 pShipID);
+  extern void SetDefaultRemoteState(RaceType_Def pRace, Boolean pForbid);
+  extern Boolean DefaultRemoteState(RaceType_Def pRace);
 
 /*
  *  Global variables
@@ -1150,7 +1152,7 @@ Pconfig_Struct;
   extern void PutShipCargo(Uns16 pID, CargoType_Def pType, Uns16 pCargo);
   extern void PutShipName(Uns16 pID, const char *pName);
   extern void PutShipOwner(Uns16 pID, RaceType_Def pOwner);
-  extern void PutShipFC(Uns16 pID, char *pFCode);
+  extern void PutShipFC(Uns16 pID, const char *pFCode);
 #define PutShipFCode PutShipFC
   extern void PutShipSpeed(Uns16 pID, Uns16 pSpeed);
   extern void PutShipWaypointX(Uns16 pID, Uns16 pWaypoint);
@@ -1225,7 +1227,8 @@ Pconfig_Struct;
   extern const char *PlanetFCode(Uns16 pID, char *pFCode);
   extern const char *PlanetTempString(Uns16 pPlanet);
   extern void PutPlanetOwner(Uns16 pID, RaceType_Def pOwner);
-  extern void PutPlanetFC(Uns16 pID, char *pFCode);
+  extern void ChangePlanetOwner(Uns16 pID, RaceType_Def pOwner);
+  extern void PutPlanetFC(Uns16 pID, const char *pFCode);
 #define PutPlanetFCode PutPlanetFC
   extern void PutPlanetMines(Uns16 pID, Uns16 pMines);
   extern void PutPlanetFactories(Uns16 pID, Uns16 pFactories);

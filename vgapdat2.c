@@ -389,7 +389,7 @@ PutShipOwner(Uns16 pID, RaceType_Def pOwner)
 }
 
 void
-PutShipFC(Uns16 pID, char *pFCode)
+PutShipFC(Uns16 pID, const char *pFCode)
 {
   Ship_Struct *lShip = GetShip(pID);
 

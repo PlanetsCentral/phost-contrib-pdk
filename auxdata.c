@@ -1410,6 +1410,26 @@ ShipRemoteOwner(Uns16 pShipID)
   return gOriginalOwner[pShipID];
 }
 
+void
+SetDefaultRemoteState(RaceType_Def pRace, Boolean pForbid)
+{
+    Uns16 lMask = (1 << pRace);
+    if (pForbid)
+        gOriginalOwner[0] |= lMask;
+    else
+        gOriginalOwner[0] &= ~lMask;
+}
+
+Boolean
+DefaultRemoteState(RaceType_Def pRace)
+{
+    Uns16 lMask = 1 << pRace;
+    if (gOriginalOwner[0] & lMask)
+        return True;
+    else
+        return False;
+}
+
 /*
  *    F I L E    I N P U T    A N D  O U T P U T
  *
