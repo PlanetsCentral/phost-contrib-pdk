@@ -691,7 +691,15 @@ Pconfig_Struct;
   extern Boolean Write_Racenames_File(void);
   extern Boolean WriteWormholeFile(void);
   extern Boolean WriteCLOAKCFile(void);
-
+  extern Boolean Write_Hullspec_File(void);
+  extern Boolean Write_Truehull_File(void);
+  extern Boolean Write_Engspec_File(void);
+  extern Boolean Write_Torpspec_File(void);
+  extern Boolean Write_Beamspec_File(void);
+  extern Boolean Write_Planetname_File(void);
+  extern Boolean Write_Xyplan_File(void);
+  
+  
 /*
  *  Initializing dynamic files (optional routines in place of reading from disk)
  */
@@ -716,11 +724,23 @@ Pconfig_Struct;
  */
 
   extern Uns16 BuildQueuePeek(BaseOrder_Struct * pOrder);
+  extern BaseOrder_Struct * BuildQueueAccess(Uns16 pMember);
   extern void BuildQueuePush(BaseOrder_Struct * pOrderPtr);
   extern void BuildQueueInvalidate(Uns16 pBase);
   extern Uns16 ShipsInBuildQueue(void);
   extern void SortBuildQueue(void);
-  extern BaseOrder_Struct *BuildQueueAccess(Uns16 pMember);
+  extern Uns16 BuildQueueBaseID(Uns16 pPosition);
+  extern Uns32 BuildQueuePriority(Uns16 pPosition);
+  extern Boolean BuildQueueIsCloning(Uns16 pPosition);
+  extern RaceType_Def BuildQueueShipOwner(Uns16 pPosition);
+  extern RaceType_Def BuildQueueOwner(Uns16 pPosition);
+  extern Uns16 BuildQueueHullType(Uns16 pPosition);
+  extern Uns16 BuildQueueEngineType(Uns16 pPosition);
+  extern Uns16 BuildQueueBeamType(Uns16 pPosition);
+  extern Uns16 BuildQueueTorpType(Uns16 pPosition);
+  extern Uns16 BuildQueueBeamNumber(Uns16 pPosition);
+  extern Uns16 BuildQueueTorpNumber(Uns16 pPosition);
+  extern void PutBuildQueuePriority(Uns16 pPosition, Uns32 pPriority);
 
 /*
  *       Activity Level
@@ -990,6 +1010,11 @@ Pconfig_Struct;
   extern const char *ShipFC(Uns16 pID, char *pFCode);
   extern Uns16 ShipCargo(Uns16 pID, CargoType_Def pType);
   extern Uns16 CreateShip(RaceType_Def pOwner);
+  extern Uns16 ShipTotalMass(Uns16 sID);
+  extern Uns16 ShipTravelMass(Uns16 sID);
+  extern Uns16 ShipCargoMass(Uns16 sID);
+  extern char *ShipMissionString(Uns16 sID, char *pBuffer);
+  extern Boolean IsShipFCSpecial(Uns16 sID);
   extern void PutShipCargo(Uns16 pID, CargoType_Def pType, Uns16 pCargo);
   extern void PutShipName(Uns16 pID, const char *pName);
   extern void PutShipOwner(Uns16 pID, RaceType_Def pOwner);
@@ -1048,6 +1073,20 @@ Pconfig_Struct;
   extern Uns16 PlanetTemp(Uns16 pID);
   extern Boolean PlanetBuildBase(Uns16 pID);
   extern Boolean PlanetHasNatives(Uns16 pPlanet);
+  extern Boolean IsPlanetFCSpecial(Uns16 pID);
+  extern char *PlanetNatString(Uns16 pID, char *pBuffer);
+  extern char *PlanetNatGovmString(int pID, char *pBuffer);
+  extern Uns16 PlanetMaxFactories(Uns16 pID);
+  extern Uns16 PlanetMaxDefense(Uns16 pID);
+  extern Uns16 PlanetMaxMines(Uns16 pID);
+  extern Uns16 PlanetMining(Uns16 pID, Uns16 Mineral);
+  extern Uns16 PlanetGovTaxRate(Uns16 pID);
+  extern Uns16 NumberOfShipsHissingPlanet(Uns16 pID);
+  extern int PlanetNatHappyChange(Uns16 pID);
+  extern int PlanetColHappyChange(Uns16 pID);
+  extern Uns16 PlanetColIncome(Uns16 pID);
+  extern Uns16 PlanetNatIncome(Uns16 pID);
+  extern Uns16 PlanetSuppIncome(Uns16 pID);
   extern const char *PlanetName(Uns16 pID, char *pBuffer);
   extern const char *PlanetFCode(Uns16 pID, char *pFCode);
   extern const char *PlanetTempString(Uns16 pPlanet);
@@ -1071,6 +1110,10 @@ Pconfig_Struct;
   extern void PutPlanetTemp(Uns16 pID, Uns16 pTemp);
   extern void PutPlanetBuildBase(Uns16 pID, Boolean pBuild);
 
+  extern void PutPlanetName(Uns16 pID, char *pName);
+  extern void PutPlanetLocationX(Uns16 pID, Uns16 pX);
+  extern void PutPlanetLocationY(Uns16 pID, Uns16 pY);
+
 /*
  *   Base functions
  */
@@ -1092,6 +1135,7 @@ Pconfig_Struct;
   extern Uns16 BaseTubes(Uns16 pID, Uns16 pTorpType);
   extern Uns16 BaseTorps(Uns16 pID, Uns16 pTorpType);
   extern Boolean BaseBuildOrder(Uns16 pID, BuildOrder_Struct * pOrder);
+  extern char *BaseOrderString(int bID, char *pBuffer);
   extern void CreateBase(Uns16 pPlanet);
   extern void PutBaseOwner(Uns16 pID, RaceType_Def pOwner);
   extern void PutBaseDefense(Uns16 pID, Uns16 pDefense);
@@ -1146,6 +1190,22 @@ Pconfig_Struct;
   extern Uns16 HullTubeNumber(Uns16 pHullNr);
   extern Uns16 HullBeamNumber(Uns16 pHullNr);
   extern Uns16 HullMoneyCost(Uns16 pHullNr);
+  extern void PutHullPicnumber(Uns16 pHullNr, Uns16 pHullPic);
+  extern void PutHullTritCost(Uns16 pHullNr, Uns16 pTritCost);
+  extern void PutHullDurCost(Uns16 pHullNr, Uns16 pDurCost);
+  extern void PutHullMolyCost(Uns16 pHullNr, Uns16 pMolyCost);
+  extern void PutHullFuelCapacity(Uns16 pHullNr, Uns16 pFuelCapacity);
+  extern void PutHullCrewComplement(Uns16 pHullNr, Uns16 pCrewComplement);
+  extern void PutHullEngineNumber(Uns16 pHullNr, Uns16 pEngineNumber);
+  extern void PutHullMass(Uns16 pHullNr, Uns16 pMass);
+  extern void PutHullTechLevel(Uns16 pHullNr, Uns16 pTechLevel);
+  extern void PutHullCargoCapacity(Uns16 pHullNr, Uns16 pCargoCapacity);
+  extern void PutHullBays(Uns16 pHullNr, Uns16 pBays);
+  extern void PutHullTubeNumber(Uns16 pHullNr, Uns16 pTubeNumber);
+  extern void PutHullBeamNumber(Uns16 pHullNr, Uns16 pBeamNumber);
+  extern void PutHullMoneyCost(Uns16 pHullNr, Uns16 pMoneyCost);
+  extern void PutTrueHull(RaceType_Def pRace, Uns16 pHullIndex, Uns16 pHullNr);
+  extern void PutHullName(Uns16 pHullNr, const char *pName);
   extern Boolean ShipDoesAlchemy(Uns16 pShip);
   extern Boolean ShipDoesRefinery(Uns16 pShip);
   extern Boolean ShipDoesAdvancedRefinery(Uns16 pShip);
@@ -1180,6 +1240,13 @@ Pconfig_Struct;
   extern Uns16 EngMolyCost(Uns16 pEngNr);
   extern Uns16 EngTechLevel(Uns16 pEngNr);
   extern Uns32 EngFuelConsumption(Uns16 pEngNr, Uns16 pSpeed);
+  extern void PutEngineName(Uns16 pEngNr, const char *pName);
+  extern void PutEngMoneyCost(Uns16 pEngNr, Uns16 pMoneyCost);
+  extern void PutEngTritCost(Uns16 pEngNr, Uns16 pTritCost);
+  extern void PutEngDurCost(Uns16 pEngNr, Uns16 pDurCost);
+  extern void PutEngMolyCost(Uns16 pEngNr, Uns16 pMolyCost);
+  extern void PutEngTechLevel(Uns16 pEngNr, Uns16 pTechLevel);
+  extern void PutEngFuelConsumption(Uns16 pEngNr, Uns16 pSpeed, Uns32 pFuelConsumption);
 
 /*
  *  Torpedo/tube functions
@@ -1195,6 +1262,16 @@ Pconfig_Struct;
   extern Uns16 TorpTechLevel(Uns16 pTorpNr);
   extern Uns16 TorpKillPower(Uns16 pTorpNr);
   extern Uns16 TorpDestructivePower(Uns16 pTorpNr);
+  extern void PutTorpName(Uns16 pTorpNr, char *pName);
+  extern void PutTorpTorpCost(Uns16 pTorpNr, Uns16 pTorpCost);
+  extern void PutTorpTubeCost(Uns16 pTorpNr, Uns16 pTubeCost);
+  extern void PutTorpTritCost(Uns16 pTorpNr, Uns16 pTubeTritCost);
+  extern void PutTorpDurCost(Uns16 pTorpNr, Uns16 pTubeDurCost);
+  extern void PutTorpMolyCost(Uns16 pTorpNr, Uns16 pTubeMolyCost);
+  extern void PutTorpTubeMass(Uns16 pTorpNr, Uns16 pTubeMass);
+  extern void PutTorpTechLevel(Uns16 pTorpNr, Uns16 pTechLevel);
+  extern void PutTorpKillPower(Uns16 pTorpNr, Uns16 pKillPower);
+  extern void PutTorpDestructivePower(Uns16 pTorpNr, Uns16 pDestructivePower);
 
 /*
  *  Beam weapon functions
@@ -1209,6 +1286,15 @@ Pconfig_Struct;
   extern Uns16 BeamTechLevel(Uns16 pBeamNr);
   extern Uns16 BeamKillPower(Uns16 pBeamNr);
   extern Uns16 BeamDestructivePower(Uns16 pBeamNr);
+  extern void PutBeamName(Uns16 pBeamNr, char *pName);
+  extern void PutBeamMoneyCost(Uns16 pBeamNr, Uns16 pMoneyCost);
+  extern void PutBeamTritCost(Uns16 pBeamNr, Uns16 pTritCost);
+  extern void PutBeamDurCost(Uns16 pBeamNr, Uns16 pDurCost);
+  extern void PutBeamMolyCost(Uns16 pBeamNr, Uns16 pMolyCost);
+  extern void PutBeamMass(Uns16 pBeamNr, Uns16 pMass);
+  extern void PutBeamTechLevel(Uns16 pBeamNr, Uns16 pTechLevel);
+  extern void PutBeamKillPower(Uns16 pBeamNr, Uns16 pKillPower);
+  extern void PutBeamDestructivePower(Uns16 pBeamNr, Uns16 pDestructivePower);
 
 /*
  *   Race name functions
