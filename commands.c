@@ -82,7 +82,7 @@ GetLine(FILE* pFile)
     - returns pointer to malloced storage, or 0
     - updates *pString to point to just-after-the-token */
 char*
-GetToken(const char** pString, char* pDelim)
+GetToken(const char** pString, const char* pDelim)
 {
   size_t lLen;
   
@@ -104,7 +104,7 @@ GetToken(const char** pString, char* pDelim)
                       get them all.
     \param pFunc      function to call for each command.
     \param pComplain  function to call on errors.
-    \param pProgName  our program name, for filtering. Must not be NULL.
+    \param pProgName  our program name, for filtering.
     \param pPrivateFile name of a file private to this add-on, in which
                       to look for commands, too. Must be a sprintf template
                       for exactly one integer argument; expansion must
@@ -130,19 +130,21 @@ CommandFileReader(Uns16 pRace, CommandReader_Func pFunc,
   }
 
   /* private files */
-  if (pRace) {
-    sprintf(lFilenameBuffer, pPrivateFile, pRace);
-    if ((lFile = OpenInputFile(lFilenameBuffer, TEXT_MODE | GAME_DIR_ONLY | NO_MISSING_ERROR))) {
-      CommandFileReaderFP(pRace, pRace, pFunc, pComplain, 0, lFile, pData);
-      fclose(lFile);
-    }
-  } else {
-    int lRace;
-    for (lRace = 1; lRace <= OLD_RACE_NR; ++lRace) {
-      sprintf(lFilenameBuffer, pPrivateFile, lRace);
+  if (pPrivateFile) {
+    if (pRace) {
+      sprintf(lFilenameBuffer, pPrivateFile, pRace);
       if ((lFile = OpenInputFile(lFilenameBuffer, TEXT_MODE | GAME_DIR_ONLY | NO_MISSING_ERROR))) {
-        CommandFileReaderFP(0, lRace, pFunc, pComplain, 0, lFile, pData);
+        CommandFileReaderFP(pRace, pRace, pFunc, pComplain, 0, lFile, pData);
         fclose(lFile);
+      }
+    } else {
+      int lRace;
+      for (lRace = 1; lRace <= OLD_RACE_NR; ++lRace) {
+        sprintf(lFilenameBuffer, pPrivateFile, lRace);
+        if ((lFile = OpenInputFile(lFilenameBuffer, TEXT_MODE | GAME_DIR_ONLY | NO_MISSING_ERROR))) {
+          CommandFileReaderFP(0, lRace, pFunc, pComplain, 0, lFile, pData);
+          fclose(lFile);
+        }
       }
     }
   }
@@ -151,7 +153,7 @@ CommandFileReader(Uns16 pRace, CommandReader_Func pFunc,
 /** Complete Command Reader.
     \param pRace      which race's commands we're interested in. May
                       be 0 for all races.
-    \param pFileIsFor type of file we're reading. Zero if "xterncmd.exe",
+    \param pFileIsFor type of file we're reading. Zero if "xterncmd.ext",
                       that is, all commands are prefixed by their race
                       number; nonzero if this file contains only commands
                       from that race (without prefix).
@@ -235,14 +237,14 @@ CommandFileReaderFP(Uns16 pRace, Uns16 pFileIsFor, CommandReader_Func pFunc,
           } else {
             lLineHadColon = False;
           }
-          if (stricmp(pProgName, lPtr2) == 0) {
+          if (*pProgName && stricmp(pProgName, lPtr2) == 0) {
             /* case 1 or 2 */
             MemFree(lPtr2);
             lPtr2 = GetToken(&lPtr, " \t\r");
             if (lPtr2)
               if (!pFunc(lLineIsFor, lPtr2, lPtr + strspn(lPtr, " \t\r"), lLine, pData))
                 pComplain(lLineIsFor, lLine, "Command not understood", pData);
-          } else if (lLineHadColon) {
+          } else if (*pProgName && lLineHadColon) {
             /* case 3 */
           } else {
             pFunc(lLineIsFor, lPtr2, lPtr + strspn(lPtr, " \t\r"), lLine, pData);
@@ -281,7 +283,7 @@ ComplainWithSubspaceMessage(Uns16 pRace, const char* pLine, const char* pReason,
 void
 ComplainWithWarningMessage(Uns16 pRace, const char* pLine, const char* pReason, void* pData)
 {
-  if (pReason)
+  if (!pRace)
     Warning("Error executing command `%s': %s", pLine, pReason);
   else
     Warning("Error executing command `%s' for player %d: %s", pLine, pRace, pReason);

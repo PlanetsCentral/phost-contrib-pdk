@@ -1,3 +1,9 @@
+Wed Mar 12 09:14:19 2003  Stefan  <Streu@gmx.de>
+
+	* main.c (InitPHOSTLib): changed banner
+
+	* ex9.c: small fixes
+
 Tue Dec  3 22:05:51 2002  Stefan  <Streu@gmx.de>
 
 	* ptscore.c: cosmetical fixes

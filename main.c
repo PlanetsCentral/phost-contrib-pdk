@@ -90,10 +90,9 @@ InitPHOSTLib(void)
 
   if (firstTime) {
     firstTime = False;
-    fprintf(stdout, "PHOST Development Kit Version %u.%u.%u.%u\n",
-          HOST_VERSION_MAJOR, HOST_VERSION_MINOR, PDK_VERSION_MAJOR,
-          PDK_VERSION_MINOR);
-    fprintf(stdout, "Copyright (C) 1995-2001 Portable Host Project\n\n");
+    fprintf(stdout, "PHOST Development Kit Version %u.%u\n",
+            PDK_VERSION_MAJOR, PDK_VERSION_MINOR);
+    fprintf(stdout, "Copyright (C) 1995-2003 Portable Host Project\n\n");
   }
 
   /* We DO need to create a gConfigInfo structure else InitWraparounds() will 

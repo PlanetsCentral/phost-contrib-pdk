@@ -11,16 +11,16 @@
 @title THE PDK API
 @subtitle THE PORTABLE HOST DEVELOPMENT KIT
 @subtitle Application Programming Interface Reference
-@subtitle PDK Library Version 3.2.4.3
+@subtitle PDK Library Version 4.4
 @sp 2
 @center TexInfo version
-@center Version 2002-03-17
+@center Version 2003-12-03
 @end titlepage
 
 @node Top,(dir),(dir),(dir)
 @center THE PORTABLE HOST DEVELOPMENT KIT
 @center Application Programming Interface Reference
-@center Version 3.2.4.3
+@center Version 4.4
 
 This document outlines the usage of the PDK for writing programs. A good
 understanding of the ANSI C language is assumed. The entire API is declared
@@ -104,7 +104,7 @@ all revisions.
 @multitable @columnfractions .27 .73
 @item Constant @tab Description
 @item RACE_NR  @tab The number of races in the game (11)
-@item SHIP_NR  @tab The maximum number of ships in the game (500)
+@item SHIP_NR  @tab The maximum number of ships in the game (999)
 @item PLANET_NR  @tab The maximum number of planets in the game (500)
 @item BASE_NR  @tab The maximum number of bases in the game (500)
 @item MINE_NR  @tab The maximum number of minefields in the game (10000 - NEW)
@@ -416,6 +416,7 @@ endings inconsistently; the "canonical" name now is the one ending with
 * UTILx.DAT Functions:: (new - 4.2)
 * Score Functions:: (new - 4.3)
 * FCode Functions:: (new - 4.3)
+* Command Message Functions:: (new - 4.3)
 @end menu
 
 
@@ -4376,7 +4377,7 @@ Note that this routine is just a shorthand method of writing:
           )
 @end example
 
-@node PutPlayerAllowsAlly,,PlayerAllowsAlly,Alliance Management
+@node PutPlayerAllowsAlly,  , PlayerAllowsAlly, Alliance Management
 @subsection void PutPlayerAllowsAlly(RaceType_Def pPlayer, RaceType_Def pRace, AllianceLevel_Def pLevel, AllianceState_Def pState)
 @findex PutPlayerAllowsAlly
 
@@ -4384,7 +4385,7 @@ This routine indicates that player 'pPlayer' has offered, denied, or
 conditionally offered (according to the setting of 'pState') the 'pLevel'
 level of alliance to player 'pRace'.
 
-@node Game Status Interface, SetNewMajorVersion, Alliance Management, Function Call Interface
+@node Game Status Interface, File Utility Functions, Alliance Management, Function Call Interface
 @section Game Status Interface
 
 These routines return information about the game data itself.
@@ -6190,7 +6191,7 @@ Note that this function will not attempt to open the file 'pName': this
 is just the name the client will see. You have to read the file and
 supply its data and size to this function.
 
-@node Score Functions, FCode Functions ,UTILx.DAT Functions,Function Call Interface
+@node Score Functions, FCode Functions, UTILx.DAT Functions, Function Call Interface
 @section Score Functions (new - 4.3)
 
 The following functions allow programs to evaluate scores for
@@ -6852,7 +6853,7 @@ by CountType parameter. Setting RaceModify to True makes minerals to be correcte
 race UnitsPerTorpRate PConfig.src parameter, so real torpedo laying costs are counted.
 Making RaceModify False gives no such correction.
 
-@node FCode Functions,  , Score Functions, Function Call Interface
+@node FCode Functions, Command Message Functions, Score Functions, Function Call Interface
 @section Friendly Code Functions (new - 4.3)
 
 Friendly code checking is completely based upon the XTRFCODE.TXT file.
@@ -6945,13 +6946,265 @@ small wrapper around @xref{IsFCodeSpecial, IsFCodeSpecial()}.
 
 This function is also available under the name @code{IsPlanetFCSpecial}.
 
-@node IsFCodeMatch, , IsPlanetFCodeSpecial, FCode Functions
+@node IsFCodeMatch,  , IsPlanetFCodeSpecial, FCode Functions
 @subsection Boolean IsFCodeMatch(const char* p1, const char* p2)
 @findex IsFCodeMatch
 
 True iff the friendly codes p1 and p2 are to be considered matching.
 Two friendly codes match when they are the same (of course), but not
 special. That is, "moo" and "moo" match, but "NUK" and "NUK" don't.
+
+@c ----------------------------------------------------------------------
+
+@node Command Message Functions,  , FCode Functions, Function Call Interface
+@section Command Message Functions
+
+The PDK includes functions to simplify reading command messages ("x
+commands", @code{xterncmd.ext}). It will do all file reading and error
+handling, all you have to do is to implement the actual functionality.
+
+@menu
+* Command Message Concepts::    
+* CommandReader_Func::          
+* CommandComplain_Func::        
+* CommandFileReader::           
+* CommandFileReaderFP::         
+* GetToken::                    
+@end menu
+
+@node Command Message Concepts, CommandReader_Func, Command Message Functions, Command Message Functions
+@subsection Command Message Concepts
+
+Programs have a @emph{name} which is a single word, for example "mfq".
+
+Commands can be @emph{addressed} to a particular add-on. This is done by
+prefixing them with the add-on name followed by a colon: "mfq:". For
+example, to send a command "keep 3" to mfq, player 9 could send a
+command message
+@example
+   x mfq: keep 3
+@end example
+In PHost 3.4b and later, the "x" can be omitted:
+@example
+   mfq: keep 3
+@end example
+Both end up in PHost writing
+@example
+   9: mfq: keep 3
+@end example
+into @code{xterncmd.ext}.
+
+Programs can support @emph{auxiliary command files}. These are files
+which players submit along with their turn files, which the host must
+copy into the game directory. For example, mfq accepts @code{mfqX.txt}
+files. Those contain commands as well. For example, player 9 could send
+a file @code{mfq9.txt} with contents
+@example
+   keep 3
+@end example
+to achieve the same effect as the above command messages. The advantage
+of auxiliary command files is that they're easier to edit than command
+messages, and that you can include comments (starting with a "#" sign). 
+The disadvantage is that hosting systems must explicitly allow players
+to upload the auxiliary files along with their turns.
+
+All these three possibilities will end up in calling your parser
+function with
+@example
+   Race      = 9
+   Command   = "keep"
+   Arguments = "3"
+@end example
+
+For @emph{backward compatibility}, commands are also accepted with just
+the program name (and no colon), or even without addressing, i.e. the
+following command messages would have the same effect at first glance:
+@example
+   x keep 3
+   x mfq keep 3
+@end example
+However, because we don't specifically know that the message was
+addressed to us, we can't detect errors here. If mfq would not know a
+command @code{keep}, it could not tell the player, because another
+program could probably handle the command. One reason why this (at least
+the first possibility) is still useful is that it allows "catch-all"
+commands:
+@example
+   x help
+@end example
+would cause every program which understands the @code{help} command to
+send a help message.
+
+@node CommandReader_Func, CommandComplain_Func, Command Message Concepts, Command Message Functions
+@subsection CommandReader_Func
+@findex CommandReader_Func
+
+@example
+  typedef Boolean (*CommandReader_Func) (Uns16 pRace,
+                                         const char* pCommand,
+                                         const char* pArgs,
+                                         const char* pWholeLine,
+                                         void* pData);
+@end example
+
+A function with this signature is passed to @code{CommandFileReader()}
+to process the commands @xref{CommandFileReader}.
+
+@itemize @minus
+@item pRace
+The race for which this command is valid (1..11).
+@item pCommand
+The command verb (the first word of the command).
+@item pArgs
+The command arguments (all but the first word of the command).
+@item pWholeLine
+The whole command line as read from @code{xterncmd.ext} or the auxiliary
+command file.
+@item pData
+The @code{pData} argument as passed to @code{CommandFileReader}.
+@end itemize
+
+@emph{Error handling:} when this function does not understand the command
+verb, it must return @code{False}. The caller will generate an error
+message (@pxref{CommandComplain_Func}). 
+If it understands the command verb, but the rest of the syntax is wrong,
+this function should generate an error message and return True (that is,
+the command was processed unsuccessfully). If the command was understood
+and performed correctly, the return value is True, too.
+
+@node CommandComplain_Func, CommandFileReader, CommandReader_Func, Command Message Functions
+@subsection CommandComplain_Func
+@findex CommandComplain_Func
+@findex ComplainWithWarningMessage
+@findex ComplainWithSubspaceMessage
+
+@example
+  typedef void (*CommandComplain_Func) (Uns16 pRace,
+                                        const char* pLine,
+                                        const char* pReason,
+                                        void* pData);
+@end example
+
+A function with this signature is passed to @ref{CommandFileReader}
+and is called when the @ref{CommandReader_Func} returns False.
+
+Its parameters are the race number, the offending line, the reason of
+the failure and the data parameter passed to
+@ref{CommandFileReader}. The race number will be zero
+if @code{xterncmd.ext} contains a command which can't be assigned to a race
+(syntax error maybe).
+
+The PDK includes two default implementations which you can use:
+@code{ComplainWithWarningMessage} will show a message on standard output
+(using @ref{Warning}), @code{ComplainWithSubspaceMessage}
+will send a subspace message to the sender of the command
+(using @ref{WriteAUXHOSTMessage}). You can also
+write your own versions.
+
+@node CommandFileReader, CommandFileReaderFP, CommandComplain_Func, Command Message Functions
+@subsection void CommandFileReader(...)
+@findex CommandFileReader
+
+This is the main entry point.
+@example
+  void CommandFileReader(Uns16 pRace, CommandReader_Func pFunc,
+                         CommandComplain_Func pComplain, const char* pProgName,
+                         const char* pPrivateFile, void* pData);
+@end example
+
+The parameters are as follows:
+@itemize @minus
+@item @code{pRace} 
+which race's commands we're interested in (1..11). Zero if you want all
+race's commands. If possible, you should use that latter possibility, so
+you only have to call this function once (so that @code{xterncmd.ext} is
+only read once).
+@item @code{pFunc}
+the function to call for each command, see
+@xref{CommandReader_Func, CommandReader_Func}.
+@item @code{pComplain}
+the function to invoke when your function returns an error, see
+@xref{CommandComplain_Func, CommandComplain_Func}. If NULL, uses
+the default of @code{ComplainWithWarningMessage}.
+@item @code{pProgName}
+the name of your program. Can be NULL or "" to accept all lines,
+unfiltered (i.e. behaves as if all commands were addressed to us).
+@item @code{pPrivateFile}
+the name of the auxiliary command file. This should be a @code{sprintf}
+string with exactly one @code{%d} placeholder; it must not exceed 100
+characters when expanded.
+@item @code{pData}
+this pointer is passed uninterpreted, verbatim to the @code{pFunc} and
+@code{pComplain}. Use this to pass additional information to these
+functions.
+@end itemize
+
+@node CommandFileReaderFP, GetToken, CommandFileReader, Command Message Functions
+@subsection void CommandFileReaderFP(...)
+@findex CommandFileReaderFP
+
+This is the back-end to @xref{CommandFileReader, CommandFileReader()}.
+
+@example
+void CommandFileReaderFP(Uns16 pRace, Uns16 pFileIsFor, 
+                         CommandReader_Func pFunc,
+                         CommandComplain_Func pComplain, const char* pProgName,
+                         FILE* pFile, void* pData);
+@end example
+@itemize @minus
+@item @code{pRace}
+which race's commands we're interested in (race number, or 0 for all races).
+@item @code{pFileIsFor}
+what race this file is for. Either a race number when we're reading that
+race's auxiliary command file, or zero when we're reading
+@code{xterncmd.ext}.
+@item @code{pFunc}
+the function to call for each command, see
+@ref{CommandReader_Func}.
+@item @code{pComplain}
+the function to invoke when your function returns an error, see
+@ref{CommandComplain_Func}. If NULL, uses
+the default of @code{ComplainWithWarningMessage}.
+@item @code{pProgName}
+program name; only commands addressed to that program are handed to
+pFunc. This value can be NULL when we're reading the auxiliary command file
+(i.e. all commands are for us, errors call pComplain), "" to accept all
+commands but don't generate errors.
+@item @code{pFile}
+command file, open for reading
+@item @code{pData}
+this pointer is passed uninterpreted, verbatim to the @code{pFunc} and
+@code{pComplain}. Use this to pass additional information to these
+functions.
+@end itemize
+
+@node GetToken,  , CommandFileReaderFP, Command Message Functions
+@subsection char* GetToken(const char** pString, char* pDelim)
+@findex GetToken
+
+This function is a replacement for @code{strtok}. It finds the first
+token of @code{*pString} (a token consists of characters not listed in
+@code{pDelim}), and returns a @code{MemAlloc'd} copy of that token
+@xref{MemAlloc}. @code{*pString} is advanced accordingly. When the
+string contains no more tokens, returns NULL.
+
+For example,
+@example
+  char *string = "  PDK makes add-ons easy!", *tok;
+  while ((tok = GetToken(&string, " ")) != 0) @{
+    puts(tok);
+    MemFree(tok);
+  @}
+@end example
+will print
+@example
+  PDK
+  makes
+  add-ons
+  easy!
+@end example
+and @code{string} will point to the terminating null of the character
+literal afterwards.
 
 @node Variables Index,,,Top
 @unnumbered Variables Index

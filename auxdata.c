@@ -1,23 +1,31 @@
-
-/****************************************************************************
-All files in this distribution are Copyright (C) 1995-2000 by the program
-authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
-You can reach the PHOST team via email (phost@gmx.net).
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*****************************************************************************/
+/**
+  *  \file auxdata.c
+  *  \brief auxdata.hst handling
+  *
+  *  This module reads and writes auxdata.hst and cloakc.hst, and
+  *  provides accessors for them. It attempts to support both PHost 3
+  *  and PHost 4, the latter with 500 or 999 ships.
+  *
+  *  All files in this distribution are Copyright (C) 1995-2003 by the
+  *  program authors: Andrew Sterian, Thomas Voigt, Steffen Pietsch,
+  *  Stefan Reuther. You can reach the PHOST team via email
+  *  (phost@gmx.net, support@phost.de).
+  *
+  *  This program is free software; you can redistribute it and/or
+  *  modify it under the terms of the GNU General Public License as
+  *  published by the Free Software Foundation; either version 2 of
+  *  the License, or (at your option) any later version.
+  *  
+  *  This program is distributed in the hope that it will be useful,
+  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  *  General Public License for more details.
+  *  
+  *  You should have received a copy of the GNU General Public License
+  *  along with this program; if not, write to the Free Software
+  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+  *  02111-1307, USA.
+  */
 
 #include "phostpdk.h"
 #include "private.h"
@@ -27,6 +35,7 @@ static Boolean gReadAuxData = False;
 static Boolean gNoAuxData = False;
 static Boolean gAuxdataLoaded = False;
 static Boolean gCloakcLoaded = False;
+static Uns16 gCloakcLength;
 
 static Uns16 *gScanInfo = 0;
 static Uns16 *gCombatShields = 0;
@@ -55,8 +64,7 @@ static Boolean gInitialized = False;
 enum {
     P3_SHIP_NR   = 500,
     P3_PLANET_NR = 500,
-    P3_RACE_NR   = RACE_NR,
-    P4_SHIP_NR   = 999
+    P3_RACE_NR   = RACE_NR
 };
 
 #ifdef PDK_PHOST4_SUPPORT
@@ -230,7 +238,7 @@ WriteScanInfo(FILE * pOutfile)
   InitAuxData();
 
   EndianSwap16(gScanInfo, SHIP_NR + 1);
-  if (1 NEQ fwrite(gScanInfo, (SHIP_NR + 1) * sizeof(Uns16), 1, pOutfile)) {
+  if (1 NEQ fwrite(gScanInfo, (VER(P3_SHIP_NR, SHIP_NR) + 1) * sizeof(Uns16), 1, pOutfile)) {
     return False;
   }
   EndianSwap16(gScanInfo, SHIP_NR + 1);
@@ -683,7 +691,7 @@ WriteBuildQueue(FILE* pFile)
           lPointer = &lStruct;
       } else
 #endif
-          lPointer = gBaseOrder + lPlanet;
+          lPointer = &gBaseOrder[lPlanet];
 
       if (! DOSWriteStruct(BaseOrderStruct_Convert, NumBaseOrderStruct_Convert,
                            lPointer, pFile))
@@ -772,8 +780,6 @@ ReadAuxVersionInfo(FILE* pInFile)
     return False;
   }
 
-  Read_Turntime_File();         /* do it again. It will need the version numbers */
-
 #ifdef __MSDOS__
   if (1 NEQ fread(&lTurntime, sizeof(lTurntime), 1, pInFile))
     goto bad_read;
@@ -785,7 +791,7 @@ ReadAuxVersionInfo(FILE* pInFile)
 
   /* Check to make sure timestamp matches NEXTTURN.HST. If not, this file is
      stale. */
-  if (memcmp(&lTurntime, RawAuxTime(), sizeof(lTurntime))) {
+  if (memcmp(&lTurntime, RawTurnTime(), sizeof(lTurntime))) {
     Error ("AUXDATA.HST file is from turn %u. It is stale and must be deleted.\n",
            lTurntime.TurnNumber);
     return False;
@@ -1628,11 +1634,7 @@ WriteCLOAKCFile(void)
   Uns16 lShip;
   FILE *lFile = OpenOutputFile("cloakc.hst", GAME_DIR_ONLY);
   Uns16 lStatus;
-#ifdef PDK_PHOST4_SUPPORT
-  const Uns16 lLimit = gVersionMajor >= 4 ? P4_SHIP_NR : P3_SHIP_NR;
-#else
-  const Uns16 lLimit = P3_SHIP_NR;
-#endif
+  Uns16 lLimit = VER(P3_SHIP_NR, gCloakcLoaded ? gCloakcLength : SHIP_NR);
 
   /* Info(StringRetrieve(S__Writing_File, gConfigInfo->Language[0]),
      "CLOAKC.HST"); */
@@ -1641,8 +1643,7 @@ WriteCLOAKCFile(void)
   for (lShip = 1; lShip <= lLimit; lShip++) {
     if (IsShipExist(lShip)) {
       lStatus = IsShipCloaked(lShip) ? 1 : 0;
-    }
-    else {
+    } else {
       lStatus = 0;
     }
 
@@ -1653,8 +1654,7 @@ WriteCLOAKCFile(void)
   for (lShip = 1; lShip <= lLimit; lShip++) {
     if (IsShipExist(lShip)) {
       lStatus = ShipCombatShieldLevel(lShip);
-    }
-    else {
+    } else {
       lStatus = 0;
     }
 
@@ -1672,11 +1672,6 @@ ReadCLOAKCFile(void)
   Uns16 lShip;
   FILE *lFile = OpenInputFile("cloakc.hst", GAME_DIR_ONLY | NO_MISSING_ERROR);
   Uns16 lStatus;
-#ifdef PDK_PHOST4_SUPPORT
-  const Uns16 lLimit = gVersionMajor >= 4 ? P4_SHIP_NR : P3_SHIP_NR;
-#else
-  const Uns16 lLimit = P3_SHIP_NR;
-#endif
 
   if (lFile EQ 0) {
     Warning("CLOAKC.HST file does not exist!");
@@ -1684,11 +1679,13 @@ ReadCLOAKCFile(void)
     return;
   }
 
+  gCloakcLength = FileLength(lFile) / 4;
+
   /* Info(StringRetrieve(S__Reading_File, gConfigInfo->Language[0]),
      "CLOAKC.HST"); */
 
   /* Read cloak status */
-  for (lShip = 1; lShip <= lLimit; lShip++) {
+  for (lShip = 1; lShip <= gCloakcLength; lShip++) {
     if (!DOSRead16(&lStatus, 1, lFile)) {
       Error("Unable to read info for ship %u in CLOAKC.HST file", lShip);
       return;
@@ -1698,8 +1695,7 @@ ReadCLOAKCFile(void)
       if (lStatus EQ 0) {
         /* Ship is NOT cloaked */
         gScanInfo[lShip] &= 0x7fffU;
-      }
-      else {
+      } else {
         gScanInfo[lShip] |= 0x8000U;
       }
     }
@@ -1708,7 +1704,7 @@ ReadCLOAKCFile(void)
   /* Read shield levels */
   passert(gCombatShields);
 
-  for (lShip = 1; lShip <= lLimit; lShip++) {
+  for (lShip = 1; lShip <= gCloakcLength; lShip++) {
     if (!DOSRead16(&lStatus, 1, lFile)) {
       Error("Unable to read shield info for ship %u in CLOAKC.HST file",
             lShip);
@@ -1758,7 +1754,3 @@ IsCLOAKCFound(void)
 {
   return gCloakcLoaded;
 }
-
-/*************************************************************
-  $HISTORY:$
-**************************************************************/

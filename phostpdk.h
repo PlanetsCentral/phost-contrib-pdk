@@ -1562,7 +1562,7 @@ Pconfig_Struct;
                                   void* pData);
   extern void ComplainWithSubspaceMessage(Uns16 pRace, const char* pLine, const char* pReason, void* pData);
   extern void ComplainWithWarningMessage(Uns16 pRace, const char* pLine, const char* pReason, void* pData);
-    
+  extern char* GetToken(const char** pString, const char* pDelim);
 #ifdef __cplusplus
 }
 #endif
