@@ -434,6 +434,8 @@ extern "C" {
   extern void WrapShipLocation(Uns16 pShip);
   extern void WrapMineLocation(Uns16 pMine);
 
+  extern int RND(double value);
+
 #ifdef __cplusplus
 }
 #endif

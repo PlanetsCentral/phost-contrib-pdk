@@ -879,6 +879,11 @@ doBeamFire(void)
         Int16 lClosest = -1;    /* closest attacking fighter */
         Int32 lClosestPos = 100000UL; /* closest att. fighter dist. */
 
+        if (lOtherPtr->mFLaunched == 0)
+          /* `goto' sucks, but this one gives 40% speedup on my
+             sample case. --sr */
+          goto no_fighters;
+
         for (lFighter = 0; lFighter < MAX_FIGHTER_OUT(1 - lCount); lFighter++) {
           /* In any case, we fire on the closest fighter. The only decision
              is whether we fire on the closest attacking fighter, or whether
@@ -974,6 +979,8 @@ doBeamFire(void)
       if (lOtherPtr->mFLaunched > 0)
         continue;
 
+     no_fighters:
+      
       if ((lCurrPtr->mBeamCharge[lBeam] >= MIN_BEAM_CHARGE_FOR_SHIPS(lCount))
             AND(lShipDistance <= MIN_BEAM_SHIP_HIT_DISTANCE(lCount))
             ) {
