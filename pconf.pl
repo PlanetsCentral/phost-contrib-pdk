@@ -71,7 +71,7 @@ usage( $0 );
 sub getdefaults {
     my $defconfigfile = shift;
 
-    open( DEFCONFIG, $defconfigfile ) or die "Cannot open \"$defconfigfile\": $!\n";
+    open( DEFCONFIG, $defconfigfile ) or die "Cannot open \"$defconfigfile\": $!";
     while (<DEFCONFIG>) {
 	next unless /^CFDefine/;
 	chomp;
@@ -88,7 +88,7 @@ sub getdefaults {
 sub getconfig {
     my $configfile = shift;
 
-    open( CONFIG, $configfile ) or die "Cannot open \"$configfile\": $!\n";
+    open( CONFIG, $configfile ) or die "Cannot open \"$configfile\": $!";
     while (<CONFIG>) {
 	last if /^%\s*PCONTROL/;
 	next if /^%/;
@@ -110,7 +110,7 @@ sub getconfig {
 sub printdefaults {
     my $defconfigfile = shift;
 
-    open( DEFCONFIG, $defconfigfile ) or die "Cannot open \"$defconfigfile\": $!\n";
+    open( DEFCONFIG, $defconfigfile ) or die "Cannot open \"$defconfigfile\": $!";
     print "% PHOST\n";
     while (<DEFCONFIG>) {
 	next unless /^CFDefine/;
