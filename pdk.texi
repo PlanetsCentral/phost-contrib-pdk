@@ -5876,6 +5876,8 @@ two parameters instead of one.
 * ShipHeatsTo50::
 * ShipCoolsTo50::
 * ShipHeatsTo100::
+* ShipHeats::
+* ShipCools::
 * ShipCanHyperwarp::
 * ShipIsGravitonic::
 * ShipScansAllWormholes::
@@ -5906,6 +5908,8 @@ Functions in this section:
 @item ShipHeatsTo50
 @item ShipCoolsTo50
 @item ShipHeatsTo100
+@item ShipHeats
+@item ShipCools
 @item ShipCanHyperwarp
 @item ShipIsGravitonic
 @item ShipScansAllWormholes
@@ -5960,7 +5964,7 @@ planets to 50 degrees.
 This routine returns True if the given ship is a terraformer that cools
 planets to 50 degrees.
 
-@node ShipHeatsTo100, ShipCanHyperwarp, ShipCoolsTo50, Special Ship Function Accessors
+@node ShipHeatsTo100, ShipHeats, ShipCoolsTo50, Special Ship Function Accessors
 @subsection Boolean ShipHeatsTo100(Uns16 pShipNr)
 @findex ShipHeatsTo100
 @findex HullHeatsTo100
@@ -5968,7 +5972,23 @@ planets to 50 degrees.
 This routine returns True if the given ship is a terraformer that heats
 planets to 100 degrees.
 
-@node ShipCanHyperwarp, ShipIsGravitonic, ShipHeatsTo100, Special Ship Function Accessors
+@node ShipHeats, ShipCools, ShipHeatsTo100, Special Ship Function Accessors
+@subsection Boolean ShipHeats(Uns16 pShipNr)
+@findex ShipHeats
+@findex HullHeats
+
+This routine returns True if the given ship is a terraformer that warms
+planets. The target temperature plays no role here.
+
+@node ShipCools, ShipCanHyperwarp, ShipHeats, Special Ship Function Accessors
+@subsection Boolean ShipCools(Uns16 pShipNr)
+@findex ShipCools
+@findex HullCools
+
+This routine returns True if the given ship is a terraformer that cools
+planets. The target temperature plays no role here.
+
+@node ShipCanHyperwarp, ShipIsGravitonic, ShipCools, Special Ship Function Accessors
 @subsection Boolean ShipCanHyperwarp(Uns16 pShipNr)
 @findex ShipCanHyperwarp
 @findex HullCanHyperwarp

@@ -1,10 +1,14 @@
+2004-08-23  Maurits van Rees <maurits@vanrees.org>
+
+	* Added {Ship|Hull}{Heats|Cools} functions.
+
 2004-08-07  Stefan Reuther  <Streu@gmx.de>
 
 	* hullfunc.c (shipHasSpecial): add support for ship-specific functions
 
 	* documentation updated
 
-2003-08-01  Maurits van Rees
+2003-08-01  Maurits van Rees <maurits@vanrees.org>
 
 	* added HullDoesXXX() functions
 	
