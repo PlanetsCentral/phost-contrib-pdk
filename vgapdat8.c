@@ -40,12 +40,15 @@ static void InitBeam(void)
 
  char* BeamName(Uns16 pBeamNr, char* pBuffer)
 {
+    static char lName[21];
+    char *lPtr = pBuffer;
+
     InitBeam();
 
-    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR) AND (pBuffer NEQ NULL));
-    memcpy(pBuffer,gBeamspecPtr[pBeamNr].Name,20);
-    pBuffer[20]=0;
-    return(pBuffer);
+    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
+    memcpy(lPtr, gBeamspecPtr[pBeamNr].Name, 20);
+    lPtr[20] = 0;
+    return lPtr;
 }
 
  Uns16 BeamMoneyCost(Uns16 pBeamNr)

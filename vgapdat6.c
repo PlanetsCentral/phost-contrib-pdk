@@ -40,13 +40,17 @@ static void InitEng(void)
 
  char* EngineName(Uns16 pEngNr, char* pBuffer)
 {
+    static char lName[21];
+    char *lPtr = pBuffer;
+
     InitEng();
 
-    passert((pEngNr>=1) AND (pEngNr<=ENGINE_NR) AND (pBuffer NEQ NULL));
+    passert((pEngNr>=1) AND (pEngNr<=ENGINE_NR));
 
-    memcpy(pBuffer,gEngspecPtr[pEngNr].Name,20);
-    pBuffer[20]=0;
-    return(pBuffer);
+    if (lPtr EQ NULL) lPtr = lName;
+    memcpy(lPtr, gEngspecPtr[pEngNr].Name, 20);
+    lPtr[20] = 0;
+    return lPtr;
 }
 
  Uns16 EngMoneyCost(Uns16 pEngNr)

@@ -40,12 +40,15 @@ static void InitTorp(void)
 
  char* TorpName(Uns16 pTorpNr, char* pBuffer)
 {
+    static char lName[21];
+    char *lPtr = pBuffer;
+
     InitTorp();
 
-    passert((pTorpNr>=1) AND (pTorpNr<=TORP_NR) AND (pBuffer NEQ NULL));
-    memcpy(pBuffer,gTorpspecPtr[pTorpNr].Name,20);
-    pBuffer[20]=0;
-    return(pBuffer);
+    passert((pTorpNr>=1) AND (pTorpNr<=TORP_NR));
+    memcpy(lPtr, gTorpspecPtr[pTorpNr].Name, 20);
+    lPtr[20] = 0;
+    return lPtr;
 }
 
  Uns16 TorpTorpCost(Uns16 pTorpNr)
