@@ -4,6 +4,12 @@
 
 
 
+* Added ability to read HCONFIG.HST
+* Updated for latest PHost config options
+* Added UTILx.DAT/.EXT writing utilities
+* Added DOSCVT functions to `official' API
+
+
 
 Version 3.2.4.1 --  Released December 17, 2000
 ====================

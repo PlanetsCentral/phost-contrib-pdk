@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "private.h"
 
 /* This routine reads a single 16-bit DOS-formatted quantity */
-static Uns16
+Uns16
 ReadDOSUns16(const void *pVal)
 {
 #ifdef __MSDOS__
@@ -39,7 +39,7 @@ ReadDOSUns16(const void *pVal)
 #endif
 }
 
-static Uns32
+Uns32
 ReadDOSUns32(const void *pVal)
 {
 #ifdef __MSDOS__

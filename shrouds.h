@@ -6,7 +6,6 @@
 #define HandleMissingAuxdata        T_0007
 #define ReadAuxData                 T_0008
 #define WriteAuxData                T_0009
-#define Read_HConfig_File           T_0012
 #define WriteConfigFile             T_0013
 #define InitCRC                     T_0014
 #define GenerateCRC                 T_0015

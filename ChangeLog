@@ -1,0 +1,66 @@
+Sat Jul 21 17:07:16 2001  Stefan  <Streu@gmx.de>
+
+	* pconfig.c (Read_THost_HConfig_File): new function
+	gCurrentConfigFile: new variable. Used throughout the code.
+
+	* phostpdk.h: added #defines to use pconfig.src names in 
+	source code (from Piotr Winiarczyk)
+	included new config options
+	restored single-read routine prototypes (seem to have got
+	lost in PDK v3.x)
+
+Mon Apr 16 23:13:06 2001  Stefan  <Streu@gmx.de>
+
+	* pconfig.c (Read_HConfig_File): use new ConfigFileReaderEx, 
+	giving warnings instead of errors
+	(DoAssignment): give warnings instead of errors
+
+	* config.hi: new version from PHost 3.3 (new options)
+
+	* pconfig.c (ConfigFileReaderEx): ConfigFileReader with two
+	new arguments to allow reading of config files *with* continuing
+	after error
+	(checkValue): use new config.hi format from PHost 3.3
+
+	* phostpdk.h: IO_Def now typdef'd here (was #defined to
+	Boolean in private.h before). Allows better prototype for
+	ConfigFileReader &c.
+	
+
+Fri Feb 23 21:25:43 2001  Stefan  <Streu@gmx.de>
+
+	* ex7.c, ex7.sh: new example for PutUtilFileTransfer API
+
+	* phostpdk.h: prototypes for utildata stuff
+
+	* utildata.c: new file (approx. the same as before, but with
+	other doscvt functions).
+
+	* doscvt.c (DOS16Convert, DOS32Convert, DOSStructConvert,
+	UnixConvertStruct, DOSStructSize): copied from PHost source and
+	reindented
+
+	* Makefile: attempt to reduce the mess of makefiles we currently
+ 	have: all the main rules in `common.mak', configuration in
+ 	`Makefile'. First design study only ;-)
+
+	* crack.c (main): ReadGlobalData, else it will fail parsing
+ 	hullfunc files.
+
+	* vgaputil.c (MemRealloc): if pPtr is NULL, behave like
+ 	MemAlloc. This is what ANSI C does for malloc/realloc, and I think
+ 	it's very convenient.
+	
+	* conf.h (#ifdef __DJGPP__): #undef __MSDOS__. IMHO this is better
+ 	done here than in the makefile. Simply because I don't have a
+ 	`make' which understands `makefile.dj' on my DOS partition ;-)
+	(#ifndef SYSTEM_ID): #error
+
+NOTES:
+	* The doscvt stuff should be added to the API, so users can write
+	portable files. I think it's best to simply ship the `doscvt.h'
+	header as an extra entry point to the PDK.  
+
+	* The Makefile mess should be cleaned. At least, extract the
+ 	source file name list and include it into the others. Document
+ 	which Makefile is for which system.

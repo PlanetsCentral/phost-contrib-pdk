@@ -54,6 +54,7 @@ in this file are as follows:
     - Config File Reader Interface
     - Special Ship Function Accessors
     - Wraparound Map Functions
+    - UTILx.DAT Functions (new - 4.1)
 
 Manifest Constants
 ==================
@@ -143,6 +144,11 @@ PDK is encouraged.
                           outcomes of a battle
     Language_Def       -- an enumerated type listing the various languages
                           supported by PHOST
+    UtilMode_Def       -- an enumerated type listing UTIL.DAT access modes
+                          (see "UTILx.DAT functions")
+    DOSCVT_Def         -- an enumerated type listing data types the PDK
+                          can read/write in DOS format (see "Cross-Platform
+                          Portability Part II")
 
 
 Data Structures
@@ -166,6 +172,10 @@ per-player-configurable in previous versions) are indexed by PLAYER number,
 not RACE number. For games in which PlayerRace is nonstandard, this is a
 significant distinction. It allows two players to play the same race yet
 have different configuration options, if so desired.
+
+PDK 4.1 can read HCONFIG.HST files and set up the configuration information
+accordingly. However, keep in mind that HOST is different from PHOST
+at several places, even with "identical" configuration.
 
 
 Global Variables
@@ -227,6 +237,11 @@ games then it is best to set this variable to True, to let the host know
 that behavior may not be as expected. If a program works just as well for
 HOST games as for PHOST games then it is better to set this variable to
 False in order to not generate warning messages that are irrelevant.
+
+           Boolean gUsingTHost (NEW v4.1)
+This variable is set to True by ReadHostData() if the game configuration
+was imported from HCONFIG.HST, not PCONFIG.SRC. Actually, it's
+Read_THost_HConfig_File() which sets this variable.
 
 
 Function Call Interface
@@ -394,6 +409,31 @@ calling the following functions in order:
                WriteWormholeFile    (EXCEPT in Microsoft-DOS)
 
 Note that Write_Racenames_File() is not included.
+
+Note: ReadHostData() is roughly equivalent to calling
+               Read_HConfig_File() || Read_THost_HConfig_File()
+               Read_Turntime_File()
+               Read_Planets_File(&gPlanetControl)
+               Read_Ships_File(&gShipControl)
+               Read_Bases_File(&gBaseControl1, &gBaseControl2)
+               Read_Mines_File()
+               Read_HostGen_File()
+               ReadWormholeFile()       (not in MS-C for DOS)
+               Read_AuxData_File()
+               ReadCLOAKCFile()
+               ReadHullfunc()
+and ReadGlobalData() does
+               Read_Beamspec_File()
+               Read_Torpspec_File()
+               Read_Racenames_File()
+               Read_Hullspec_File()
+               Read_Engspec_File()
+               Read_Truehull_File()
+               Read_Xyplan_File()
+               Read_Planetname_File()
+all in a row. You can call these routines, too, but that's not
+recommended.
+
 
 Data File Mastering
 -------------------
@@ -2044,6 +2084,95 @@ necessary prior to writing to 'pOutFile', then byte-swapped again to return
 the data to the native format of the machine. Thus, the contents of 'pData'
 remain unchanged. The routine returns True if successful, False otherwise.
 
+Cross-Platform Portability, Part II
+-----------------------------------
+
+The following structures and functions are available by including
+<doscvt.h>.
+
+When you want to read or write a data structure in DOS format,
+you first have to define its layout. For each structure, there
+must be an array of DOSConvertElement items:
+           typedef struct DOSConvertElement {
+             size_t mOffset;
+             Uns16 mSize;                  /* for char arguments */
+             DOSCVT_Def mType;
+           } DOSConvertElement;
+
+  - mType is the type of this member; one of DOSCVT_char (array of char),
+    DOSCVT_Uns16, DOSCVT_Int16 (2 bytes, little endian), DOSCVT_Uns32,             /* 4 bytes, little endian */
+    DOSCVT_Int32 (4 bytes, little endian), DOSCVT_enum (any enum),
+    DOSCVT_Boolean.
+  - mOffset is the offset of the structure member in the C structure,
+    usually `offsetof(MyStructure, mMyMember)';
+  - mSize is the number of items, for char arrays only.
+
+For example, the layout of an XYPLAN.DAT entry could be defined as
+           typedef struct {
+               Uns16 mX, mY;
+               Uns16 mOwner;
+           } XYPlan_Entry;
+           DOSConvertElement XYPlan_Convert[] = {
+               { offsetof(XYPlan_Entry, mX), 1, DOSCVT_Uns16 },
+               { offsetof(XYPlan_Entry, mY), 1, DOSCVT_Uns16 },
+               { offsetof(XYPlan_Entry, mOwner), 1, DOSCVT_Uns16 }
+           };
+You can also abbreviate this by using the supplied macros:
+           #define DOSCVT_NAME XYPlan_Entry
+           DOSConvertElement XYPlan_Convert[] = {
+               DOSCVT(Uns16, mX, 1),
+               DOSCVT(Uns16, mY, 1),
+               DOSCVT(Uns16, mOwner, 1)
+           };
+The following are the functions you can now use:
+
+           Boolean DOSWriteStruct(const DOSConvertElement * pStruct,
+                                  Uns16 pNumElements,
+                                  const void *pData, FILE * pOutFile);
+Write the structure pointed to by 'pData' to file 'pOutFile'.
+'pStruct' points to the DOSConvertElement array, 'pNumElements' is the
+number of items in the array. The above structure could be written by
+    XYPlan_Entry lEntry;
+    FILE* lFile;
+    /* ... */
+    DOSWriteStruct(XYPlan_Convert, 3, &lEntry, lFile);
+'DOSWriteStruct' returns True if everything wents ok, False otherwise.
+
+           Boolean DOSReadStruct(const DOSConvertElement * pStruct,
+                                 Uns16 pNumElements,
+                                 void *pData, FILE * pInFile);
+Reads the structure pointed to by 'pData' from 'pInFile'. 'pStruct'
+and 'pNumElements' define the conversion. Returns True if everything
+wents ok, False otherwise.
+
+           Uns16 DOSStructSize(const DOSConvertElement *pStruct,
+                               Uns16 pNumElem);
+Computes the size of the structure defined by 'pStruct' and 'pNumElem'.
+For example, for the above definition,
+    DOSStructSize(XYPlan_Convert, 3)
+would return 6.
+
+           Boolean DOSStructConvert(const DOSConvertElement *pStruct,
+                                    Uns16 pNumElements,
+                                    const void *pSrc, void *pDst);
+'pSrc' points to a char array containing a DOS structure. This
+function will unpack the structure into the C structure 'pDst', using
+the conversion information from 'pStruct' and 'pNumElements'. The array
+'pSrc' points to must be 'DOSStructSize(pStruct, pNumElements)' bytes
+in size. Returns True.
+
+           void UnixConvertStruct(const DOSConvertElement *pStruct,
+                                  Uns16 pNumElements,
+                                  const void *pData, void *pDst);
+This does the reverse operation as 'DOSStructConvert'. It converts
+the C structure pointed to by 'pData' to DOS format. 'pDst' must
+point to 'DOSStructSize(pStruct, pNumElements)' bytes of memory.
+The conversion is defined by 'pStruct' and 'pNumElements'.
+
+           Uns16 ReadDOSUns16(const void *pVal);
+           Uns32 ReadDOSUns32(const void *pVal);
+Fetch the 16 resp. 32 bit quantity pointed to by 'pVal'.
+
 Command-Line Option Processing
 ------------------------------
 
@@ -2415,11 +2544,13 @@ configuration files of the same structure as PCONFIG.SRC with a minimum of
 effort. This frees programmers from having to "reinvent the wheel" and
 incorporate a text-file parser into every new application.
 
-       void ConfigFileReader(FILE *pInFile,
-                             const char *pFileName,
-                             const char *pSection,
-                             Boolean pUseDefaultSection,
-                             configAssignment_Func pAssignFunc)
+       void ConfigFileReaderEx(FILE *pInFile,
+                               const char *pFileName,
+                               const char *pSection,
+                               Boolean pUseDefaultSection,
+                               configAssignment_Func pAssignFunc,
+                               configError_Func pError,
+                               Boolean pContinue)
 This function implements a config file reader. The 'pInFile' argument
 is a handle to previously-opened text file. The 'pFileName' argument gives
 the name of this text file and is used only for error reporting. The
@@ -2465,10 +2596,33 @@ choosing. This function should work as follows:
     again, 'lInputLine' is a copy of the entire input line. The return
     value of the assignment function should be True if the parameters
     indicate a valid assignment or False if there is an error. In the
-    latter case, the config file reader calls ErrorExit() with the name of
-    the input file (given by 'pFileName') and the line number at which the
-    error occurred. The assignment function should indicate more specific
-    error information prior to returning False.
+    latter case, the config file reader calls the error function 'pError'
+    with the name of the input file (given by 'pFileName') and the line
+    number at which the error occurred. The assignment function should
+    indicate more specific error information prior to returning False.
+
+The 'pError' parameter is the name of a function with the following
+prototype:
+
+    void Error(const char* format, ...)
+
+As you see, this is just the prototype of our 'Error', 'Warning' and
+'Info' functions. The 'pError' function should print an appropriate
+message and return to the caller.
+
+The 'pContinue' parameter says what to do after an error, i.e., after
+the assignment function returned False. When this parameter is True,
+ConfigFileReaderEx will continue parsing the file; when it is False,
+it will exit by returning IO_FAILURE to the caller.
+
+       void ConfigFileReader(FILE *pInFile,
+                             const char *pFileName,
+                             const char *pSection,
+                             Boolean pUseDefaultSection,
+                             configAssignment_Func pAssignFunc)
+This function is available for backward compatibility and is
+equivalent to calling ConfigFileReaderEx with 'Error' and 'True' in the
+last two parameters.
 
 Special Ship Function Accessors
 -------------------------------
@@ -2632,3 +2786,56 @@ position of ships and/or mines to locations possibly outside the wraparound
 region. Note that PHOST automatically calls an equivalent function any time
 an external (AUXHOST) program returns control to PHOST.
 
+UTILx.DAT Functions (new - 4.1)
+-------------------------------
+
+The following functions allow programs to write UTILx.DAT records.
+
+           void SetUtilMode(UtilMode_Def pDat);
+Defines the mode of operation for the following functions.
+  - pDat = UTIL_Ext: write to UTILx.EXT. This is intended for all
+    add-ons that run before the host has completed (AUXHOST, PCONTROL).
+    This mode is the default.
+  - pDat = UTIL_Dat: write to UTILx.DAT. This is used when your program
+    runs after the host has completed. Basically, when you use
+    WriteMessageToRST function, you should also use the UTIL_Dat mode,
+    otherwise use UTIL_Ext.
+
+           Boolean PutUtilRecordSimple(RaceType_Def pRace, Uns16 pRecordId,
+                                       Uns16 pSize, void* pData);
+Write UTIL record, simple version. Sends a record of type 'pRecordId',
+size 'pSize' to player 'pRace'. 'pData' points to the raw data.
+Returns True on success, False on error.
+
+           Boolean PutUtilRecordStruct(RaceType_Def pRace, Uns16 pRecordId,
+                                       void* pData,
+                                       const DOSConvertElement *pStruct,
+                                       Uns16 pNumElements);
+Write UTIL record, as defined by a structure. 'pData' points to a C
+structure whose layout is defined by 'pStruct' and 'pNumElements'
+(see "Cross-Platform Portability, Part II"). Otherwise, behaves like
+'PutUtilRecordSimple'.
+
+           Boolean PutUtilRecord(RaceType_Def pRace, Uns16 pRecordId,
+                                 Uns16 pCount,
+                                 Uns16* pSizes, void** pData);
+Write UTIL record. Like 'PutUtilRecordSimple', but this one can gather
+data from multiple places. 'pSizes' points to an array of sizes,
+'pData' points to an array of data pointers. For example, to write
+a record that consists of two blocks, you can do:
+     Uns16 lSizes[2] = { size1, size2 };
+     void* lData[2] = { &data1, &data2 };
+     PutUtilRecord(pRace, pRecordId, 2, lSizes, lData);
+
+           Boolean PutUtilFileTransfer(RaceType_Def pRace,
+                                       const char* pName,
+                                       Boolean pText,
+                                       Uns16 pSize, void* pData);
+Write UTIL file transfer. This writes a type 34 record (file transfer).
+'pName' is the name of the file as it will be embedded in the UTIL.DAT
+file. 'pText' is True if this is a text file, False for binary files.
+'pSize' and 'pData' define the file contents.
+
+Note that this function will not attempt to open the file 'pName': this
+is just the name the client will see. You have to read the file and
+supply its data and size to this function.

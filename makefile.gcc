@@ -16,7 +16,7 @@ INDH:=$(HDRS:.h=.h~)
 
 CC=gcc -Wall -O3
 
-all: libpdk.a sendmess crack ptscore killrace pmaster
+all: libpdk.a sendmess crack ptscore killrace pmaster pally
 
 pdk: libpdk.a pdkdistrib
 
@@ -39,6 +39,9 @@ ptscore: ptscore.o phostpdk.h libpdk.a
 pmaster: pmaster.o phostpdk.h libpdk.a
 	$(CC) -o pmaster pmaster.o -L. -lpdk -lm
 
+pally: pally.o phostpdk.h libpdk.a
+	$(CC) -o pally pally.o -L. -lpdk -lm
+
 libpdk.a: $(OBJS)
 	-rm -f libpdk.a
 	ar r libpdk.a $(OBJS)
@@ -54,28 +57,3 @@ clean:
 
 %.o: %.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
-
-indent: $(HDRS:.h=.h~)
-
-#%.h~: %.h
-#	mv -f $< $<~
-#	perl -ne "s#\t# #g; print;" $<~ | indent | perl -ne "s#/\* !#/*!#; s#// !#//!#; print;" > $<
-#	touch $<~
-
-#indent: $(SRCS) $(HDRS)
-#
-#$(SRCS): $(INDC)
-#	mv -f $(@:.c~=.c) $@
-#	perl -ne "s/\t/ /g; print;" $@ | indent -o $(@:.c~=.c)
-#
-#$(HRDS): $(INDH)
-#	mv -f $(@:.h~=.h) $@
-#	perl -ne "s/\t/ /g; print;" $@ | indent -o $(@:.h~=.h)
-#
-#$(INDC):
-#	mv -f $(@:.c~=.c) $@
-#	perl -ne "s/\t/ /g; print;" $@ | indent -o $(@:.c~=.c)
-#
-#$(INDH):
-#	mv -f $(@:.h~=.h) $@
-#	perl -ne "s/\t/ /g; print;" $@ | indent -o $(@:.h~=.h)

@@ -74,8 +74,9 @@ ReadHostData(void)
   /* Must read config file first so we have Language[] initialized for
      StringRetrieve. In fact, we may need lots of things from our config
      structure. */
-  if (Read_HConfig_File()NEQ IO_SUCCESS)
-    goto read_fail;
+  if (Read_HConfig_File() NEQ IO_SUCCESS)
+    if (Read_THost_HConfig_File() NEQ IO_SUCCESS)
+      goto read_fail;
 
   /* Read the NEXTTURN.HST file first to see if this is a newly mastered game 
    */

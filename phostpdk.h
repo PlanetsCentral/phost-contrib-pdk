@@ -1,7 +1,7 @@
-
-/*! \file phostpdk.h
- * \brief Header file for the Portable Host Development Kit (PDK)
- *   Version 3.1
+/*!
+ *  \file phostpdk.h
+ *  \brief Header file for the Portable Host Development Kit (PDK)
+ *  Version 3.1
  *
  *   Copyright 1995-1998 by Andrew Sterian, Thomas Voigt, and Steffen Pietsch
  */
@@ -10,9 +10,6 @@
 #define _PHOSTPDK_H_
 
 #include <stdio.h>
-#ifdef MICROSQUISH
-#include "squishio.h"
-#endif
 #include <stdlib.h>
 #include <stdarg.h>
 
@@ -257,346 +254,343 @@ extern "C" {
     UTIL_Dat
   } UtilMode_Def;
 
-  typedef struct {
-    Uns16 RecycleRate,          /*!< % of ore recovered from colonizing
-                                   ships */
+#define GAME_NAME_SIZE  32  /* Maximum size of game names */
+    
+/** Host configuration. This structure contains all host configuration
+    options (from the %PCONFIG section in pconfig.src). This structure
+    is shared between PHost and PDK.
 
-      MeteorRate;               /*!< % chance of one large meteor */
-    Boolean Minefields,         /*!< allow minefields */
+    Fields with 12 array members are generally indexed by player number,
+    so index 0 is unused. */
+typedef struct
+{
+    /* Host config data */
+#define FirstConfigOption RecycleRate
+    Uns16    RecycleRate,           /*!< % of ore recovered from colonizing ships */
+             MeteorRate;            /*!< % chance of one large meteor */
+    Boolean  Minefields,            /*!< allow minefields */
+             Alchemy,               /*!< allow alchemy */
+             DeleteOldMessages,     /*!< delete old messages -- NOT USED */
+             DisablePasswd;         /*!< disable passwords */
+    Uns16    GroundKill[12],        /*!< tim uses only 1..11, 0 ignored */
+             GroundDefense[12],     /*!< ...ground attack, defense ratios */
+             FreeFighters[12],      /*!< free fighters per starbase */
+             MiningRate[12],        /*!< mineral mining rate */
+             TaxRate[12];           /*!< taxation rate -- NO LONGER USED */
+    Boolean  RebelsBuildFighters,   /*!< Rebels allowed to build fighters in space */
+             ColoniesBuildFighters, /*!< Colonies allowed to build fighters in space */
+             RobotsBuildFighters;   /*!< Robots allowed to build fighters in space */
+    Uns16    CloakFailure;          /*!< % chance of cloaking failure */
+    Boolean  RobCloakedShips;       /*!< Privateers can rob cloaked ships */
+    Uns16    ScanRange[12],         /*!< Enemy ship scan range */
+             DarksenseRange;        /*!< Dark sense range */
+    Boolean  Hiss,                  /*!< Allow hiss mission */
+             RebelGroundAttack,     /*!< Allow RGA */
+             SuperRefit,            /*!< Allow super refit */
+             WebMines;              /*!< Allow web mines */
+    Uns16    CloakFuelBurn,         /*!< kt of fuel burn required to stay cloaked */
+             SensorRange[12];       /*!< range of the sensor sweep mission */
+    Boolean  NewNatives,            /*!< Allow new natives to appear */
+             PlanetsAttack;         /*!< Allow planets to attack ships */
+    Uns16    AssimilationRate,      /*!< assimilation percentage */
+             WebDecay,              /*!< web decay rate percentage */
+             MineDecay[12],         /*!< mines decay rate percentage */
+             MaxMineRadius[12],     /*!< maximum minefield radius */
+             TransuraniumRate,      /*!< new mineral formation rate */
+             StructureDecay[12];    /*!< structure decay rate */
+    Boolean  EatSupplies,           /*!< overpopulated planets eat supplies */
+             NoFuelMove;            /*!< ships without fuel can move */
+    Uns16    MineOdds[12],          /*!< percentage odds of hitting a mine */
+             WebOdds[12],           /*!< percentage odds of hitting a web mine */
+             MineScanRange[12];     /*!< range in which mines are visible */
+    Boolean  MinesDestroyMines,     /*!< allow mines to destroy mines */
+             EngShieldBonus;        /*!< allow engine bonus */
+    Uns16    ShieldBonusRate,       /*!< engine tech bonus rate */
+             FighterSweepRate[12];  /*!< Fighter sweep rate */
+    Boolean  ColSweepWebs;          /*!< Allow Colonies to sweep web mines */
+    Uns16    MineSweepRate[12],     /*!< rate of mine sweeping with beam weapons */
+             WebSweepRate[12],      /*!< rate of web sweeping with beam weapons */
+             HissEffect,            /*!< hiss effect per ship */
+             RobFailRate;           /*!< percentage change that robbing fails */
+    Boolean  PlanetRebelAttack,     /*!< planets can attack Rebels */
+             PlanetKlingonAttack;   /*!< planets can attack Klingons */
+    Uns16    MineSweepRange[12],    /*!< mine sweep range */
+             WebSweepRange[12];     /*!< web sweep range */
+    Boolean  ScienceShips;          /*!< allow science ship mission */
+    Uns16    CloakMineOdds[12],     /*!< 10X percentage of cloaked hitting mine (13 = 1.3%) */
+             NoCloakDamage;         /*!< amount of damage that prevents cloaking */
+    Boolean  FedCrewBonus;          /*!< allow Fed combat bonus */
 
-      Alchemy,                  /*!< allow alchemy */
+    Uns16    SmallMeteorOdds;       /*!< percentage chance per planet of small showers */
+    Uns32    SmallOre[8];           /*!< Nmin, Dmin, Tmin, Mmin, Nmax, Dmax, Tmax, Mmax */
+    Uns16    LargeMeteorNumber;     /*!< number of large meteors to impact */
+    Uns32    LargeOre[8];           /*!< Nmin, Dmin, Tmin, Mmin, Nmax, Dmax, Tmax, Mmax */
+    Boolean  MeteorMessages;        /*!< send meteor messages when they happen */
 
-      DeleteOldMessages,        /*!< delete old messages -- NOT USED */
+    Boolean  OneTow,                /*!< allow one engine ships to tow */
+             HyperDrives;           /*!< allow hyperdrive */
+    Uns16    ClimateDeathRate;      /*!< climate death rate */
+    Boolean  GravityWells,          /*!< allow gravity wells */
+             CrystalsLikeDesert;    /*!< Crystals grow better on hot planets */
+    Boolean  DestroyWebs,           /*!< allow normal mines to destroy web mines */
+             ClimateLimitsPopulation; /*!< allow climate to limit population */
+    Uns32    MaxPlanetaryIncome;    /*!< max number of credits to earn per planet */
+    Uns16    IonStormActivity;      /*!< chance of storms as a percentage */
+    Boolean  AllowChunneling;       /*!< allow Firecloud chunneling */
+    Boolean  AllowDeluxeSuperSpy;   /*!< allow Deluxe Super Spy mission */
+    Boolean  IonStormsHideMines;    /*!< Ion storms hide minefields */
+    Boolean  AllowGloryDevice;      /*!< allow Klingon glory device */
+    Boolean  AllowAntiCloakShips;   /*!< allow Loki to uncloak ships */
+    Boolean  AllowGamblingShips;    /*!< allow Lady Royale to generate MC */
+    Boolean  AllowCloakedShipAttack;/*!< allow cloaked ships to attack based on PE */
+    Boolean  AllowShipCloning;      /*!< allow ships to be cloned */
+    Boolean  AllowBoardingParties;  /*!< allow Priv/Crystals to tow capture */
+    Boolean  AllowImperialAssault;  /*!< allow SSD to perform imperial assault */
+    Uns16    RamScoopFuelPerLY;     /*!< amount of fuel to gather per LY travelled */
+    Boolean  AllowAdvancedRefinery; /*!< allow Aries to do refinery */
+    Boolean  AllowBioscanners;      /*!< allow bioscanning */
+    Uns16    HullTechNotSlowedByMines; /*!< min hull tech for ships not to be slowed */
 
-      DisablePasswd;            /*!< disable passwords */
-    Uns16 GroundKill[12],       /*!< tim uses only 1..11, 0 ignored */
+    /* NEW OPTIONS */
+#define FirstNewConfigOption UseAccurateFuelModel
+    Boolean  UseAccurateFuelModel;  /*!< mass of ship decreases as fuel burns */
+    Uns16    DefenseForUndetectable; /*!< min defenses to make planet undetectable */
+    Uns16    FactoriesForDetectable; /*!< min factories to make planet detectable */
+    Uns16    MinesForDetectable;     /*!< min mines to make planet detectable */
+    Uns16    FighterSweepRange[12];  /*!< range at which fighters can sweep */
+    Uns16    MineHitDamage;         /*!< damage per 100 KT of mass */
+    Uns16    WebHitDamage;          /*!< damage per 100 KT of mass */
+    Boolean  AllowRegisteredFunctions; /*!< allow registered-only functions to be performed */
+    Uns16    GravityWellRange;      /*!< distance from planets at which ships fall in */
+    Language_Def Language[12];      /*!< preferred language. Element 0 is for host */
+    Boolean  AllowPlayerMessages;   /*!< allow player-to-player messages */
+    Uns16    ScoringMethod;         /*!< the method of reporting scores */
+    Boolean  TowedShipsBreakFree;   /*!< allow towed ships to break free */
+    Uns16    NativeClimateDeathRate;/*!< climate death rate for natives */
+    Boolean  AllowMoreThan50Targets[12]; /*!< allow target.dat part of .RST file to have >50 targets */
+    Boolean  CrystalSinTempBehavior; /*!< growth and max pop for Crystals is sinusoidal */
+    Boolean  RGANeedsBeams;         /*!< Need beam weapons to do RGA */
+    Boolean  AllowRGAOnUnowned;     /*!< allow RGA on unowned planets */
+    Boolean  CPEnableLanguage;      /*!< Enable 'language' command processor command */
+    Boolean  CPEnableBigTargets;    /*!< Enable 'bigtargets' command */
+    Boolean  CPEnableRaceName;      /*!< Enable 'racename' command */
+    Boolean  CPEnableAllies;        /*!< Enable 'allies' command */
+    Boolean  CPEnableMessage;       /*!< Enable 'message' command */
+    Boolean  CPEnableRumor;         /*!< Enable 'rumor' command */
+    Boolean  DelayAllianceCommands; /*!< Alliance management only after combat */
+    Uns16    TerraformRate[12];     /*!< number of degrees of terraforming per turn */
+    Uns16    MaxColTempSlope;       /*!< max colonists slope on arctic/desert planets */
+    Uns16    WebDrainFuelLoss;      /*!< amount of fuel to drain from ships in web mines */
+    Boolean  AllowWormholes;        /*!< allow wormholes */
+    Uns16    WrmDisplacement;       /*!< magnitude of predictable endpoint travel */
+    Uns16    WrmRandDisplacement;   /*!< magnitude of random endpoint travel */
+    Int16    WrmStabilityAddX10;    /*!< amount of stability increase per turn X10 */
+    Uns16    WrmRandStability;      /*!< magnitude of random stability to add */
+    Int16    WrmMassAdd;            /*!< amount of mass to add per turn */
+    Uns16    WrmRandMass;           /*!< magnitude of random mass to add */
+    Boolean  WrmVoluntaryTravel;    /*!< require WRT friendly code for travel */
+    Uns16    WrmTravelDistDivisor;  /*!< distance scaling for wormhole travel */
+    Uns16    WrmTravelWarpSpeed;    /*!< speed at which ships must travel thru wormholes */
+    Boolean  WrmTravelCloaked;      /*!< allow ships to remain cloaked thru wormholes */
+    Uns16    WrmEntryPowerX100;     /*!< entry radius power of wormhole mass */
+    Boolean  CPEnableGive;          /*!< allow the 'give' CP command */
+    Boolean  AllowTowCloakedShips;  /*!< allow cloaked ships to be towed */
+    Uns16    RobCloakedChance;      /*!< percent chance that rob cloaked succeeds */
+    Uns16    PlanetaryTorpsPerTube; /*!< number of free torps to give per tube */
+    Uns16    UnitsPerTorpRate[12];  /*!< percent of normal units-per-torp rate */
+    Boolean  ESBonusAgainstPlanets; /*!< E-S bonus applies when fighting planets */
+    Uns16    ShipCloneCostRate[12]; /*!< percentage cost of original ship */
+    Boolean  HyperjumpGravityWells; /*!< allow hyperwarp ships to get sucked in */
+    Uns16    NativeCombatSurvRate;  /*!< percent natives dying when planet loses combat */
+    Boolean  AllowPrivTowCapture;    /*!< Allow Privs to do tow capture */
+    Boolean  AllowCrystalTowCapture; /*!< Allow Crystals to do tow capture */
+    char     GameName[GAME_NAME_SIZE]; /*!< The name of the game */
+    Boolean  RoundWarpWells;        /*!< Warp wells are round, not square */
+    Boolean  CPEnableSend;          /*!< Enable the 'send' command */
+    Boolean  CPEnableJettison;      /*!< Enable the 'jettison' command */
+    Boolean  CumulativePillaging;   /*!< Allow multiple ships to pillage */
+    Boolean  AllowInterceptAttack;  /*!< Allow XA attack */
+    Uns16    RaceGrowthRate[12];    /*!< Colonist growth factor */
+    Uns16    PlayerRace[12];        /*!< Player-to-race map */
+    Uns16    ProductionRate[12];    /*!< Supply production factor */
+    Uns16    MineOddsWarpBonus[12]; /*!< Percent derate X100 for normal mines */
+    Uns16    CloakMineOddsWarpBonus[12];/*!< Percent derate X100 for cloaked travel */
+    Uns16    WebMineOddsWarpBonus[12];  /*!< Percent derate X100 for web mines */
+    Uns16    MineTravelSafeWarp[12];/*!< Max. speed at which mine travel is safe */
+    Uns16    CloakTravelSafeWarp[12];/*!< Max. speed at which cloak travel is safe */
+    Uns16    WebMineTravelSafeWarp[12];/*!< Max. speed at which web mine travel is safe */
+    Boolean  CloakFailMessages;     /*!< Allow sending of cloak fail messages */
+    Boolean  TonsScoreCountsPlanets;/*!< Allow planets/bases to count in TONS.HST file */
+    Uns16    ExtMissionsStartAt;    /*!< Starting value for extended missions */
+    Uns16    WormholeUFOsStartAt;   /*!< Starting value for wormholes in UFO.DAT */
+    Uns16    MaxShipsHissing;       /*!< Max ships Hissing at 1 planet */
+    Boolean  AllowExtendedMissions; /*!< Allow access to extended missions */
+    Uns16    SpyDetectionChance;    /*!< % chance of discovering Super Spy mission */
+    Boolean  MapTruehullByPlayerRace; /*!< Use PlayerRace to interpret TRUEHULL.DAT */
+    Boolean  AllowWraparoundMap;    /*!< Use wraparound */
+    Uns16    WraparoundRectangle[4]; /*!< Vertices of wraparound rectangle */
+    Uns16    Dummy1;                /*!< Old colonial fighter sweep rate */
+    Uns16    Dummy2;                /*!< Old colonial fighter sweep range */
+    Boolean  CPEnableRemote;        /*!< Allow the CP 'remote' command */
+    Boolean  AllowAlliedChunneling; /*!< allow chunnel to +s allies */
+    Uns16    ColTaxRate[12],        /*!< tax rate for colonists */
+             NatTaxRate[12];        /*!< tax rate for natives */
+    Boolean  AllowAlternativeTowing; /*!< Use alternative tow model */
+    Boolean  AllowBeamUpClans;      /*!< Allow gathering clans from planets */
+    Boolean  AllowBeamUpMultiple;   /*!< Allow beam up multiple extmission */
+    Uns16    MaximumMinefieldsPerPlayer[12]; /*!< max # minefields per race */
+    Boolean  MineIdNeedsPermission; /*!< True: need minefield alliance to lay minefield in other's Id */
+    Uns16    DamageLevelForAntiCloakFail; /*!< Damage level at which Loki can't decloak */
+    Uns16    DamageLevelForChunnelFail;   /*!< Damage level at which Firecloud chunnel no longer works */
+    Uns16    DamageLevelForTerraformFail; /*!< Damage level at which terraforming fails */
 
-      GroundDefense[12],        /*!< ...ground attack, defense ratios */
+    /* Build queue */
+    Boolean  AllowPriorityBuild;     /*!< Allow "PBx" Fcodes */
+    Uns16    SBQBuildPALBoost[12];   /*!< Multiplier for existing build orders */
+    Uns16    SBQNewBuildPALBoost[12];/*!< Multiplier for new build orders */
+    Uns32    SBQPointsForAging[12];  /*!< Constant offset for old build orders */
+    Uns32    SBQBuildChangePenalty[12]; /*!< Constant offset for build changes */
+    Uns16    SBQBoostExpX100[12];    /*!< Exponent for build order boosts X 100 */
+    Uns16    PALDecayPerTurn[12];    /*!< Exponential decay term */
+    Uns16    PALPlayerRate[12];      /*!< Player-dependent scaling */
+    Uns16    PALCombatAggressor[12]; /*!< Points for being aggressor in combat */
+    Uns16    PALAggressorPointsPer10KT[12]; /*!< Points for mass destroyed in combat */
+    Uns16    PALOpponentPointsPer10KT[12];  /*!< As above, for opponent */
+    Uns16    PALAggressorKillPointsPer10KT[12]; /*!< Bonus for complete destruction */
+    Uns16    PALOpponentKillPointsPer10KT[12]; /*!< As above, for opponent */
+    Uns16    PALCombatPlanetScaling[12];    /*!< Scale factor for above */
+    Uns16    PALCombatBaseScaling[12];      /*!< Scale factor for above */
+    Uns16    PALShipCapturePer10Crew[12];   /*!< Points for killing crew */
+    Uns16    PALRecyclingPer10KT[12];       /*!< Points for recycling/colonizing */
+    Uns16    PALBoardingPartyPer10Crew[12];   /*!< Priv/Crystal boarding party */
+    Uns16    PALGroundAttackPer100Clans[12]; /*!< As it says */
+    Uns16    PALGloryDevice[12];            /*!< Points for exploding a G.D. */
+    Uns16    PALGloryDamagePer10KT[12];     /*!< Points for enemy ships */
+    Uns16    PALImperialAssault[12];        /*!< Points for performing one */
+    Uns16    PALRGA[12];                    /*!< Points for performing one */
+    Uns16    PALPillage[12];                /*!< Points for performing one */
 
-      FreeFighters[12],         /*!< free fighters per starbase */
+    Boolean  FilterPlayerMessages[12];      /*!< Elide messages for which there are
+                                               UTIL.DAT equivalents? */
+    Boolean  AlternativeAntiCloak;          /*!< Loki's don't decloak own race */
+    Boolean  AntiCloakImmunity[12];         /*!< New HOST 3.22.022 option */
+    Boolean  AllowMoreThan500Minefields[12]; /*!< allow receipt of more than 500 minefields */
+    Uns16    CPNumMinefields;                /*!< total number of minefields */
+    Uns16    PALShipMinekillPer10KT[12];     /*!< PAL for destroying ship by minehit */
 
-      MiningRate[12],           /*!< mineral mining rate */
+    /* Combat-related Options -- always leave these at the end */
 
-      TaxRate[12];              /*!< taxation rate -- NO LONGER USED */
-    Boolean RebelsBuildFighters, /*!< Rebels allowed to build fighters in
-                                    space */
+#define FirstCombatConfigOption BayRechargeRate
+    /* Player-specific parameters */
+    Uns16    BayRechargeRate[12];       /*!< recharge rate X10 of fighter bays per bay */
+    Int16    BayRechargeBonus[12];      /*!< bay number bonus in recharging */
+    Uns16    BeamRechargeRate[12];      /*!< recharge rate X10 of beams */
+    Int16    BeamRechargeBonus[12];     /*!< beam tech bonus in recharging */
+    Uns16    TubeRechargeRate[12];      /*!< recharge rate X10 of tubes */
+    Uns16    BeamHitFighterCharge[12];  /*!< minimum charge X10 for beams to fire at fighters */
+    Uns16    BeamHitShipCharge[12];     /*!< minimum charge X10 for beams to fire at ships */
+    Uns32    TorpFiringRange[12];       /*!< maximum distance at which to fire torps */
+    Uns32    BeamFiringRange[12];       /*!< maximum distance at which to fire beams */
+    Uns16    TorpHitOdds[12];           /*!< percentage chance of torps hitting */
+    Uns16    BeamHitOdds[12];           /*!< percentage chance of beams hitting */
+    Int16    BeamHitBonus[12];          /*!< bonus factor for beam hit odds */
+    Uns16    StrikesPerFighter[12];     /*!< number of strikes per fighter */
+    Uns16    FighterKillOdds[12];       /*!< percent chance that a fighter will destroy another fighter */
+    Uns16    FighterBeamExplosive[12];  /*!< damage done by each fighter */
+    Uns16    FighterBeamKill[12];       /*!< kill power of each fighter */
+    Uns16    ShipMovementSpeed[12];     /*!< ship closing speed in meters/tick */
+    Uns16    FighterMovementSpeed[12];  /*!< fighter closing speed in meters/tick */
+    Uns16    BayLaunchInterval[12];     /*!< minimum number of ticks between launches */
+    Uns16    MaxFightersLaunched[12];   /*!< max number of fighters out of ship */
+    Int16    TorpHitBonus[12];          /*!< bonus factor for torp hit odds */
+    Int16    TubeRechargeBonus[12];     /*!< tube tech bonus in recharging */
+    Uns16    ShieldDamageScaling[12];   /*!< relative damage to shields */
+    Uns16    HullDamageScaling[12];     /*!< relative damage to hull */
+    Uns16    CrewKillScaling[12];       /*!< relative damage to crew */
+    Int16    ExtraFighterBays[12];      /*!< extra bays for carriers */
+    Uns32    BeamHitFighterRange[12];   /*!< distance at which beams can hit fighters */
+    Uns32    FighterFiringRange[12];    /*!< distance from which fighters can strike */
 
-      ColoniesBuildFighters,    /*!< Colonies allowed to build fighters in
-                                   space */
+    /* Common combat parameters. Note that changing a common parameter into
+       an arrayized one (or vice-versa) has implications in PVCR.C and
+       BATTLE.C */
+    Boolean  AlternativeCombat;     /*!< allow fractional damage, etc. */
+    Uns32    StandoffDistance;      /*!< minimum inter-ship distance */
+    Boolean  PlanetsHaveTubes;      /*!< allow planets to fire torps */
+    Boolean  FireOnAttackFighters;  /*!< fire first on attack fighters, then retreaters */
+}
+Pconfig_Struct;
 
-      RobotsBuildFighters;      /*!< Robots allowed to build fighters in
-                                   space */
-    Uns16 CloakFailure;         /*!< % chance of cloaking failure */
-    Boolean RobCloakedShips;    /*!< Privateers can rob cloaked ships */
-    Uns16 ScanRange[12],        /*!< Enemy ship scan range */
-
-      DarksenseRange;           /*!< Dark sense range */
-    Boolean Hiss,               /*!< Allow hiss mission */
-
-      RebelGroundAttack,        /*!< Allow RGA */
-
-      SuperRefit,               /*!< Allow super refit */
-
-      WebMines;                 /*!< Allow web mines */
-    Uns16 CloakFuelBurn,        /*!< kt of fuel burn required to stay
-                                   cloaked */
-
-      SensorRange[12];          /*!< range of the sensor sweep mission */
-    Boolean NewNatives,         /*!< Allow new natives to appear */
-
-      PlanetsAttack;            /*!< Allow planets to attack ships */
-    Uns16 AssimilationRate,     /*!< assimilation percentage */
-
-      WebDecay,                 /*!< web decay rate percentage */
-
-      MineDecay[12],            /*!< mines decay rate percentage */
-
-      MaxMineRadius[12],        /*!< maximum minefield radius */
-
-      TransuraniumRate,         /*!< new mineral formation rate */
-
-      StructureDecay[12];       /*!< structure decay rate */
-    Boolean EatSupplies,        /*!< overpopulated planets eat supplies */
-
-      NoFuelMove;               /*!< ships without fuel can move */
-    Uns16 MineOdds[12],         /*!< percentage odds of hitting a mine */
-
-      WebOdds[12],              /*!< percentage odds of hitting a web mine */
-
-      MineScanRange[12];        /*!< range in which mines are visible */
-    Boolean MinesDestroyMines,  /*!< allow mines to destroy mines */
-
-      EngShieldBonus;           /*!< allow engine bonus */
-    Uns16 ShieldBonusRate,      /*!< engine tech bonus rate */
-
-      FighterSweepRate[12];     /*!< Fighter sweep rate */
-    Boolean ColSweepWebs;       /*!< Allow Colonies to sweep web mines */
-    Uns16 MineSweepRate[12],    /*!< rate of mine sweeping with beam weapons 
-                                 */
-
-      WebSweepRate[12],         /*!< rate of web sweeping with beam weapons */
-
-      HissEffect,               /*!< hiss effect per ship */
-
-      RobFailRate;              /*!< percentage change that robbing fails */
-    Boolean PlanetRebelAttack,  /*!< planets can attack Rebels */
-
-      PlanetKlingonAttack;      /*!< planets can attack Klingons */
-    Uns16 MineSweepRange[12],   /*!< mine sweep range */
-
-      WebSweepRange[12];        /*!< web sweep range */
-    Boolean ScienceShips;       /*!< allow science ship mission */
-    Uns16 CloakMineOdds[12],    /*!< 10X percentage of cloaked hitting mine
-                                   (13 = 1.3%) */
-
-      NoCloakDamage;            /*!< amount of damage that prevents cloaking 
-                                 */
-    Boolean FedCrewBonus;       /*!< allow Fed combat bonus */
-
-    Uns16 SmallMeteorOdds;      /*!< percentage chance per planet of small
-                                   showers */
-    Uns32 SmallOre[8];          /*!< Nmin, Dmin, Tmin, Mmin, Nmax, Dmax,
-                                   Tmax, Mmax */
-    Uns16 LargeMeteorNumber;    /*!< number of large meteors to impact */
-    Uns32 LargeOre[8];          /*!< Nmin, Dmin, Tmin, Mmin, Nmax, Dmax,
-                                   Tmax, Mmax */
-    Boolean MeteorMessages;     /*!< send meteor messages when they happen */
-
-    Boolean OneTow,             /*!< allow one engine ships to tow */
-
-      HyperDrives;              /*!< allow hyperdrive */
-    Uns16 ClimateDeathRate;     /*!< climate death rate */
-    Boolean GravityWells,       /*!< allow gravity wells */
-
-      CrystalsLikeDesert;       /*!< Crystals grow better on hot planets */
-    Boolean DestroyWebs,        /*!< allow normal mines to destroy web mines 
-                                 */
-
-      ClimateLimitsPopulation;  /*!< allow climate to limit population */
-    Uns32 MaxPlanetaryIncome;   /*!< max number of credits to earn per
-                                   planet */
-    Uns16 IonStormActivity;     /*!< chance of storms as a percentage */
-    Boolean AllowChunneling;    /*!< allow Firecloud chunneling */
-    Boolean AllowDeluxeSuperSpy; /*!< allow Deluxe Super Spy mission */
-    Boolean IonStormsHideMines; /*!< Ion storms hide minefields */
-    Boolean AllowGloryDevice;   /*!< allow Klingon glory device */
-    Boolean AllowAntiCloakShips; /*!< allow Loki to uncloak ships */
-    Boolean AllowGamblingShips; /*!< allow Lady Royale to generate MC */
-    Boolean AllowCloakedShipAttack; /*!< allow cloaked ships to attack based 
-                                       on PE */
-    Boolean AllowShipCloning;   /*!< allow ships to be cloned */
-    Boolean AllowBoardingParties; /*!< allow Priv/Crystals to tow capture */
-    Boolean AllowImperialAssault; /*!< allow SSD to perform imperial assault 
-                                   */
-    Uns16 RamScoopFuelPerLY;    /*!< amount of fuel to gather per LY
-                                   travelled */
-    Boolean AllowAdvancedRefinery; /*!< allow Aries to do refinery */
-    Boolean AllowBioscanners;   /*!< allow bioscanning */
-    Uns16 HullTechNotSlowedByMines; /*!< min hull tech for ships not to be
-                                       slowed */
-
-    /*! NEW OPTIONS */
-    Boolean UseAccurateFuelModel; /*!< mass of ship decreases as fuel burns */
-    Uns16 DefenseForUndetectable; /*!< min defenses to make planet
-                                     undetectable */
-    Uns16 FactoriesForDetectable; /*!< min factories to make planet
-                                     detectable */
-    Uns16 MinesForDetectable;   /*!< min mines to make planet detectable */
-    Uns16 FighterSweepRange[12]; /*!< range at which fighters can sweep */
-    Uns16 MineHitDamage;        /*!< damage per 100 KT of mass */
-    Uns16 WebHitDamage;         /*!< damage per 100 KT of mass */
-    Boolean AllowRegisteredFunctions; /*!< allow registered-only functions
-                                         to be performed */
-    Uns16 GravityWellRange;     /*!< distance from planets at which ships
-                                   fall in */
-    Language_Def Language[12];  /*!< preferred language. Element 0 is for
-                                   host */
-    Boolean AllowPlayerMessages; /*!< allow player-to-player messages */
-    Uns16 ScoringMethod;        /*!< the method of reporting scores */
-    Boolean TowedShipsBreakFree; /*!< allow towed ships to break free */
-    Uns16 NativeClimateDeathRate; /*!< climate death rate for natives */
-    Boolean AllowMoreThan50Targets[12]; /*!< allow target.dat part of .RST
-                                           file to have >50 targets */
-    Boolean AllowMoreThan500Minefields[12]; /*!< allow more than 500
-                                               minefields */
-    Boolean CrystalSinTempBehavior; /*!< growth and max pop for Crystals is
-                                       sinusoidal */
-    Boolean RGANeedsBeams;      /*!< Need beam weapons to do RGA */
-    Boolean AllowRGAOnUnowned;  /*!< allow RGA on unowned planets */
-    Boolean CPEnableLanguage;   /*!< Enable 'language' command processor
-                                   command */
-    Boolean CPEnableBigTargets; /*!< Enable 'bigtargets' command */
-    Uns16 CPNumMinefields;      /*!< max number of minefields, must be
-                                   between 1 and 10000 */
-    Boolean CPEnableRaceName;   /*!< Enable 'racename' command */
-    Boolean CPEnableAllies;     /*!< Enable 'allies' command */
-    Boolean CPEnableMessage;    /*!< Enable 'message' command */
-    Boolean CPEnableRumor;      /*!< Enable 'rumor' command */
-    Boolean DelayAllianceCommands; /*!< Alliance management only after
-                                      combat */
-    Uns16 TerraformRate[12];    /*!< number of degrees of terraforming per
-                                   turn */
-    Uns16 MaxColTempSlope;      /*!< max colonists slope on arctic/desert
-                                   planets */
-    Uns16 WebDrainFuelLoss;     /*!< amount of fuel to drain from ships in
-                                   web mines */
-    Boolean AllowWormholes;     /*!< allow wormholes */
-    Uns16 WrmDisplacement;      /*!< magnitude of predictable endpoint
-                                   travel */
-    Uns16 WrmRandDisplacement;  /*!< magnitude of random endpoint travel */
-    Int16 WrmStabilityAddX10;   /*!< amount of stability increase per turn
-                                   X10 */
-    Uns16 WrmRandStability;     /*!< magnitude of random stability to add */
-    Int16 WrmMassAdd;           /*!< amount of mass to add per turn */
-    Uns16 WrmRandMass;          /*!< magnitude of random mass to add */
-    Boolean WrmVoluntaryTravel; /*!< require WRT friendly code for travel */
-    Uns16 WrmTravelDistDivisor; /*!< distance scaling for wormhole travel */
-    Uns16 WrmTravelWarpSpeed;   /*!< speed at which ships must travel thru
-                                   wormholes */
-    Boolean WrmTravelCloaked;   /*!< allow ships to remain cloaked thru
-                                   wormholes */
-    Uns16 WrmEntryPowerX100;    /*!< entry radius power of wormhole mass */
-    Boolean CPEnableGive;       /*!< allow the 'give' CP command */
-    Boolean AllowTowCloakedShips; /*!< allow cloaked ships to be towed */
-    Uns16 RobCloakedChance;     /*!< percent chance that rob cloaked
-                                   succeeds */
-    Uns16 PlanetaryTorpsPerTube; /*!< number of free torps to give per tube */
-    Uns16 UnitsPerTorpRate[12]; /*!< percent of normal units-per-torp rate */
-    Boolean ESBonusAgainstPlanets; /*!< E-S bonus applies when fighting
-                                      planets */
-    Uns16 ShipCloneCostRate[12]; /*!< percentage cost of original ship */
-    Boolean HyperjumpGravityWells; /*!< allow hyperwarp ships to get sucked
-                                      in */
-    Uns16 NativeCombatSurvRate; /*!< percent natives dying when planet loses 
-                                   combat */
-    Boolean AllowPrivTowCapture; /*!< Allow Privs to do tow capture */
-    Boolean AllowCrystalTowCapture; /*!< Allow Crystals to do tow capture */
-    char GameName[32];          /*!< The name of the game */
-    Boolean RoundWarpWells;     /*!< Warp wells are round, not square */
-    Boolean CPEnableSend;       /*!< Enable the 'send' command */
-    Boolean CPEnableJettison;   /*!< Enable the 'jettison' command */
-    Boolean CumulativePillaging; /*!< Allow multiple ships to pillage */
-    Boolean AllowInterceptAttack; /*!< Allow XA attack */
-    Uns16 RaceGrowthRate[12];   /*!< Colonist growth factor */
-    Uns16 PlayerRace[12];       /*!< Player-to-race map */
-    Uns16 ProductionRate[12];   /*!< Supply production factor */
-    Uns16 MineOddsWarpBonus[12]; /*!< Percent derate X100 for normal mines */
-    Uns16 CloakMineOddsWarpBonus[12]; /*!< Percent derate X100 for cloaked
-                                         travel */
-    Uns16 WebMineOddsWarpBonus[12]; /*!< Percent derate X100 for web mines */
-    Uns16 MineTravelSafeWarp[12]; /*!< Max. speed at which mine travel is
-                                     safe */
-    Uns16 CloakTravelSafeWarp[12]; /*!< Max. speed at which cloak travel is
-                                      safe */
-    Uns16 WebMineTravelSafeWarp[12]; /*!< Max. speed at which web mine
-                                        travel is safe */
-    Boolean CloakFailMessages;  /*!< Allow sending of cloak fail messages */
-    Boolean TonsScoreCountsPlanets; /*!< Allow planets/bases to count in
-                                       TONS.HST file */
-    Uns16 ExtMissionsStartAt;   /*!< Starting value for extended missions */
-    Uns16 WormholeUFOsStartAt;  /*!< Starting value for wormholes in UFO.DAT 
-                                 */
-    Uns16 MaxShipsHissing;      /*!< Max ships Hissing at 1 planet */
-    Boolean AllowExtendedMissions; /*!< Allow access to extended missions */
-    Uns16 SpyDetectionChance;   /*!< % chance of discovering Super Spy
-                                   mission */
-    Boolean MapTruehullByPlayerRace; /*!< Use PlayerRace to interpret
-                                        TRUEHULL.DAT */
-    Boolean AllowWraparoundMap; /*!< Use wraparound */
-    Uns16 WraparoundRectangle[4]; /*!< Vertices of wraparound rectangle */
-    Uns16 Dummy1;               /*!< Old colonial fighter sweep rate */
-    Uns16 Dummy2;               /*!< Old colonial fighter sweep range */
-    Boolean CPEnableRemote;     /*!< Allow the CP 'remote' command */
-    Boolean AllowAlliedChunneling; /*!< allow chunnel to +s allies */
-    Uns16 ColTaxRate[12],       /*!< tax rate for colonists */
-
-      NatTaxRate[12];           /*!< tax rate for natives */
-    Boolean AllowAlternativeTowing; /*!< Use alternative tow model */
-    Boolean AllowBeamUpClans;   /*!< Allow gathering clans from planets */
-    Boolean AllowBeamUpMultiple; /*!< Allow beam up multiple extmission */
-
-    /*! Build queue */
-    Boolean AllowPriorityBuild; /*!< Whether `PBx' is allowed or not */
-    Uns16 SBQBuildPALBoost[12]; /*!< Multiplier for existing build orders */
-    Uns16 SBQNewBuildPALBoost[12]; /*!< Multiplier for new build orders */
-    Uns32 SBQPointsForAging[12]; /*!< Constant offset for old build orders */
-    Uns32 SBQBuildChangePenalty[12]; /*!< Constant offset for build changes */
-    Uns16 SBQBoostExp[12];      /*!< exponent for build order boosts X 100 */
-    Uns16 PALDecayPerTurn[12];  /*!< Exponential decay term */
-    Uns16 PALPlayerRate[12];    /*!< Player-dependent scaling */
-    Uns16 PALCombatAggressor[12]; /*!< Points for being aggressor in combat */
-    Uns16 PALAggressorPointsPer10KT[12]; /*!< Points for mass destroyed in
-                                            combat */
-    Uns16 PALOpponentPointsPer10KT[12]; /*!< As above, for opponent */
-    Uns16 PALAggressorKillPointsPer10KT[12]; /*!< Bonus for complete
-                                                destruction */
-    Uns16 PALOpponentKillPointsPer10KT[12]; /*!< As above, for opponent */
-    Uns16 PALShipMinekillPer10KT[12]; /*!< PAL for destroying ship by
-                                         minehit */
-    Uns16 PALCombatPlanetScaling[12]; /*!< Scale factor for above */
-    Uns16 PALCombatBaseScaling[12]; /*!< Scale factor for above */
-    Uns16 PALShipCapturePer10Crew[12]; /*!< Points for killing crew */
-    Uns16 PALRecyclingPer10KT[12]; /*!< Points for recycling/colonizing */
-    Uns16 PALBoardingPartyPer10Crew[12]; /*!< Priv/Crystal boarding party */
-    Uns16 PALGroundAttackPer100Clans[12]; /*!< As it says */
-    Uns16 PALGloryDevice[12];   /*!< Points for exploding a G.D. */
-    Uns16 PALGloryDamagePer10KT[12]; /*!< Points for enemy ships */
-    Uns16 PALImperialAssault[12]; /*!< Points for performing one */
-    Uns16 PALRGA[12];           /*!< Points for performing one */
-    Uns16 PALPillage[12];       /*!< Points for performing one */
-
-    Boolean FilterPlayerMessages[12]; /*!< Elide messages for which there
-                                         are UTIL.DAT equivalents? */
-    Boolean AlternativeAntiCloak; /*!< Loki's don't decloak own race */
-    Boolean AntiCloakImmunity[12]; /*!< New HOST 3.22.022 option */
-
-    /*! Player-specific combat parameters */
-    Uns16 BayRechargeRate[12];  /*!< recharge rate X10 of fighter bays per
-                                   bay */
-    Int16 BayRechargeBonus[12]; /*!< bay number bonus in recharging */
-    Uns16 BeamRechargeRate[12]; /*!< recharge rate X10 of beams */
-    Int16 BeamRechargeBonus[12]; /*!< beam tech bonus in recharging */
-    Uns16 TubeRechargeRate[12]; /*!< recharge rate X10 of tubes */
-    Uns16 BeamHitFighterCharge[12]; /*!< minimum charge X10 for beams to
-                                       fire at fighters */
-    Uns16 BeamHitShipCharge[12]; /*!< minimum charge X10 for beams to fire
-                                    at ships */
-    Uns32 TorpFiringRange[12];  /*!< maximum distance at which to fire torps 
-                                 */
-    Uns32 BeamFiringRange[12];  /*!< maximum distance at which to fire beams 
-                                 */
-    Uns16 TorpHitOdds[12];      /*!< percentage chance of torps hitting */
-    Uns16 BeamHitOdds[12];      /*!< percentage chance of beams hitting */
-    Int16 BeamHitBonus[12];     /*!< bonus factor for beam hit odds */
-    Uns16 StrikesPerFighter[12]; /*!< number of strikes per fighter */
-    Uns16 FighterKillOdds[12];  /*!< percent chance that a fighter will
-                                   destroy another fighter */
-    Uns16 FighterBeamExplosive[12]; /*!< damage done by each fighter */
-    Uns16 FighterBeamKill[12];  /*!< kill power of each fighter */
-    Uns16 ShipMovementSpeed[12]; /*!< ship closing speed in meters/tick */
-    Uns16 FighterMovementSpeed[12]; /*!< fighter closing speed in
-                                       meters/tick */
-    Uns16 BayLaunchInterval[12]; /*!< minimum number of ticks between
-                                    launches */
-    Uns16 MaxFightersLaunched[12]; /*!< max number of fighters out of ship */
-    Int16 TorpHitBonus[12];     /*!< bonus factor for torp hit odds */
-    Int16 TubeRechargeBonus[12]; /*!< tube tech bonus in recharging */
-    Uns16 ShieldDamageScaling[12]; /*!< relative damage to shields */
-    Uns16 HullDamageScaling[12]; /*!< relative damage to hull */
-    Uns16 CrewKillScaling[12];  /*!< relative damage to crew */
-    Int16 ExtraFighterBays[12]; /*!< extra bays for carriers */
-    Uns32 BeamHitFighterRange[12]; /*!< distance at which beams can hit
-                                      fighters */
-    Uns32 FighterFiringRange[12]; /*!< distance from which fighters can
-                                     strike */
-
-    /*! Common combat parameters. */
-    Boolean AlternativeCombat;  /*!< allow fractional damage, etc. */
-    Uns32 StandoffDistance;     /*!< minimum inter-ship distance */
-    Boolean PlanetsHaveTubes;   /*!< allow planets to fire torps */
-    Boolean FireOnAttackFighters; /*!< fire first on attack fighters, then
-                                     retreaters */
-  } Pconfig_Struct;
+/* Historically, the names of the Pconfig_Struct members differed
+   from the ones used in pconfig.src. The following #defines
+   make it possible to use the pconfig.src name everywhere (recommended!). */
+    
+/*      new name (valid in pconfig.src) old name (valid in PDK)  */
+#define AllowAlchemy                    Alchemy
+#define AllowAlternativeCombat          AlternativeCombat
+#define AllowCloakedShipsAttack         AllowCloakedShipAttack
+#define AllowCloakFailMessages          CloakFailMessages
+#define AllowColoniesSweepWebs          ColSweepWebs
+#define AllowEatingSupplies             EatSupplies
+#define AllowEngineShieldBonus          EngShieldBonus
+#define AllowESBonusAgainstPlanets      ESBonusAgainstPlanets
+#define AllowFedCombatBonus             FedCrewBonus
+#define AllowGravityWells               GravityWells
+#define AllowHiss                       Hiss
+#define AllowHyperjumpGravWells         HyperjumpGravityWells
+#define AllowHyperWarps                 HyperDrives
+#define AllowMeteorMessages             MeteorMessages
+#define AllowMinefields                 Minefields
+#define AllowMinesDestroyMines          MinesDestroyMines
+#define AllowMinesDestroyWebs           DestroyWebs
+#define AllowNewNatives                 NewNatives
+#define AllowNoFuelMovement             NoFuelMove
+#define AllowOneEngineTowing            OneTow
+#define AllowPlanetAttacks              PlanetsAttack
+#define AllowPrivateerTowCapture        AllowPrivTowCapture
+#define AllowRebelGroundAttack          RebelGroundAttack
+#define AllowScienceMissions            ScienceShips
+#define AllowSuperRefit                 SuperRefit
+#define AllowWebMines                   WebMines
+#define BorgAssimilationRate            AssimilationRate
+#define CloakFailureRate                CloakFailure
+#define LargeMeteorOreRanges            LargeOre
+#define ColonistTaxRate                 ColTaxRate
+#define CrystalsPreferDeserts           CrystalsLikeDesert
+#define DarkSenseRange                  DarksenseRange
+#define DisablePasswords                DisablePasswd
+#define GroundDefenseFactor             GroundDefense
+#define GroundKillFactor                GroundKill
+#define HissEffectRate                  HissEffect
+#define MaximumMinefieldRadius          MaxMineRadius
+#define MineHitDamageFor100KT           MineHitDamage
+#define MineHitOdds                     MineOdds
+#define PlanetsAttackKlingons           PlanetKlingonAttack
+#define PlanetsAttackRebels             PlanetRebelAttack
+#define MineOddsWarpBonusX100           MineOddsWarpBonus
+#define NativeCombatSurvivalRate        NativeCombatSurvRate
+#define NativeTaxRate                   NatTaxRate
+#define RobFailureOdds                  RobFailRate
+#define RoundGravityWells               RoundWarpWells
+#define TransuraniumDecayRate           TransuraniumRate
+#define WebHitDamageFor100KT            WebHitDamage
+#define WebMineDecayRate                WebDecay
+#define WebMineHitOdds                  WebOdds
+#define WebMineOddsWarpBonusX100        WebMineOddsWarpBonus
+#define WebMineSweepRange               WebSweepRange
+#define WebMineSweepRate                WebSweepRate
+#define StructureDecayPerTurn           StructureDecay
+#define MineDecayRate                   MineDecay
+#define DamageLevelForCloakFail         NoCloakDamage
+#define EngineShieldBonusRate           ShieldBonusRate
+#define RaceMiningRate                  MiningRate
+#define CloakedMineTravelSafeWarp       CloakTravelSafeWarp
+#define LargeMeteorsImpacting           LargeMeteorNumber
+#define MeteorShowerOdds                SmallMeteorOdds
+#define MeteorShowerOreRanges           SmallOre
+#define RandomMeteorRate                MeteorRate
+#define CloakMineOddsWarpBonusX100      CloakMineOddsWarpBonus
+#define MineHitOddsWhenCloakedX10       CloakMineOdds
 
 /*! This record describes an entry in the UFO.HST file */
 
@@ -656,6 +650,25 @@ extern "C" {
   extern Boolean WriteHostData(void);
 
   extern Boolean IsCLOAKCFound(void);
+
+/*! Single-read routines */
+  extern IO_Def Read_AuxData_File(void);
+  extern IO_Def Read_Turntime_File(void);
+  extern IO_Def Read_HConfig_File(void);
+  extern IO_Def Read_THost_HConfig_File(void);
+  extern IO_Def Read_Planets_File(Int16 * pControl);
+  extern IO_Def Read_Ships_File(Int16 * pControl);
+  extern IO_Def Read_Bases_File(Int16 * pControl1, Int16 * pControl2);
+  extern IO_Def Read_Mines_File(void);
+  extern IO_Def Read_Hullspec_File(void);
+  extern IO_Def Read_Truehull_File(void);
+  extern IO_Def Read_Engspec_File(void);
+  extern IO_Def Read_Torpspec_File(void);
+  extern IO_Def Read_Beamspec_File(void);
+  extern IO_Def Read_Planetname_File(void);
+  extern IO_Def Read_Racenames_File(void);
+  extern IO_Def Read_Xyplan_File(void);
+  extern IO_Def Read_HostGen_File(void);
 
 /*! Single-write routines */
   extern Boolean Write_Planets_File(Int16 pControl);
@@ -920,6 +933,7 @@ extern "C" {
   extern Pconfig_Struct *gPconfigInfo;
   extern char *poptarg;
   extern int poptind;
+  extern Boolean gUsingTHost;
 
 /*
  *  Initialization and cleanup
