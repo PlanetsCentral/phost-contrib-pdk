@@ -1,3 +1,4 @@
+
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -21,125 +22,142 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "phostpdk.h"
 #include "private.h"
 
-static const char *ENGSPEC_FILE      = "engspec.dat";
-static Engspec_Struct    *gEngspecPtr=0;
+static const char *ENGSPEC_FILE = "engspec.dat";
+static Engspec_Struct *gEngspecPtr = 0;
 
-static void FreeEng(void)
+static void
+FreeEng(void)
 {
-    MemFree(gEngspecPtr); gEngspecPtr = 0;
+  MemFree(gEngspecPtr);
+  gEngspecPtr = 0;
 }
 
-static void InitEng(void)
+static void
+InitEng(void)
 {
-    if (gEngspecPtr EQ 0) {
-        gEngspecPtr = (Engspec_Struct *)MemCalloc(ENGINE_NR+1, sizeof(Engspec_Struct));
+  if (gEngspecPtr EQ 0) {
+    gEngspecPtr =
+          (Engspec_Struct *) MemCalloc(ENGINE_NR + 1, sizeof(Engspec_Struct));
 
-        RegisterCleanupFunction(FreeEng);
-    }
+    RegisterCleanupFunction(FreeEng);
+  }
 }
 
- char* EngineName(Uns16 pEngNr, char* pBuffer)
+char *
+EngineName(Uns16 pEngNr, char *pBuffer)
 {
-    static char lName[21];
-    char *lPtr = pBuffer;
+  static char lName[21];
+  char *lPtr = pBuffer;
 
-    InitEng();
+  InitEng();
 
-    passert((pEngNr>=1) AND (pEngNr<=ENGINE_NR));
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
 
-    if (lPtr EQ NULL) lPtr = lName;
-    memcpy(lPtr, gEngspecPtr[pEngNr].Name, 20);
-    lPtr[20] = 0;
-    return lPtr;
+  if (lPtr EQ NULL)
+    lPtr = lName;
+  memcpy(lPtr, gEngspecPtr[pEngNr].Name, 20);
+  lPtr[20] = 0;
+  return lPtr;
 }
 
- Uns16 EngMoneyCost(Uns16 pEngNr)
+Uns16
+EngMoneyCost(Uns16 pEngNr)
 {
-    InitEng();
+  InitEng();
 
-    passert((pEngNr>=1) AND (pEngNr<=ENGINE_NR));
-    return(gEngspecPtr[pEngNr].MoneyCost);
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  return (gEngspecPtr[pEngNr].MoneyCost);
 }
 
- Uns16 EngTritCost(Uns16 pEngNr)
+Uns16
+EngTritCost(Uns16 pEngNr)
 {
-    InitEng();
+  InitEng();
 
-    passert((pEngNr>=1) AND (pEngNr<=ENGINE_NR));
-    return(gEngspecPtr[pEngNr].TritCost);
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  return (gEngspecPtr[pEngNr].TritCost);
 }
 
- Uns16 EngDurCost(Uns16 pEngNr)
+Uns16
+EngDurCost(Uns16 pEngNr)
 {
-    InitEng();
+  InitEng();
 
-    passert((pEngNr>=1) AND (pEngNr<=ENGINE_NR));
-    return(gEngspecPtr[pEngNr].DurCost);
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  return (gEngspecPtr[pEngNr].DurCost);
 }
 
- Uns16 EngMolyCost(Uns16 pEngNr)
+Uns16
+EngMolyCost(Uns16 pEngNr)
 {
-    InitEng();
+  InitEng();
 
-    passert((pEngNr>=1) AND (pEngNr<=ENGINE_NR));
-    return(gEngspecPtr[pEngNr].MolyCost);
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  return (gEngspecPtr[pEngNr].MolyCost);
 }
 
- Uns16 EngTechLevel(Uns16 pEngNr)
+Uns16
+EngTechLevel(Uns16 pEngNr)
 {
-    InitEng();
+  InitEng();
 
-    passert((pEngNr>=1) AND (pEngNr<=ENGINE_NR));
-    return(gEngspecPtr[pEngNr].TechLevel);
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  return (gEngspecPtr[pEngNr].TechLevel);
 }
 
- Uns32 EngFuelConsumption(Uns16 pEngNr, Uns16 pSpeed)
+Uns32
+EngFuelConsumption(Uns16 pEngNr, Uns16 pSpeed)
 {
-    InitEng();
+  InitEng();
 
-    passert((pEngNr>=1) AND (pEngNr<=ENGINE_NR) AND (pSpeed<=MAX_SPEED));
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR) AND(pSpeed <= MAX_SPEED));
 
-    /* NEW */
-    /* NOTE: Speed is 0 to 9 but the fuel consumption array only has
-             9 elements. We must handle speed==0 specially and then
-             subtract 1 from the given speed */
+  /* NEW */
+  /* NOTE: Speed is 0 to 9 but the fuel consumption array only has 9
+     elements. We must handle speed==0 specially and then subtract 1 from the 
+     given speed */
 
-    if (pSpeed EQ 0) return 0;
-    return(gEngspecPtr[pEngNr].FuelConsumption[pSpeed-1]);
+  if (pSpeed EQ 0)
+    return 0;
+  return (gEngspecPtr[pEngNr].FuelConsumption[pSpeed - 1]);
 }
 
-IO_Def Read_Engspec_File(void)
+IO_Def
+Read_Engspec_File(void)
 {
-    FILE    *lEngFile;
-    IO_Def  lError = IO_SUCCESS;
+  FILE *lEngFile;
+  IO_Def lError = IO_SUCCESS;
 
-    InitEng();
+  InitEng();
 
-    if ((lEngFile = OpenInputFile(ENGSPEC_FILE, GAME_OR_ROOT_DIR | NO_MISSING_ERROR)) NEQ NULL) {
+  if ((lEngFile =
+              OpenInputFile(ENGSPEC_FILE,
+                GAME_OR_ROOT_DIR | NO_MISSING_ERROR)) NEQ NULL) {
 #ifdef __MSDOS__
-		if (ENGINE_NR NEQ fread(gEngspecPtr+1, sizeof(Engspec_Struct), ENGINE_NR, lEngFile)) {
-            Error("Can't read file '%s'", ENGSPEC_FILE);
-			lError=IO_FAILURE;
-		}
+    if (ENGINE_NR NEQ fread(gEngspecPtr + 1, sizeof(Engspec_Struct),
+                ENGINE_NR, lEngFile)) {
+      Error("Can't read file '%s'", ENGSPEC_FILE);
+      lError = IO_FAILURE;
+    }
 #else
-        Uns16 lEng;
-		for (lEng=1; lEng <= ENGINE_NR; lEng++) {
-			if (! DOSReadStruct(EngspecStruct_Convert,
-								NumEngspecStruct_Convert,
-								gEngspecPtr+lEng,
-								lEngFile)) {
-                Error("Can't read file '%s'", ENGSPEC_FILE);
-				lError=IO_FAILURE;
-				break;
-			}
-		}
+    Uns16 lEng;
+
+    for (lEng = 1; lEng <= ENGINE_NR; lEng++) {
+      if (!DOSReadStruct(EngspecStruct_Convert, NumEngspecStruct_Convert,
+                  gEngspecPtr + lEng, lEngFile)) {
+        Error("Can't read file '%s'", ENGSPEC_FILE);
+        lError = IO_FAILURE;
+        break;
+      }
+    }
 #endif
 
-        fclose(lEngFile);
-    } else lError = IO_FAILURE;
-    return(lError);
+    fclose(lEngFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return (lError);
 }
-
 
 /*************************************************************
   $HISTORY:$

@@ -1,3 +1,4 @@
+
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -21,132 +22,151 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "phostpdk.h"
 #include "private.h"
 
-static const char *BEAMSPEC_FILE     = "beamspec.dat";
-static Beamspec_Struct   *gBeamspecPtr=0;
+static const char *BEAMSPEC_FILE = "beamspec.dat";
+static Beamspec_Struct *gBeamspecPtr = 0;
 
-static void FreeBeam(void)
+static void
+FreeBeam(void)
 {
-    MemFree(gBeamspecPtr); gBeamspecPtr = 0;
+  MemFree(gBeamspecPtr);
+  gBeamspecPtr = 0;
 }
 
-static void InitBeam(void)
+static void
+InitBeam(void)
 {
-    if (gBeamspecPtr EQ 0) {
-        gBeamspecPtr = (Beamspec_Struct *)MemCalloc(BEAM_NR+1, sizeof(Beamspec_Struct));
+  if (gBeamspecPtr EQ 0) {
+    gBeamspecPtr =
+          (Beamspec_Struct *) MemCalloc(BEAM_NR + 1, sizeof(Beamspec_Struct));
 
-        RegisterCleanupFunction(FreeBeam);
-    }
+    RegisterCleanupFunction(FreeBeam);
+  }
 }
 
- char* BeamName(Uns16 pBeamNr, char* pBuffer)
+char *
+BeamName(Uns16 pBeamNr, char *pBuffer)
 {
-    static char lName[21];
-    char *lPtr = pBuffer;
+  static char lName[21];
+  char *lPtr = pBuffer;
 
-    InitBeam();
+  InitBeam();
 
-    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
 
-    if (lPtr EQ NULL) lPtr = lName;
-    memcpy(lPtr, gBeamspecPtr[pBeamNr].Name, 20);
-    lPtr[20] = 0;
-    return lPtr;
+  if (lPtr EQ NULL)
+    lPtr = lName;
+  memcpy(lPtr, gBeamspecPtr[pBeamNr].Name, 20);
+  lPtr[20] = 0;
+  return lPtr;
 }
 
- Uns16 BeamMoneyCost(Uns16 pBeamNr)
+Uns16
+BeamMoneyCost(Uns16 pBeamNr)
 {
-    InitBeam();
+  InitBeam();
 
-    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
-    return(gBeamspecPtr[pBeamNr].MoneyCost);
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  return (gBeamspecPtr[pBeamNr].MoneyCost);
 }
 
- Uns16 BeamTritCost(Uns16 pBeamNr)
+Uns16
+BeamTritCost(Uns16 pBeamNr)
 {
-    InitBeam();
+  InitBeam();
 
-    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
-    return(gBeamspecPtr[pBeamNr].TritCost);
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  return (gBeamspecPtr[pBeamNr].TritCost);
 }
 
- Uns16 BeamDurCost(Uns16 pBeamNr)
+Uns16
+BeamDurCost(Uns16 pBeamNr)
 {
-    InitBeam();
+  InitBeam();
 
-    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
-    return(gBeamspecPtr[pBeamNr].DurCost);
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  return (gBeamspecPtr[pBeamNr].DurCost);
 }
 
- Uns16 BeamMolyCost(Uns16 pBeamNr)
+Uns16
+BeamMolyCost(Uns16 pBeamNr)
 {
-    InitBeam();
+  InitBeam();
 
-    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
-    return(gBeamspecPtr[pBeamNr].MolyCost);
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  return (gBeamspecPtr[pBeamNr].MolyCost);
 }
 
- Uns16 BeamMass(Uns16 pBeamNr)
+Uns16
+BeamMass(Uns16 pBeamNr)
 {
-    InitBeam();
+  InitBeam();
 
-    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
-    return(gBeamspecPtr[pBeamNr].Mass);
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  return (gBeamspecPtr[pBeamNr].Mass);
 }
 
- Uns16 BeamTechLevel(Uns16 pBeamNr)
+Uns16
+BeamTechLevel(Uns16 pBeamNr)
 {
-    InitBeam();
+  InitBeam();
 
-    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
-    return(gBeamspecPtr[pBeamNr].TechLevel);
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  return (gBeamspecPtr[pBeamNr].TechLevel);
 }
 
- Uns16 BeamKillPower(Uns16 pBeamNr)
+Uns16
+BeamKillPower(Uns16 pBeamNr)
 {
-    InitBeam();
+  InitBeam();
 
-    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
-    return(gBeamspecPtr[pBeamNr].KillPower);
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  return (gBeamspecPtr[pBeamNr].KillPower);
 }
 
- Uns16 BeamDestructivePower(Uns16 pBeamNr)
+Uns16
+BeamDestructivePower(Uns16 pBeamNr)
 {
-    InitBeam();
+  InitBeam();
 
-    passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
-    return(gBeamspecPtr[pBeamNr].DestructivePower);
+  passert((pBeamNr >= 1) AND(pBeamNr <= BEAM_NR));
+  return (gBeamspecPtr[pBeamNr].DestructivePower);
 }
 
-IO_Def Read_Beamspec_File(void)
+IO_Def
+Read_Beamspec_File(void)
 {
-    FILE    *lBeamFile;
-    IO_Def  lError = IO_SUCCESS;
+  FILE *lBeamFile;
+  IO_Def lError = IO_SUCCESS;
 
-    InitBeam();
+  InitBeam();
 
-    if ((lBeamFile = OpenInputFile(BEAMSPEC_FILE, GAME_OR_ROOT_DIR | NO_MISSING_ERROR)) NEQ NULL) {
+  if ((lBeamFile =
+              OpenInputFile(BEAMSPEC_FILE,
+               GAME_OR_ROOT_DIR | NO_MISSING_ERROR)) NEQ NULL) {
 #ifdef __MSDOS__
-		if (BEAM_NR NEQ fread(gBeamspecPtr+1, sizeof(Beamspec_Struct), BEAM_NR, lBeamFile)) {
-			Error("Unable to read from '%s'", BEAMSPEC_FILE);
-			lError=IO_FAILURE;
-		}
+    if (BEAM_NR NEQ fread(gBeamspecPtr + 1, sizeof(Beamspec_Struct), BEAM_NR,
+                lBeamFile)) {
+      Error("Unable to read from '%s'", BEAMSPEC_FILE);
+      lError = IO_FAILURE;
+    }
 #else
-        Uns16 lBeam;
-		for (lBeam=1; lBeam <= BEAM_NR; lBeam++) {
-			if (! DOSReadStruct(BeamspecStruct_Convert,
-								NumBeamspecStruct_Convert,
-								gBeamspecPtr+lBeam,
-								lBeamFile)) {
-                Error("Can't read file '%s'", BEAMSPEC_FILE);
-				lError=IO_FAILURE;
-				break;
-			}
-		}
+    Uns16 lBeam;
+
+    for (lBeam = 1; lBeam <= BEAM_NR; lBeam++) {
+      if (!DOSReadStruct(BeamspecStruct_Convert, NumBeamspecStruct_Convert,
+                  gBeamspecPtr + lBeam, lBeamFile)) {
+        Error("Can't read file '%s'", BEAMSPEC_FILE);
+        lError = IO_FAILURE;
+        break;
+      }
+    }
 #endif
 
-        fclose(lBeamFile);
-    } else lError = IO_FAILURE;
-    return(lError);
+    fclose(lBeamFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return (lError);
 }
 
 /*************************************************************

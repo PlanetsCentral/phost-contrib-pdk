@@ -1,3 +1,4 @@
+
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -86,68 +87,73 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         TEXT_MODE           -- open the file in text mode instead of binary
 */
 
-FILE *OpenInputFile(const char *pName, int pLocation)
+FILE *
+OpenInputFile(const char *pName, int pLocation)
 {
-    FILE *lFile = 0;
-    char lFullname[_MAX_PATH+1];
-    char lFilename[32];
-    const char *lMode = (pLocation & TEXT_MODE) ? "rt" : "rb";
+  FILE *lFile = 0;
+  char lFullname[_MAX_PATH + 1];
+  char lFilename[32];
+  const char *lMode = (pLocation & TEXT_MODE) ? "rt" : "rb";
 
-    passert(pName NEQ NULL);
-    passert(pLocation & (ROOT_DIR_ONLY | GAME_DIR_ONLY | GAME_OR_ROOT_DIR));
+  passert(pName NEQ NULL);
+  passert(pLocation & (ROOT_DIR_ONLY | GAME_DIR_ONLY | GAME_OR_ROOT_DIR));
 
-    if (pLocation & (GAME_DIR_ONLY | GAME_OR_ROOT_DIR)) {
+  if (pLocation & (GAME_DIR_ONLY | GAME_OR_ROOT_DIR)) {
 #if defined(__MSDOS__) || defined(__WIN32__)
-        sprintf(lFullname, "%s\\%s", gGameDirectory, pName);
+    sprintf(lFullname, "%s\\%s", gGameDirectory, pName);
 #else
-        sprintf(lFullname, "%s/%s", gGameDirectory, pName);
+    sprintf(lFullname, "%s/%s", gGameDirectory, pName);
 #endif
-        lFile = fopen(lFullname, lMode);
-        if (lFile NEQ NULL) return lFile;
+    lFile = fopen(lFullname, lMode);
+    if (lFile NEQ NULL)
+      return lFile;
 
 #ifndef __MSDOS__
-        /* Try uppercase */
-        passert(strlen(pName) < 32);
-        strcpy(lFilename, pName);
+    /* Try uppercase */
+    passert(strlen(pName) < 32);
+    strcpy(lFilename, pName);
 #if defined(__MSDOS__) || defined(__WIN32__)
-        sprintf(lFullname, "%s\\%s", gGameDirectory, strupr(lFilename));
+    sprintf(lFullname, "%s\\%s", gGameDirectory, strupr(lFilename));
 #else
-        sprintf(lFullname, "%s/%s", gGameDirectory, strupr(lFilename));
+    sprintf(lFullname, "%s/%s", gGameDirectory, strupr(lFilename));
 #endif
-        lFile = fopen(lFullname, lMode);
-        if (lFile NEQ NULL) return lFile;
+    lFile = fopen(lFullname, lMode);
+    if (lFile NEQ NULL)
+      return lFile;
 #endif
-    }
+  }
 
-    if (pLocation & (ROOT_DIR_ONLY | GAME_OR_ROOT_DIR)) {
+  if (pLocation & (ROOT_DIR_ONLY | GAME_OR_ROOT_DIR)) {
 #if defined(__MSDOS__) || defined(__WIN32__)
-        sprintf(lFullname, "%s\\%s", gRootDirectory, pName);
+    sprintf(lFullname, "%s\\%s", gRootDirectory, pName);
 #else
-        sprintf(lFullname, "%s/%s", gRootDirectory, pName);
+    sprintf(lFullname, "%s/%s", gRootDirectory, pName);
 #endif
-        lFile = fopen(lFullname, lMode);
-        if (lFile NEQ NULL) return lFile;
+    lFile = fopen(lFullname, lMode);
+    if (lFile NEQ NULL)
+      return lFile;
 
 #ifndef __MSDOS__
-        /* Try uppercase */
-        passert(strlen(pName) < 32);
-        strcpy(lFilename, pName);
+    /* Try uppercase */
+    passert(strlen(pName) < 32);
+    strcpy(lFilename, pName);
 #if defined(__MSDOS__) || defined(__WIN32__)
-        sprintf(lFullname, "%s\\%s", gRootDirectory, strupr(lFilename));
+    sprintf(lFullname, "%s\\%s", gRootDirectory, strupr(lFilename));
 #else
-        sprintf(lFullname, "%s/%s", gRootDirectory, strupr(lFilename));
+    sprintf(lFullname, "%s/%s", gRootDirectory, strupr(lFilename));
 #endif
-        lFile = fopen(lFullname, lMode);
-        if (lFile NEQ NULL) return lFile;
+    lFile = fopen(lFullname, lMode);
+    if (lFile NEQ NULL)
+      return lFile;
 #endif
-    }
+  }
 
-    if (lFile EQ NULL) {
-        if (! (pLocation & NO_MISSING_ERROR) )
-            ErrorExit("unable to open '%s' for reading", lFullname);
-    }
-    return lFile;
-}                            
+  if (lFile EQ NULL) {
+    if (!(pLocation & NO_MISSING_ERROR))
+      ErrorExit("unable to open '%s' for reading", lFullname);
+  }
+  return lFile;
+}
 
 /* This routine opens a file handle to an output file (in binary mode). The
    file name provided is without directory information (e.g., "mdata.hst").
@@ -164,143 +170,158 @@ FILE *OpenInputFile(const char *pName, int pLocation)
    An error is generated if the file cannot be created.
 */
 
-FILE *OpenOutputFile(const char *pName, int pLocation)
+FILE *
+OpenOutputFile(const char *pName, int pLocation)
 {
-    char lFullname[_MAX_PATH+1];
-    FILE *lFile;
-    char lMode[3];
+  char lFullname[_MAX_PATH + 1];
+  FILE *lFile;
+  char lMode[3];
 
-    passert(pName NEQ NULL);
-    passert(pLocation & (ROOT_DIR_ONLY | GAME_DIR_ONLY));
-    passert(! (pLocation & GAME_OR_ROOT_DIR));
+  passert(pName NEQ NULL);
+  passert(pLocation & (ROOT_DIR_ONLY | GAME_DIR_ONLY));
+  passert(!(pLocation & GAME_OR_ROOT_DIR));
 
-    lMode[0] = (pLocation & APPEND_MODE) ? 'a' : 'w';
-    lMode[1] = (pLocation & TEXT_MODE) ? 't' : 'b';
-    lMode[2] = 0;
+  lMode[0] = (pLocation & APPEND_MODE) ? 'a' : 'w';
+  lMode[1] = (pLocation & TEXT_MODE) ? 't' : 'b';
+  lMode[2] = 0;
 
-    sprintf(lFullname, "%s/%s",
-        (pLocation & GAME_DIR_ONLY ? gGameDirectory : gRootDirectory),
-        pName);
+  sprintf(lFullname, "%s/%s",
+        (pLocation & GAME_DIR_ONLY ? gGameDirectory : gRootDirectory), pName);
 
-    lFile = fopen(lFullname, lMode);
-    if (lFile EQ NULL) {
-        ErrorExit("unable to open '%s' for writing: %s", lFullname, strerror(errno));
-    }
-    return lFile;
+  lFile = fopen(lFullname, lMode);
+  if (lFile EQ NULL) {
+    ErrorExit("unable to open '%s' for writing: %s", lFullname,
+          strerror(errno));
+  }
+  return lFile;
 }
 
-FILE *OpenUpdateFile(const char *pName, int pLocation)
+FILE *
+OpenUpdateFile(const char *pName, int pLocation)
 {
-    char lFullname[_MAX_PATH+1];
-    FILE *lFile;
-    char lMode[4];
+  char lFullname[_MAX_PATH + 1];
+  FILE *lFile;
+  char lMode[4];
 
-    passert(pName NEQ NULL);
-    passert(pLocation & (ROOT_DIR_ONLY | GAME_DIR_ONLY));
-    passert(! (pLocation & GAME_OR_ROOT_DIR));
+  passert(pName NEQ NULL);
+  passert(pLocation & (ROOT_DIR_ONLY | GAME_DIR_ONLY));
+  passert(!(pLocation & GAME_OR_ROOT_DIR));
 
-    lMode[0] = (pLocation & REWRITE_MODE) ? 'r' : 'w';
-    lMode[1] = '+';
-    lMode[2] = (pLocation & TEXT_MODE) ? 't' : 'b';
-    lMode[3] = 0;
+  lMode[0] = (pLocation & REWRITE_MODE) ? 'r' : 'w';
+  lMode[1] = '+';
+  lMode[2] = (pLocation & TEXT_MODE) ? 't' : 'b';
+  lMode[3] = 0;
 
-    sprintf(lFullname, "%s/%s",
-        (pLocation & GAME_DIR_ONLY ? gGameDirectory : gRootDirectory),
-        pName);
+  sprintf(lFullname, "%s/%s",
+        (pLocation & GAME_DIR_ONLY ? gGameDirectory : gRootDirectory), pName);
 
-    lFile = fopen(lFullname, lMode);
-    if (lFile EQ NULL AND ! (pLocation & NO_MISSING_ERROR)) {
-        ErrorExit("unable to open '%s' for update: %s", lFullname, strerror(errno));
-    }
-    return lFile;
+  lFile = fopen(lFullname, lMode);
+  if (lFile EQ NULL AND ! (pLocation & NO_MISSING_ERROR)) {
+    ErrorExit("unable to open '%s' for update: %s", lFullname,
+          strerror(errno));
+  }
+  return lFile;
 }
 
-Boolean RemoveGameFile(const char *pName)
+Boolean
+RemoveGameFile(const char *pName)
 {
-    char lFullname[_MAX_PATH+1];
-    char lFilename[32];
+  char lFullname[_MAX_PATH + 1];
+  char lFilename[32];
 
-    passert(pName NEQ NULL);
-    sprintf(lFullname, "%s/%s", gGameDirectory, pName);
-    if (remove(lFullname) EQ 0) return True;
-
-#ifndef __MSDOS__
-    /* Try uppercase */
-
-    passert(strlen(pName) < 32);
-    strcpy(lFilename, pName);
-    sprintf(lFullname, "%s/%s", gGameDirectory, strupr(lFilename));
-    if (remove(lFullname) EQ 0) return True;
-#endif
-
-    return False;
-}
-
-Boolean CopyFileToFile(FILE *pSrc, FILE *pDst, Uns32 pSize)
-{
-    char lBuffer[512];
-    size_t lToWrite;
-
-    passert(pSrc NEQ NULL);
-    passert(pDst NEQ NULL);
-
-    while (pSize > 0) {
-        lToWrite = (size_t) min(pSize, 512UL);
-        if (lToWrite NEQ fread(lBuffer, 1, lToWrite, pSrc)) goto bad_read;
-        if (lToWrite NEQ fwrite(lBuffer, 1, lToWrite, pDst)) goto bad_write;
-
-        pSize -= lToWrite;
-    }
-
+  passert(pName NEQ NULL);
+  sprintf(lFullname, "%s/%s", gGameDirectory, pName);
+  if (remove(lFullname) EQ 0)
     return True;
 
+#ifndef __MSDOS__
+  /* Try uppercase */
+
+  passert(strlen(pName) < 32);
+  strcpy(lFilename, pName);
+  sprintf(lFullname, "%s/%s", gGameDirectory, strupr(lFilename));
+  if (remove(lFullname) EQ 0)
+    return True;
+#endif
+
+  return False;
+}
+
+Boolean
+CopyFileToFile(FILE * pSrc, FILE * pDst, Uns32 pSize)
+{
+  char lBuffer[512];
+  size_t lToWrite;
+
+  passert(pSrc NEQ NULL);
+  passert(pDst NEQ NULL);
+
+  while (pSize > 0) {
+    lToWrite = (size_t) min(pSize, 512UL);
+    if (lToWrite NEQ fread(lBuffer, 1, lToWrite, pSrc))
+      goto bad_read;
+    if (lToWrite NEQ fwrite(lBuffer, 1, lToWrite, pDst))
+      goto bad_write;
+
+    pSize -= lToWrite;
+  }
+
+  return True;
+
 bad_read:
-    Error("Read error in file copy"); return False;
+  Error("Read error in file copy");
+  return False;
 bad_write:
-    Error("Write error in file copy"); return False;
+  Error("Write error in file copy");
+  return False;
 }
 
-Boolean CopyGameFile(const char *pSrcName, const char *pDstName)
+Boolean
+CopyGameFile(const char *pSrcName, const char *pDstName)
 {
-    Uns32 lLength;
-    FILE *pInFile, *pOutFile;
-    Boolean lRetVal;
+  Uns32 lLength;
+  FILE *pInFile,
+   *pOutFile;
+  Boolean lRetVal;
 
-    passert(pSrcName NEQ NULL);
-    passert(pDstName NEQ NULL);
+  passert(pSrcName NEQ NULL);
+  passert(pDstName NEQ NULL);
 
-    pInFile = OpenInputFile(pSrcName, GAME_DIR_ONLY);
-    pOutFile = OpenOutputFile(pDstName, GAME_DIR_ONLY);
+  pInFile = OpenInputFile(pSrcName, GAME_DIR_ONLY);
+  pOutFile = OpenOutputFile(pDstName, GAME_DIR_ONLY);
 
-    lLength = FileLength(pInFile);
+  lLength = FileLength(pInFile);
 
-    lRetVal = CopyFileToFile(pInFile, pOutFile, lLength);
+  lRetVal = CopyFileToFile(pInFile, pOutFile, lLength);
 
-    fclose(pInFile);
-    fclose(pOutFile);
+  fclose(pInFile);
+  fclose(pOutFile);
 
-    return lRetVal;
+  return lRetVal;
 }
 
-Uns32 FileLength(FILE *lFile)
+Uns32
+FileLength(FILE * lFile)
 {
-    Uns32 lSize;
+  Uns32 lSize;
 
-    fseek(lFile, 0L, SEEK_END);
-    lSize = (Uns32) ftell(lFile);
-    rewind(lFile);
+  fseek(lFile, 0L, SEEK_END);
+  lSize = (Uns32) ftell(lFile);
+  rewind(lFile);
 
-    return lSize;
+  return lSize;
 }
 
-Boolean RenameGameFile(const char *pSrcName, const char *pDstName)
+Boolean
+RenameGameFile(const char *pSrcName, const char *pDstName)
 {
-    char lFullname1[_MAX_PATH+1], lFullname2[_MAX_PATH+1];
+  char lFullname1[_MAX_PATH + 1],
+    lFullname2[_MAX_PATH + 1];
 
-    passert(pSrcName NEQ NULL AND pDstName NEQ NULL);
-    sprintf(lFullname1, "%s/%s", gGameDirectory, pSrcName);
-    sprintf(lFullname2, "%s/%s", gGameDirectory, pDstName);
-    return (Boolean) (rename(lFullname1, lFullname2) EQ 0);
+  passert(pSrcName NEQ NULL AND pDstName NEQ NULL);
+  sprintf(lFullname1, "%s/%s", gGameDirectory, pSrcName);
+  sprintf(lFullname2, "%s/%s", gGameDirectory, pDstName);
+  return (Boolean) (rename(lFullname1, lFullname2) EQ 0);
 }
 
 /*
@@ -308,11 +329,12 @@ Boolean RenameGameFile(const char *pSrcName, const char *pDstName)
  */
 
 #ifdef __MSDOS__
-  extern C_LINKAGE void *farcalloc(Uns32 pUnits, Uns32 pSize);
-  extern C_LINKAGE Uns32 farcoreleft(void);
-  extern C_LINKAGE void farfree(void *block);
-  extern C_LINKAGE void *farmalloc(Uns32 pBytes);
-  extern C_LINKAGE void *farrealloc(void *pPtr, Uns32 pBytes);
+extern C_LINKAGE void *farcalloc(Uns32 pUnits, Uns32 pSize);
+extern C_LINKAGE Uns32 farcoreleft(void);
+extern C_LINKAGE void farfree(void *block);
+extern C_LINKAGE void *farmalloc(Uns32 pBytes);
+extern C_LINKAGE void *farrealloc(void *pPtr, Uns32 pBytes);
+
 #ifdef MICROSQUISH
 #define farcalloc calloc
 #define farmalloc malloc
@@ -320,99 +342,113 @@ Boolean RenameGameFile(const char *pSrcName, const char *pDstName)
 #define farfree   free
 #endif
 #else
-  #ifndef farmalloc
-    #define farmalloc  malloc
-    #define farcalloc  calloc
-    #define farrealloc realloc
-    #define farfree    free
-  #endif
+#ifndef farmalloc
+#define farmalloc  malloc
+#define farcalloc  calloc
+#define farrealloc realloc
+#define farfree    free
+#endif
 #endif
 
 static Boolean gAllocFailed = False;
 
-static void quickExit(void)
+static void
+quickExit(void)
 {
-    fprintf(stderr,"***\n*** Out of memory\n***\n");
-    exit(1);
+  fprintf(stderr, "***\n*** Out of memory\n***\n");
+  exit(1);
 }
 
-void *MemAlloc(size_t pAmount)
+void *
+MemAlloc(size_t pAmount)
 {
-    void *lPtr;
+  void *lPtr;
 
-    if (gAllocFailed) quickExit();
+  if (gAllocFailed)
+    quickExit();
 
 #ifdef SUBALLOC
+
 /*    fprintf(stderr,"Allocating %u bytes...\n",pAmount); */
-    lPtr = suballoc_farmalloc(pAmount);
-    if (lPtr EQ NULL) CheckMemory();
+  lPtr = suballoc_farmalloc(pAmount);
+  if (lPtr EQ NULL)
+    CheckMemory();
 
-    minMemory = min(minMemory, suballoc_memfree());
+  minMemory = min(minMemory, suballoc_memfree());
 #else
-    lPtr = farmalloc(pAmount);
+  lPtr = farmalloc(pAmount);
 #endif
-    if (lPtr EQ NULL) {
-        gAllocFailed=True;
-        ErrorExit("out of memory");
-    }
-    return lPtr;
+  if (lPtr EQ NULL) {
+    gAllocFailed = True;
+    ErrorExit("out of memory");
+  }
+  return lPtr;
 }
 
-void *MemRealloc(void *pPtr, size_t pAmount)
+void *
+MemRealloc(void *pPtr, size_t pAmount)
 {
-    void *lPtr;
+  void *lPtr;
 
-    if (gAllocFailed) quickExit();
+  if (gAllocFailed)
+    quickExit();
 
-    passert(pPtr NEQ 0);
-    passert(pAmount NEQ 0);
+  passert(pPtr NEQ 0);
+  passert(pAmount NEQ 0);
 #ifdef SUBALLOC
-    lPtr = suballoc_farrealloc(pPtr, pAmount);
-    if (lPtr EQ NULL) CheckMemory();
+  lPtr = suballoc_farrealloc(pPtr, pAmount);
+  if (lPtr EQ NULL)
+    CheckMemory();
 
-    minMemory = min(minMemory, suballoc_memfree());
+  minMemory = min(minMemory, suballoc_memfree());
 #else
-    lPtr = farrealloc(pPtr, pAmount);
+  lPtr = farrealloc(pPtr, pAmount);
 #endif
-    if (lPtr EQ NULL) {
-        gAllocFailed=True;
-        ErrorExit("out of memory");
-    }
-    return lPtr;
+  if (lPtr EQ NULL) {
+    gAllocFailed = True;
+    ErrorExit("out of memory");
+  }
+  return lPtr;
 }
 
-void *MemCalloc(size_t pNumber, size_t pSize)
+void *
+MemCalloc(size_t pNumber, size_t pSize)
 {
-    void *lPtr;
+  void *lPtr;
 
-    if (gAllocFailed) quickExit();
+  if (gAllocFailed)
+    quickExit();
 
 #ifdef SUBALLOC
+
 /*    fprintf(stderr,"Allocating %u X %u bytes...\n", pNumber, pSize); */
-    lPtr = suballoc_farcalloc(pNumber, pSize);
-    if (lPtr EQ NULL) CheckMemory();
-    minMemory = min(minMemory, suballoc_memfree());
+  lPtr = suballoc_farcalloc(pNumber, pSize);
+  if (lPtr EQ NULL)
+    CheckMemory();
+  minMemory = min(minMemory, suballoc_memfree());
 #else
-    lPtr = farcalloc(pNumber, pSize);
+  lPtr = farcalloc(pNumber, pSize);
 #endif
-    if (lPtr EQ NULL) {
-        gAllocFailed=True;
-        ErrorExit("out of memory");
-    }
-    return lPtr;
+  if (lPtr EQ NULL) {
+    gAllocFailed = True;
+    ErrorExit("out of memory");
+  }
+  return lPtr;
 }
 
-void  MemFree(void *pPtr)
+void
+MemFree(void *pPtr)
 {
 #ifdef SUBALLOC
-    if (pPtr) {
-        if (! suballoc_farfree(pPtr)) {
-            CheckMemory();
-            ErrorExit("MemFree of pointer failed");
-        }
+  if (pPtr) {
+    if (!suballoc_farfree(pPtr)) {
+      CheckMemory();
+      ErrorExit("MemFree of pointer failed");
     }
+  }
 #else
-    if (pPtr) farfree(pPtr);
+  if (pPtr)
+    farfree(pPtr);
 #endif
 }
 
@@ -420,122 +456,141 @@ void  MemFree(void *pPtr)
  *    E R R O R / D I A G N O S T I C    H A N D L I N G
  */
 
-static void reportMessage(const char *pHeader, const char *pStr, va_list pAP,
-                                    Boolean pMute)
+static void
+reportMessage(const char *pHeader, const char *pStr, va_list pAP,
+      Boolean pMute)
 {
-    FILE *lFiles[2];
-    Uns16 i;
-    char *lPtr1, *lPtr2;
-    static char *lStr = 0;
+  FILE *lFiles[2];
+  Uns16 i;
+  char *lPtr1,
+   *lPtr2;
+  static char *lStr = 0;
 
-    lFiles[0] = gLogFile;
-    lFiles[1] = pMute ? 0 : stdout;
+  lFiles[0] = gLogFile;
+  lFiles[1] = pMute ? 0 : stdout;
 
-    if (lStr EQ 0) {
-        lStr = (char *) MemCalloc(1024, 1);
-        if (lStr EQ 0) quickExit();
+  if (lStr EQ 0) {
+    lStr = (char *) MemCalloc(1024, 1);
+    if (lStr EQ 0)
+      quickExit();
+  }
+  vsprintf(lStr, pStr, pAP);
+
+  for (i = 0; i < (sizeof(lFiles) / sizeof(lFiles[0])); i++) {
+    if (lFiles[i] NEQ 0) {
+      fprintf(lFiles[i], "%s", pHeader);
+
+      for (lPtr1 = lStr, lPtr2 = strchr(lStr, 0x0D);;
+            lPtr1 = lPtr2 + 1, lPtr2 = strchr(lPtr1, 0x0D)) {
+
+        if (lPtr2)
+          *lPtr2 = 0;
+        fprintf(lFiles[i], "%s\n", lPtr1);
+        if (lPtr2)
+          *lPtr2 = 0x0D;
+        else
+          break;
+      }
     }
-    vsprintf(lStr, pStr, pAP);
-
-    for (i=0; i < (sizeof(lFiles)/sizeof(lFiles[0])); i++) {
-        if (lFiles[i] NEQ 0) {
-            fprintf(lFiles[i], "%s", pHeader);
-
-            for (lPtr1 = lStr, lPtr2=strchr(lStr, 0x0D);
-                    ;
-                    lPtr1=lPtr2+1, lPtr2=strchr(lPtr1, 0x0D)) {
-
-                if (lPtr2) *lPtr2 = 0;
-                fprintf(lFiles[i], "%s\n", lPtr1);
-                if (lPtr2) *lPtr2 = 0x0D; else break;
-            }
-        }
-    }
+  }
 #ifdef PVCR
-    if (! pMute) {
-        VCRKeyWait();
-    }
+  if (!pMute) {
+    VCRKeyWait();
+  }
 #endif
 }
 
 /* Report an error. Errors are written to stderr and to the log file
    unless the Mute Operation command-line option is given. */
-void Error(const char *pStr, ...)
+void
+Error(const char *pStr, ...)
 {
-    va_list lAP;
-    va_start(lAP, pStr);
+  va_list lAP;
 
-    reportMessage("Error: ", pStr, lAP, gMuteOperation);
-    va_end(lAP);
+  va_start(lAP, pStr);
+
+  reportMessage("Error: ", pStr, lAP, gMuteOperation);
+  va_end(lAP);
 }
 
 /* Same as Error() but with a va_list argument */
-void VError(const char *pStr, va_list pAP)
+void
+VError(const char *pStr, va_list pAP)
 {
-    reportMessage("Error: ", pStr, pAP, gMuteOperation);
+  reportMessage("Error: ", pStr, pAP, gMuteOperation);
 }
 
 /* Report an error and exit the program with a (fixed) error code. Behavior
    is the same as Error() except that instead of returning from this routine,
    the program exits. */
-void ErrorExit(const char *pStr, ...)
+void
+ErrorExit(const char *pStr, ...)
 {
-    va_list lAP;
-    va_start(lAP, pStr);
+  va_list lAP;
 
-    VErrorExit(pStr, lAP);
+  va_start(lAP, pStr);
+
+  VErrorExit(pStr, lAP);
 }
 
 /* Same as ErrorExit but with a va_list parameter */
-void VErrorExit(const char *pStr, va_list pAP)
+void
+VErrorExit(const char *pStr, va_list pAP)
 {
-    reportMessage("Error: ", pStr, pAP, gMuteOperation);
+  reportMessage("Error: ", pStr, pAP, gMuteOperation);
 
-    if (gLogFile NEQ 0) fflush(gLogFile);
+  if (gLogFile NEQ 0)
+    fflush(gLogFile);
 
-    exit(-1);
+  exit(-1);
 }
 
 /* Report a warning. Warnings behave the same as errors (written to stderr
    and the log file unless Mute Operation is in effect). */
-void Warning(const char *pStr, ...)
+void
+Warning(const char *pStr, ...)
 {
-    va_list lAP;
-    va_start(lAP, pStr);
+  va_list lAP;
 
-    reportMessage("Warning: ", pStr, lAP, gMuteOperation);
-    va_end(lAP);
+  va_start(lAP, pStr);
+
+  reportMessage("Warning: ", pStr, lAP, gMuteOperation);
+  va_end(lAP);
 }
 
 /* Same as Warning() but with a va_list parameter */
-void VWarning(const char *pStr, va_list pAP)
+void
+VWarning(const char *pStr, va_list pAP)
 {
-    reportMessage("Warning: ", pStr, pAP, gMuteOperation);
+  reportMessage("Warning: ", pStr, pAP, gMuteOperation);
 }
 
 /* Print info during the progress of the host. Info messages are written
    to stderr and the log file unless the Quiet Operation command-line switch
    is given (also implied by Mute Operation). */
-void Info(const char *pStr, ...)
+void
+Info(const char *pStr, ...)
 {
-    va_list lAP;
-    va_start(lAP, pStr);
+  va_list lAP;
 
-    reportMessage("", pStr, lAP, gQuietOperation);
-    va_end(lAP);
+  va_start(lAP, pStr);
+
+  reportMessage("", pStr, lAP, gQuietOperation);
+  va_end(lAP);
 }
 
 /* Same as Info() but with a va_list parameter */
-void VInfo(const char *pStr, va_list pAP)
+void
+VInfo(const char *pStr, va_list pAP)
 {
-    reportMessage("", pStr, pAP, gQuietOperation);
+  reportMessage("", pStr, pAP, gQuietOperation);
 }
 
-void AssertFail(const char *pExpr, const char *pFile, int pLine)
+void
+AssertFail(const char *pExpr, const char *pFile, int pLine)
 {
-    ErrorExit("Assertion failed! File: %s  Line: %d\n",
-                pFile, pLine);
-    (void) pExpr;
+  ErrorExit("Assertion failed! File: %s  Line: %d\n", pFile, pLine);
+  (void) pExpr;
 }
 
 /*
@@ -553,17 +608,20 @@ void AssertFail(const char *pExpr, const char *pFile, int pLine)
 static Uns16 RandRawSeed = 0x1211; /* why not -- it gets changed anyways */
 
 #pragma warn -sig
-static Uns16 RandRaw(void)
+static Uns16
+RandRaw(void)
 {
-    RandRawSeed = (RandRawSeed * 65277U + 13489U) & 0xFFFFU;
-    return RandRawSeed;
+  RandRawSeed = (RandRawSeed * 65277U + 13489U) & 0xFFFFU;
+  return RandRawSeed;
 }
+
 #pragma warn .sig
 
 /* This routine replaces srand() */
-void SetRandomSeed(Uns16 seed)
+void
+SetRandomSeed(Uns16 seed)
 {
-    RandRawSeed = seed;
+  RandRawSeed = seed;
 }
 
 /* This is a random number generator based upon the simple rand() library
@@ -581,21 +639,23 @@ void SetRandomSeed(Uns16 seed)
  *
  * The return value is uniformly distributed in the range [0,pRange).
  */
-#pragma warn -ccc       /* Condition is always true OFF */
-#pragma warn -sig       /* Significant digit loss OFF */
-RandType_Def RandomRange(RandType_Def pRange)
+#pragma warn -ccc               /* Condition is always true OFF */
+#pragma warn -sig               /* Significant digit loss OFF */
+RandType_Def
+RandomRange(RandType_Def pRange)
 {
-    RandType_Def lResult;
-    RandType_Def lDiv;
+  RandType_Def lResult;
+  RandType_Def lDiv;
 
-    passert((pRange > 0) AND (pRange <= RAND_MAX));
+  passert((pRange > 0) AND(pRange <= RAND_MAX));
 
-    lDiv = ((RandType_Def)RAND_MAX)/pRange;
-    while ((lResult = (RandType_Def)(RandRaw()/lDiv)) >= pRange)
-        /* retry */ ;
+  lDiv = ((RandType_Def) RAND_MAX) / pRange;
+  while ((lResult = (RandType_Def) (RandRaw() / lDiv)) >= pRange)
+    /* retry */ ;
 
-    return lResult;
+  return lResult;
 }
+
 #pragma warn .ccc
 #pragma warn .sig
 
@@ -603,19 +663,24 @@ RandType_Def RandomRange(RandType_Def pRange)
    uniformly distributed over [0,1). */
 
 #ifdef MICROSQUISH
-double RandomReal(void) { SquishError("RandomReal"); }
-#else
-double RandomReal(void)
+double
+RandomReal(void)
 {
-    return (double)RandRaw() / ((Uns32)RAND_MAX+1UL);
+  SquishError("RandomReal");
+}
+#else
+double
+RandomReal(void)
+{
+  return (double) RandRaw() / ((Uns32) RAND_MAX + 1UL);
 }
 #endif
 
-void SquishError(const char *str) {
-    ErrorExit("INTERNAL PROGRAM ERROR:\n"
-              "Your call to the PDK function:\n"
-              "     %s\n"
-              "is not supported in this PDK distribution.", str);
+void
+SquishError(const char *str)
+{
+  ErrorExit("INTERNAL PROGRAM ERROR:\n" "Your call to the PDK function:\n"
+        "     %s\n" "is not supported in this PDK distribution.", str);
 }
 
 /*
@@ -625,32 +690,36 @@ void SquishError(const char *str) {
 char *
 SkipWS(const char *p)
 {
-    while (*p AND isspace(*p)) p++;
+  while (*p AND isspace(*p))
+    p++;
 
-    if (*p EQ 0) return 0;
-    return (char *)p;
+  if (*p EQ 0)
+    return 0;
+  return (char *) p;
 }
 
 void
 TrimTrailingWS(char *p)
 {
-    char *q = p + strlen(p);
+  char *q = p + strlen(p);
 
-    while (--q >= p) {
-        if (isspace(*q)) {
-            *q = 0;
-        } else return;
+  while (--q >= p) {
+    if (isspace(*q)) {
+      *q = 0;
     }
+    else
+      return;
+  }
 }
 
-void ZeroTrailingWS(char *pStr, Uns16 pLen)
+void
+ZeroTrailingWS(char *pStr, Uns16 pLen)
 {
-    pStr += pLen;
-    do {
-        *pStr-- = 0;
-    } while (pLen-- > 0 AND *pStr EQ ' ');
+  pStr += pLen;
+  do {
+    *pStr-- = 0;
+  } while (pLen-- > 0 AND * pStr EQ ' ');
 }
-
 
 /*************************************************************
   $HISTORY:$

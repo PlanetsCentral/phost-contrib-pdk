@@ -1,3 +1,4 @@
+
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -21,389 +22,434 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "phostpdk.h"
 #include "private.h"
 
-static const char *BASE_FILE         = "bdata.hst";
-static Base_Struct   **gAllBases   = 0;
+static const char *BASE_FILE = "bdata.hst";
+static Base_Struct **gAllBases = 0;
 
-static void FreeBases(void)
+static void
+FreeBases(void)
 {
-    MemFree(gAllBases); gAllBases = 0;
+  MemFree(gAllBases);
+  gAllBases = 0;
 }
 
-static void InitBases(void)
+static void
+InitBases(void)
 {
-    if (gAllBases EQ 0) {
-        gAllBases   = (Base_Struct  **)MemCalloc(PLANET_NR+1, sizeof(Base_Struct *));
+  if (gAllBases EQ 0) {
+    gAllBases =
+          (Base_Struct **) MemCalloc(PLANET_NR + 1, sizeof(Base_Struct *));
 
-        RegisterCleanupFunction(FreeBases);
-    }
+    RegisterCleanupFunction(FreeBases);
+  }
 }
 
- Base_Struct* GetBase(Uns16 pID)
+Base_Struct *
+GetBase(Uns16 pID)
 {
-    InitBases();
+  InitBases();
 
-    passert( (pID>0) AND (pID<=BASE_NR) );
-    passert( gAllBases[pID] NEQ 0 AND gAllBases[pID]->Owner NEQ 0 );
+  passert((pID > 0) AND(pID <= BASE_NR));
+  passert(gAllBases[pID] NEQ 0 AND gAllBases[pID]->Owner NEQ 0);
 
-    return gAllBases[pID];
+  return gAllBases[pID];
 }
 
- void PutBase(Uns16 pID, Base_Struct* pBase)
+void
+PutBase(Uns16 pID, Base_Struct * pBase)
 {
-    InitBases();
+  InitBases();
 
-    passert( (pID>0) AND (pID<=BASE_NR) AND (pBase NEQ NULL) );
+  passert((pID > 0) AND(pID <= BASE_NR) AND(pBase NEQ NULL));
 
-    if (gAllBases[pID] EQ NULL) {
-        gAllBases[pID] = (Base_Struct *) MemCalloc(1, sizeof(Base_Struct));
-    }
-    memmove(gAllBases[pID], pBase, sizeof(Base_Struct));
+  if (gAllBases[pID] EQ NULL) {
+    gAllBases[pID] = (Base_Struct *) MemCalloc(1, sizeof(Base_Struct));
+  }
+  memmove(gAllBases[pID], pBase, sizeof(Base_Struct));
 }
 
- void DeleteBase(Uns16 pID)
+void
+DeleteBase(Uns16 pID)
 {
-    InitBases();
+  InitBases();
 
-    passert( (pID>0) AND (pID<=BASE_NR) AND (gAllBases[pID] NEQ NULL)
-            AND (gAllBases[pID]->Owner NEQ 0) );
+  passert((pID > 0) AND(pID <= BASE_NR) AND(gAllBases[pID] NEQ NULL)
+        AND(gAllBases[pID]->Owner NEQ 0));
 
-    MemFree(gAllBases[pID]);
-    gAllBases[pID] = 0;
+  MemFree(gAllBases[pID]);
+  gAllBases[pID] = 0;
 }
 
- Boolean IsBasePresent(Uns16 pID)
+Boolean
+IsBasePresent(Uns16 pID)
 {
-    InitBases();
+  InitBases();
 
-    if ( (pID>0) AND (pID<=BASE_NR) AND (gAllBases[pID] NEQ NULL)
-        AND (gAllBases[pID]->Owner NEQ 0) )
-		return(True);
-	else
-		return(False);
+  if ((pID > 0) AND(pID <= BASE_NR) AND(gAllBases[pID] NEQ NULL)
+        AND(gAllBases[pID]->Owner NEQ 0))
+    return (True);
+  else
+    return (False);
 }
 
-Boolean IsBaseExist(Uns16 pID)
+Boolean
+IsBaseExist(Uns16 pID)
 {
-    InitBases();
+  InitBases();
 
-    return IsBasePresent(pID) AND (PlanetOwner(pID) NEQ NoOwner);
+  return IsBasePresent(pID) AND(PlanetOwner(pID) NEQ NoOwner);
 }
 
 /* bases */
 
- RaceType_Def BaseOwner(Uns16 pID)
+RaceType_Def
+BaseOwner(Uns16 pID)
 {
-	return(GetBase(pID)->Owner);
+  return (GetBase(pID)->Owner);
 }
 
- Uns16 BaseDefense(Uns16 pID)
+Uns16
+BaseDefense(Uns16 pID)
 {
-	return(GetBase(pID)->Defense);
+  return (GetBase(pID)->Defense);
 }
 
- Uns16 BaseDamage(Uns16 pID)
+Uns16
+BaseDamage(Uns16 pID)
 {
-	return(GetBase(pID)->Damage);
+  return (GetBase(pID)->Damage);
 }
 
- Uns16 BaseFighters(Uns16 pID)
+Uns16
+BaseFighters(Uns16 pID)
 {
-	return(GetBase(pID)->Fighters);
+  return (GetBase(pID)->Fighters);
 }
 
- BaseMission_Def BaseOrder(Uns16 pID)
+BaseMission_Def
+BaseOrder(Uns16 pID)
 {
-	return(GetBase(pID)->Order);
+  return (GetBase(pID)->Order);
 }
 
- BaseFixMission_Def BaseFixOrder(Uns16 pID)
+BaseFixMission_Def
+BaseFixOrder(Uns16 pID)
 {
-	return(GetBase(pID)->FixOrder);
+  return (GetBase(pID)->FixOrder);
 }
 
- Uns16 BaseFixingShip(Uns16 pID)
+Uns16
+BaseFixingShip(Uns16 pID)
 {
-	return(GetBase(pID)->FixingShip);
+  return (GetBase(pID)->FixingShip);
 }
 
- Uns16 BaseTech(Uns16 pID, BaseTech_Def pType)
+Uns16
+BaseTech(Uns16 pID, BaseTech_Def pType)
 {
-	return(GetBase(pID)->TechLevel[pType]);
+  return (GetBase(pID)->TechLevel[pType]);
 }
 
- Uns16 BaseHulls(Uns16 pID, Uns16 pHullType)
+Uns16
+BaseHulls(Uns16 pID, Uns16 pHullType)
 {
-	/* NEW */
-	passert( (pHullType >= 1) AND (pHullType <= RACEHULLS) );
-	return(GetBase(pID)->Hulls[pHullType - 1 /* NEW */]);
+  /* NEW */
+  passert((pHullType >= 1) AND(pHullType <= RACEHULLS));
+  return (GetBase(pID)->Hulls[pHullType - 1 /* NEW */ ]);
 }
 
- Uns16 BaseEngines(Uns16 pID, Uns16 pEngineType)
+Uns16
+BaseEngines(Uns16 pID, Uns16 pEngineType)
 {
-	passert( (pEngineType >= 1) AND (pEngineType <= ENGINE_NR) );
-	return(GetBase(pID)->Engines[pEngineType - 1 /* NEW */]);
+  passert((pEngineType >= 1) AND(pEngineType <= ENGINE_NR));
+  return (GetBase(pID)->Engines[pEngineType - 1 /* NEW */ ]);
 }
 
- Uns16 BaseBeams(Uns16 pID, Uns16 pBeamType)
+Uns16
+BaseBeams(Uns16 pID, Uns16 pBeamType)
 {
-	passert( (pBeamType >= 1) AND (pBeamType <= BEAM_NR) );
-	return(GetBase(pID)->Beams[pBeamType - 1 /* NEW */]);
+  passert((pBeamType >= 1) AND(pBeamType <= BEAM_NR));
+  return (GetBase(pID)->Beams[pBeamType - 1 /* NEW */ ]);
 }
 
- Uns16 BaseTubes(Uns16 pID, Uns16 pTorpType)
+Uns16
+BaseTubes(Uns16 pID, Uns16 pTorpType)
 {
-	passert( (pTorpType >= 1) AND (pTorpType <= TORP_NR) );
-	return(GetBase(pID)->Tubes[pTorpType - 1 /* NEW */]);
+  passert((pTorpType >= 1) AND(pTorpType <= TORP_NR));
+  return (GetBase(pID)->Tubes[pTorpType - 1 /* NEW */ ]);
 }
 
- Uns16 BaseTorps(Uns16 pID, Uns16 pTorpType)
+Uns16
+BaseTorps(Uns16 pID, Uns16 pTorpType)
 {
-	passert( (pTorpType >= 1) AND (pTorpType <= TORP_NR) );
-	return(GetBase(pID)->Torps[pTorpType - 1 /* NEW */]);
+  passert((pTorpType >= 1) AND(pTorpType <= TORP_NR));
+  return (GetBase(pID)->Torps[pTorpType - 1 /* NEW */ ]);
 }
 
- Boolean BaseBuildOrder(Uns16 pID, BuildOrder_Struct *pOrder)
+Boolean
+BaseBuildOrder(Uns16 pID, BuildOrder_Struct * pOrder)
 {
-	Base_Struct *lBase = GetBase(pID);
+  Base_Struct *lBase = GetBase(pID);
 
-	/* Check that hull is non-zero */
-	if (		(lBase->ToBuild[BuildHullType] NEQ 0)
-			AND (lBase->ToBuild[BuildEngineType] NEQ 0)
-			AND ( (lBase->ToBuild[BuildBeamType] NEQ 0)
-				   OR
-				  (lBase->ToBuild[BuildBeamNumber] EQ 0)
-				)
-			AND ( (lBase->ToBuild[BuildTorpType] NEQ 0)
-				   OR
-				  (lBase->ToBuild[BuildTorpNumber] EQ 0)
-				)
-	   )
-	{
-		memcpy(pOrder, lBase->ToBuild, sizeof(BuildOrder_Struct));
-		return True;
-	}
-	return False;
+  /* Check that hull is non-zero */
+  if ((lBase->ToBuild[BuildHullType] NEQ 0)
+        AND(lBase->ToBuild[BuildEngineType] NEQ 0)
+        AND((lBase->ToBuild[BuildBeamType] NEQ 0)
+              OR(lBase->ToBuild[BuildBeamNumber] EQ 0)
+        )
+        AND((lBase->ToBuild[BuildTorpType] NEQ 0)
+              OR(lBase->ToBuild[BuildTorpNumber] EQ 0)
+        )
+        ) {
+    memcpy(pOrder, lBase->ToBuild, sizeof(BuildOrder_Struct));
+    return True;
+  }
+  return False;
 }
 
- void PutBaseOwner(Uns16 pID, RaceType_Def pOwner)
+void
+PutBaseOwner(Uns16 pID, RaceType_Def pOwner)
 {
-	GetBase(pID)->Owner=pOwner;
+  GetBase(pID)->Owner = pOwner;
 }
 
- void PutBaseDefense(Uns16 pID, Uns16 pDefense)
+void
+PutBaseDefense(Uns16 pID, Uns16 pDefense)
 {
-	passert(pDefense<=MAX_BASE_DEFENSE);
-	GetBase(pID)->Defense=pDefense;
+  passert(pDefense <= MAX_BASE_DEFENSE);
+  GetBase(pID)->Defense = pDefense;
 }
 
- void PutBaseDamage(Uns16 pID, Uns16 pDamage)
+void
+PutBaseDamage(Uns16 pID, Uns16 pDamage)
 {
-	passert(pDamage<=150);
-	GetBase(pID)->Damage=pDamage;
+  passert(pDamage <= 150);
+  GetBase(pID)->Damage = pDamage;
 }
 
- void PutBaseFighters(Uns16 pID, Uns16 pFighters)
+void
+PutBaseFighters(Uns16 pID, Uns16 pFighters)
 {
-	passert(pFighters<=MAX_BASE_FIGHTERS);
-	GetBase(pID)->Fighters=pFighters;
+  passert(pFighters <= MAX_BASE_FIGHTERS);
+  GetBase(pID)->Fighters = pFighters;
 }
 
- void PutBaseOrder(Uns16 pID, BaseMission_Def pOrder)
+void
+PutBaseOrder(Uns16 pID, BaseMission_Def pOrder)
 {
-	GetBase(pID)->Order=pOrder;
+  GetBase(pID)->Order = pOrder;
 }
 
- void PutBaseFixOrder(Uns16 pID, BaseFixMission_Def pOrder)
+void
+PutBaseFixOrder(Uns16 pID, BaseFixMission_Def pOrder)
 {
-	GetBase(pID)->FixOrder=pOrder;
+  GetBase(pID)->FixOrder = pOrder;
 }
 
- void PutBaseFixingShip(Uns16 pID, Uns16 pShip)
+void
+PutBaseFixingShip(Uns16 pID, Uns16 pShip)
 {
-	passert(pShip<=SHIP_NR);
-	GetBase(pID)->FixingShip=pShip;
+  passert(pShip <= SHIP_NR);
+  GetBase(pID)->FixingShip = pShip;
 }
 
- void PutBaseTech(Uns16 pID, BaseTech_Def pType, Uns16 pTech)
+void
+PutBaseTech(Uns16 pID, BaseTech_Def pType, Uns16 pTech)
 {
-	passert(pTech<=MAX_TECH);
-	GetBase(pID)->TechLevel[pType]=pTech;
+  passert(pTech <= MAX_TECH);
+  GetBase(pID)->TechLevel[pType] = pTech;
 }
 
- void PutBaseHulls(Uns16 pID, Uns16 pHullType, Uns16 pNumber)
+void
+PutBaseHulls(Uns16 pID, Uns16 pHullType, Uns16 pNumber)
 {
-	passert( (pHullType >= 1) AND (pHullType <= RACEHULLS) );
-	GetBase(pID)->Hulls[pHullType - 1 /* NEW */] = pNumber;
+  passert((pHullType >= 1) AND(pHullType <= RACEHULLS));
+  GetBase(pID)->Hulls[pHullType - 1 /* NEW */ ] = pNumber;
 }
 
- void PutBaseEngines(Uns16 pID, Uns16 pEngineType, Uns16 pNumber)
+void
+PutBaseEngines(Uns16 pID, Uns16 pEngineType, Uns16 pNumber)
 {
-	passert( (pEngineType >= 1) AND (pEngineType <= ENGINE_NR) );
-	GetBase(pID)->Engines[pEngineType - 1 /* NEW */] = pNumber;
+  passert((pEngineType >= 1) AND(pEngineType <= ENGINE_NR));
+  GetBase(pID)->Engines[pEngineType - 1 /* NEW */ ] = pNumber;
 }
 
- void PutBaseBeams(Uns16 pID, Uns16 pBeamType, Uns16 pNumber)
+void
+PutBaseBeams(Uns16 pID, Uns16 pBeamType, Uns16 pNumber)
 {
-	passert( (pBeamType >= 1) AND (pBeamType <= BEAM_NR) );
-	GetBase(pID)->Beams[pBeamType - 1 /* NEW */] = pNumber;
+  passert((pBeamType >= 1) AND(pBeamType <= BEAM_NR));
+  GetBase(pID)->Beams[pBeamType - 1 /* NEW */ ] = pNumber;
 }
 
- void PutBaseTubes(Uns16 pID, Uns16 pTorpType, Uns16 pNumber)
+void
+PutBaseTubes(Uns16 pID, Uns16 pTorpType, Uns16 pNumber)
 {
-	passert( (pTorpType >= 1) AND (pTorpType <= TORP_NR) );
-	GetBase(pID)->Tubes[pTorpType - 1 /* NEW */] = pNumber;
+  passert((pTorpType >= 1) AND(pTorpType <= TORP_NR));
+  GetBase(pID)->Tubes[pTorpType - 1 /* NEW */ ] = pNumber;
 }
 
- void PutBaseTorps(Uns16 pID, Uns16 pTorpType, Uns16 pNumber)
+void
+PutBaseTorps(Uns16 pID, Uns16 pTorpType, Uns16 pNumber)
 {
-	passert( (pTorpType >= 1) AND (pTorpType <= TORP_NR) );
-	GetBase(pID)->Torps[pTorpType - 1 /* NEW */] = pNumber;
+  passert((pTorpType >= 1) AND(pTorpType <= TORP_NR));
+  GetBase(pID)->Torps[pTorpType - 1 /* NEW */ ] = pNumber;
 }
 
- void PutBaseBuildOrder(Uns16 pID, BuildOrder_Struct *pOrderPtr)
+void
+PutBaseBuildOrder(Uns16 pID, BuildOrder_Struct * pOrderPtr)
 {
-	passert(pOrderPtr NEQ 0);
-	memcpy(GetBase(pID)->ToBuild, pOrderPtr, sizeof(BuildOrder_Struct));
+  passert(pOrderPtr NEQ 0);
+  memcpy(GetBase(pID)->ToBuild, pOrderPtr, sizeof(BuildOrder_Struct));
 }
 
- void ClearBaseBuildOrder(Uns16 pID)
+void
+ClearBaseBuildOrder(Uns16 pID)
 {
-	GetBase(pID)->ToBuild[0] = 0;	/* Enough to clear the hull? */
-	BuildQueueInvalidate(pID);
+  GetBase(pID)->ToBuild[0] = 0; /* Enough to clear the hull? */
+  BuildQueueInvalidate(pID);
 }
 
- void ClearBaseHulls(Uns16 pID)
+void
+ClearBaseHulls(Uns16 pID)
 {
-	Base_Struct *lBase = GetBase(pID);
+  Base_Struct *lBase = GetBase(pID);
 
-	memset(lBase->Hulls, 0, sizeof(lBase->Hulls));
+  memset(lBase->Hulls, 0, sizeof(lBase->Hulls));
 }
 
 /* This is used to create a new starbase over a given planet */
+
 /* NEW */
-void CreateBase(Uns16 pPlanet)
+void
+CreateBase(Uns16 pPlanet)
 {
-    Base_Struct *lBasePtr;
-    Uns16 lCount;
+  Base_Struct *lBasePtr;
+  Uns16 lCount;
 
-    passert( (pPlanet >= 1) AND (pPlanet <= PLANET_NR) AND !IsBasePresent(pPlanet) );
+  passert((pPlanet >= 1) AND(pPlanet <=
+              PLANET_NR) AND ! IsBasePresent(pPlanet));
 
-    gAllBases[pPlanet] = (Base_Struct *) MemCalloc(1, sizeof(Base_Struct));
-    lBasePtr = gAllBases[pPlanet];
+  gAllBases[pPlanet] = (Base_Struct *) MemCalloc(1, sizeof(Base_Struct));
+  lBasePtr = gAllBases[pPlanet];
 
-    lBasePtr->Id = pPlanet;
-    lBasePtr->Owner = PlanetOwner(pPlanet);
+  lBasePtr->Id = pPlanet;
+  lBasePtr->Owner = PlanetOwner(pPlanet);
 
-	for (lCount=0; lCount<4; lCount++) {
-        lBasePtr->TechLevel[lCount] = 1;
-	}
+  for (lCount = 0; lCount < 4; lCount++) {
+    lBasePtr->TechLevel[lCount] = 1;
+  }
 }
 
-IO_Def Read_Bases_File(Int16* pControl1, Int16* pControl2)
+IO_Def
+Read_Bases_File(Int16 * pControl1, Int16 * pControl2)
+
 /* control1, control2 : leading/closing shorts in bdata.hst */
 {
-    FILE         *lBaseFile;
-    Int16        i;
-    IO_Def       lError = IO_SUCCESS;
-    Base_Struct  lBase;
+  FILE *lBaseFile;
+  Int16 i;
+  IO_Def lError = IO_SUCCESS;
+  Base_Struct lBase;
 
-    passert((pControl1 NEQ NULL) AND (pControl2 NEQ NULL));
+  passert((pControl1 NEQ NULL) AND(pControl2 NEQ NULL));
 
-    InitBases();
+  InitBases();
 
-    if ((lBaseFile = OpenInputFile(BASE_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
-        if (1 NEQ fread(pControl1, sizeof(Uns16), 1, lBaseFile)) {
-            Error("Can't read file '%s'", BASE_FILE);
-            lError=IO_FAILURE;
-        }
-
-        for (i=1; i<=BASE_NR; i++ )
-        {
-#ifdef __MSDOS__
-			if (fread(&lBase, sizeof(Base_Struct), 1, lBaseFile) NEQ 1) {
-#else
-            memset(&lBase, 0, sizeof(lBase));
-			if (! DOSReadStruct(BaseStruct_Convert,
-								NumBaseStruct_Convert,
-								&lBase,
-								lBaseFile)) {
-#endif
-                Error("Can't read file '%s'", BASE_FILE);
-                lError=IO_FAILURE;                       /* i/o error  */
-                break;
-            } else {
-                if (lBase.Owner NEQ 0)
-                    PutBase(i, &lBase);
-            }
-        }
-
-        /* Last word may be missing after editing with PLANMAP etc. */
-        *pControl2 = 0;
-        (void) fread(pControl2, sizeof(Uns16), 1, lBaseFile);
-
-        fclose(lBaseFile);
-    } else lError = IO_FAILURE;
-    return(lError);
-}
-
-IO_Def Write_Bases_File(Int16 pControl1, Int16 pControl2)
-{
-    FILE          *lBaseFile;
-    Int16         i;
-    IO_Def        lError = IO_SUCCESS;
-    Base_Struct   lBase;
-
-    if (gAllBases EQ 0) {
-        Error("Cannot write bases file without first reading it.\n");
-        return IO_FAILURE;
+  if ((lBaseFile =
+              OpenInputFile(BASE_FILE,
+               GAME_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+    if (1 NEQ fread(pControl1, sizeof(Uns16), 1, lBaseFile)) {
+      Error("Can't read file '%s'", BASE_FILE);
+      lError = IO_FAILURE;
     }
 
-    memset(&lBase, 0, sizeof(lBase));
-
-    if ((lBaseFile = OpenOutputFile(BASE_FILE, GAME_DIR_ONLY)) NEQ NULL) {
-        if (1 NEQ fwrite(&pControl1, sizeof(Uns16), 1, lBaseFile)) {
-            Error("Can't write to file '%s'", BASE_FILE);
-            lError=IO_FAILURE;
-        }
-
-        for (i=1; i<=BASE_NR; i++ )
-        {
-            lBase.Id=i;
+    for (i = 1; i <= BASE_NR; i++) {
 #ifdef __MSDOS__
-			if (1 NEQ fwrite( ((IsBasePresent(i)) ? GetBase(i) : &lBase),
-										sizeof(Base_Struct), 1, lBaseFile)) {
+      if (fread(&lBase, sizeof(Base_Struct), 1, lBaseFile) NEQ 1) {
 #else
-			if (! DOSWriteStruct(BaseStruct_Convert,
-								 NumBaseStruct_Convert,
-								 IsBasePresent(i) ? GetBase(i) : &lBase,
-								 lBaseFile)) {
+      memset(&lBase, 0, sizeof(lBase));
+      if (!DOSReadStruct(BaseStruct_Convert, NumBaseStruct_Convert, &lBase,
+                  lBaseFile)) {
 #endif
-                Error("Can't write to file '%s'", BASE_FILE);
-                lError=IO_FAILURE;
-                break;
-            }
-        }
+        Error("Can't read file '%s'", BASE_FILE);
+        lError = IO_FAILURE;    /* i/o error  */
+        break;
+      }
+      else {
+        if (lBase.Owner NEQ 0)
+          PutBase(i, &lBase);
+      }
+    }
 
-        if (lError EQ IO_SUCCESS)
-            if (1 NEQ fwrite(&pControl2, sizeof(Uns16), 1, lBaseFile)) {
-                Error("Can't write to file '%s'", BASE_FILE);
-                lError=IO_FAILURE;
-            }
+    /* Last word may be missing after editing with PLANMAP etc. */
+    *pControl2 = 0;
+    (void) fread(pControl2, sizeof(Uns16), 1, lBaseFile);
 
-        fclose(lBaseFile);
-    } else lError = IO_FAILURE;
-    return(lError);
+    fclose(lBaseFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return (lError);
 }
 
-void InitializeBases(void)
+IO_Def
+Write_Bases_File(Int16 pControl1, Int16 pControl2)
 {
-    Uns16 lBase;
+  FILE *lBaseFile;
+  Int16 i;
+  IO_Def lError = IO_SUCCESS;
+  Base_Struct lBase;
 
-    InitBases();
+  if (gAllBases EQ 0) {
+    Error("Cannot write bases file without first reading it.\n");
+    return IO_FAILURE;
+  }
 
-    for (lBase = 1; lBase <= PLANET_NR; lBase++) {
-        if (IsBasePresent(lBase)) DeleteBase(lBase);
+  memset(&lBase, 0, sizeof(lBase));
+
+  if ((lBaseFile = OpenOutputFile(BASE_FILE, GAME_DIR_ONLY)) NEQ NULL) {
+    if (1 NEQ fwrite(&pControl1, sizeof(Uns16), 1, lBaseFile)) {
+      Error("Can't write to file '%s'", BASE_FILE);
+      lError = IO_FAILURE;
     }
+
+    for (i = 1; i <= BASE_NR; i++) {
+      lBase.Id = i;
+#ifdef __MSDOS__
+      if (1 NEQ fwrite(((IsBasePresent(i)) ? GetBase(i) : &lBase),
+                  sizeof(Base_Struct), 1, lBaseFile)) {
+#else
+      if (!DOSWriteStruct(BaseStruct_Convert, NumBaseStruct_Convert,
+                  IsBasePresent(i) ? GetBase(i) : &lBase, lBaseFile)) {
+#endif
+        Error("Can't write to file '%s'", BASE_FILE);
+        lError = IO_FAILURE;
+        break;
+      }
+    }
+
+    if (lError EQ IO_SUCCESS)
+      if (1 NEQ fwrite(&pControl2, sizeof(Uns16), 1, lBaseFile)) {
+        Error("Can't write to file '%s'", BASE_FILE);
+        lError = IO_FAILURE;
+      }
+
+    fclose(lBaseFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return (lError);
+}
+
+void
+InitializeBases(void)
+{
+  Uns16 lBase;
+
+  InitBases();
+
+  for (lBase = 1; lBase <= PLANET_NR; lBase++) {
+    if (IsBasePresent(lBase))
+      DeleteBase(lBase);
+  }
 }
 
 /*************************************************************

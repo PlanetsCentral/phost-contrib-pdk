@@ -1,3 +1,4 @@
+
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -21,156 +22,174 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "phostpdk.h"
 #include "private.h"
 
-static const char *GEN_FILE          = "gen.hst";
-static HostGen_Struct    *gHostGenPtr=0;
+static const char *GEN_FILE = "gen.hst";
+static HostGen_Struct *gHostGenPtr = 0;
 
-static void FreeGen(void)
+static void
+FreeGen(void)
 {
-    MemFree(gHostGenPtr); gHostGenPtr = 0;
+  MemFree(gHostGenPtr);
+  gHostGenPtr = 0;
 }
 
-static void InitGen(void)
+static void
+InitGen(void)
 {
-    if (gHostGenPtr EQ 0) {
-        gHostGenPtr = (HostGen_Struct *)MemCalloc(1, sizeof(HostGen_Struct));
+  if (gHostGenPtr EQ 0) {
+    gHostGenPtr = (HostGen_Struct *) MemCalloc(1, sizeof(HostGen_Struct));
 
-        RegisterCleanupFunction(FreeGen);
-    }
+    RegisterCleanupFunction(FreeGen);
+  }
 }
 
-Boolean PlayerIsActive(RaceType_Def pPlayer)
+Boolean
+PlayerIsActive(RaceType_Def pPlayer)
 {
-    InitGen();
+  InitGen();
 
-    return gHostGenPtr->Players[pPlayer-1];
+  return gHostGenPtr->Players[pPlayer - 1];
 }
 
-void PutPlayerIsActive(RaceType_Def pPlayer, Boolean pActive)
+void
+PutPlayerIsActive(RaceType_Def pPlayer, Boolean pActive)
 {
-    InitGen();
+  InitGen();
 
-    gHostGenPtr->Players[pPlayer-1] = pActive;
+  gHostGenPtr->Players[pPlayer - 1] = pActive;
 }
 
-const char *PlayerPassword(RaceType_Def pPlayer)
+const char *
+PlayerPassword(RaceType_Def pPlayer)
 {
-    static char lPasswd[11];
-    int lIndex;
+  static char lPasswd[11];
+  int lIndex;
 
-    if (! PlayerIsActive(pPlayer)) return 0;
+  if (!PlayerIsActive(pPlayer))
+    return 0;
 
-    for (lIndex = 0; lIndex < 10; lIndex++) {
-        lPasswd[lIndex] = gHostGenPtr->Passwd1[pPlayer-1][lIndex] + 0x20
-                        - gHostGenPtr->Passwd2[pPlayer-1][9-lIndex];
-    }
-    lPasswd[lIndex] = 0;
-    return lPasswd;
+  for (lIndex = 0; lIndex < 10; lIndex++) {
+    lPasswd[lIndex] =
+          gHostGenPtr->Passwd1[pPlayer - 1][lIndex] + 0x20 -
+          gHostGenPtr->Passwd2[pPlayer - 1][9 - lIndex];
+  }
+  lPasswd[lIndex] = 0;
+  return lPasswd;
 }
 
-IO_Def Read_HostGen_File(void)
+IO_Def
+Read_HostGen_File(void)
 {
-    FILE *lGenFile;
-    IO_Def  lError = IO_SUCCESS;
+  FILE *lGenFile;
+  IO_Def lError = IO_SUCCESS;
 
-    InitGen();
+  InitGen();
 
-    if ((lGenFile = OpenInputFile(GEN_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+  if ((lGenFile =
+              OpenInputFile(GEN_FILE,
+                GAME_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
 #ifdef __MSDOS__
-		if (1 NEQ fread(gHostGenPtr, sizeof(HostGen_Struct), 1, lGenFile)) {
+    if (1 NEQ fread(gHostGenPtr, sizeof(HostGen_Struct), 1, lGenFile)) {
 #else
-		if (! DOSReadStruct(HostGenStruct_Convert,
-							NumHostGenStruct_Convert,
-							gHostGenPtr,
-							lGenFile)) {
+    if (!DOSReadStruct(HostGenStruct_Convert, NumHostGenStruct_Convert,
+                gHostGenPtr, lGenFile)) {
 #endif
-            Error("Can't read file '%s'", GEN_FILE);
-            lError = IO_FAILURE;
-        }
-
-        fclose(lGenFile);
-    } else lError = IO_FAILURE;
-    return lError;
-}
-
-IO_Def Write_HostGen_File(void)
-{
-    FILE *lGenFile;
-    IO_Def lError = IO_SUCCESS;
-
-    if (gHostGenPtr EQ 0) {
-        Error("Cannot write gen file without first reading it.\n");
-        return IO_FAILURE;
+      Error("Can't read file '%s'", GEN_FILE);
+      lError = IO_FAILURE;
     }
 
-    if ((lGenFile = OpenOutputFile(GEN_FILE, GAME_DIR_ONLY)) NEQ NULL) {
+    fclose(lGenFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return lError;
+}
+
+IO_Def
+Write_HostGen_File(void)
+{
+  FILE *lGenFile;
+  IO_Def lError = IO_SUCCESS;
+
+  if (gHostGenPtr EQ 0) {
+    Error("Cannot write gen file without first reading it.\n");
+    return IO_FAILURE;
+  }
+
+  if ((lGenFile = OpenOutputFile(GEN_FILE, GAME_DIR_ONLY)) NEQ NULL) {
 #ifdef __MSDOS__
-		if (1 NEQ fwrite(gHostGenPtr, sizeof(HostGen_Struct), 1, lGenFile)) {
+    if (1 NEQ fwrite(gHostGenPtr, sizeof(HostGen_Struct), 1, lGenFile)) {
 #else
-		if (! DOSWriteStruct(HostGenStruct_Convert,
-							 NumHostGenStruct_Convert,
-							 gHostGenPtr,
-							 lGenFile)) {
+    if (!DOSWriteStruct(HostGenStruct_Convert, NumHostGenStruct_Convert,
+                gHostGenPtr, lGenFile)) {
 #endif
-            Error("Can't write to file '%s'", GEN_FILE);
-            lError = IO_FAILURE;
-        }
-        fclose(lGenFile);
-    } else lError = IO_FAILURE;
-    return lError;
+      Error("Can't write to file '%s'", GEN_FILE);
+      lError = IO_FAILURE;
+    }
+    fclose(lGenFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return lError;
 }
 
 static const char NOPASSWD_STRING[] =
-    "\x80\x81\x82\x73\x85\x85\x89\x81\x84\x76";
 
-static void handleNewPassword(RaceType_Def pPlayer, const char *pPasswd)
+      "\x80\x81\x82\x73\x85\x85\x89\x81\x84\x76";
+
+static void
+handleNewPassword(RaceType_Def pPlayer, const char *pPasswd)
 {
-    /* password is 10 characters excess +0x32 */
-    /* and it is stored excess -0x20 EXCEPT for NULLs which are stored as 0
-       in Passwd1 and as a random number in Passwd2 right after mastering */
-    Uns16 lIndex;
-    unsigned char lChar, lOffset;
+  /* password is 10 characters excess +0x32 */
+  /* and it is stored excess -0x20 EXCEPT for NULLs which are stored as 0 in
+     Passwd1 and as a random number in Passwd2 right after mastering */
+  Uns16 lIndex;
+  unsigned char lChar,
+    lOffset;
 
-    passert(gHostGenPtr NEQ 0);
+  passert(gHostGenPtr NEQ 0);
 
-    for (lIndex = 0; lIndex < 10; lIndex++) {
-        lOffset = (unsigned char) RandomRange(40) + 32;
-        lChar = pPasswd[lIndex] - 0x32;
+  for (lIndex = 0; lIndex < 10; lIndex++) {
+    lOffset = (unsigned char) RandomRange(40) + 32;
+    lChar = pPasswd[lIndex] - 0x32;
 
-        gHostGenPtr->Passwd2[pPlayer-1][9-lIndex] = lOffset;
-        gHostGenPtr->Passwd1[pPlayer-1][lIndex] =
-            pPasswd[lIndex] ? (lOffset + lChar - 0x20) : 0;
-    }
+    gHostGenPtr->Passwd2[pPlayer - 1][9 - lIndex] = lOffset;
+    gHostGenPtr->Passwd1[pPlayer - 1][lIndex] =
+          pPasswd[lIndex] ? (lOffset + lChar - 0x20) : 0;
+  }
 }
 
-void InitializeHostGen(void)
+void
+InitializeHostGen(void)
 {
-    Uns16 lRace;
+  Uns16 lRace;
 
-    InitGen();
+  InitGen();
 
-    memset(gHostGenPtr, 0, sizeof(HostGen_Struct));
+  memset(gHostGenPtr, 0, sizeof(HostGen_Struct));
 
-    /* Set default passwords. */
-    for (lRace = 1; lRace <= OLD_RACE_NR; lRace++) {
-        handleNewPassword(lRace, NOPASSWD_STRING);
-    }
+  /* Set default passwords. */
+  for (lRace = 1; lRace <= OLD_RACE_NR; lRace++) {
+    handleNewPassword(lRace, NOPASSWD_STRING);
+  }
 }
 
-void PutPlayerPassword(RaceType_Def pPlayer, const char *pPasswd)
+void
+PutPlayerPassword(RaceType_Def pPlayer, const char *pPasswd)
 {
-    char lPwd[10];
-    int i;
+  char lPwd[10];
+  int i;
 
-    InitGen();
+  InitGen();
 
-    if (strlen(pPasswd) EQ 0) return;
+  if (strlen(pPasswd) EQ 0)
+    return;
 
-    memset(lPwd, 0, sizeof(lPwd));
-    for (i=0; i<strlen(pPasswd); i++) {
-        lPwd[i] = pPasswd[i] + 0x32;
-    }
+  memset(lPwd, 0, sizeof(lPwd));
+  for (i = 0; i < strlen(pPasswd); i++) {
+    lPwd[i] = pPasswd[i] + 0x32;
+  }
 
-    handleNewPassword(pPlayer, lPwd);
+  handleNewPassword(pPlayer, lPwd);
 }
 
 /*************************************************************
