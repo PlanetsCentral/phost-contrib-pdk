@@ -1,3 +1,28 @@
+2001-12-23 21:58  hschlen
+
+	* vgapdatc.c: New functions KillPlayerConfigure(),
+	PutKillPlayerConfigure(), KillPlayer(), KillPlayerShips(),
+	KillPlayerPlanets(), KillPlayerBases(), KillPlayerMinefields()
+	(Piotr Winiarczyk).
+
+2001-12-23 21:58  hschlen
+
+	* points.c: New functions RaceShipsNumber(), RacePlanetsNumber(),
+	RaceBasesNumber(), RaceFightersNumber(), RaceTorpedosNumber(),
+	RaceFactoriesNumber(), RaceMineralMinesNumber(),
+	RaceDefencePostsNumber(), RaceBaseDefenceNumber(),
+	RaceCargoNumber(), RaceMinefieldUnitsNumber() (Piotr Winiarczyk).
+
+2001-12-23 21:56  hschlen
+
+	* api.txt, changes.txt, ex8.c, pdk.texi, phostpdk.h: Added ability
+	to calculate THost scores, too. Added race kill functions (Piotr
+	Winiarczyk).
+
+2001-12-19 17:13  hschlen
+
+	* ChangeLog: [no log message]
+
 2001-12-19 17:11  hschlen
 
 	* ex8.c, points.c: initial import into CVS (Piotr Winiarczyk)
