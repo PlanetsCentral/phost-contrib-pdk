@@ -122,6 +122,85 @@ EngFuelConsumption(Uns16 pEngNr, Uns16 pSpeed)
   return (gEngspecPtr[pEngNr].FuelConsumption[pSpeed - 1]);
 }
 
+void
+PutEngineName(Uns16 pEngNr, const char *pName)
+{
+  static char lName[21];
+  int i;
+
+  InitEng();
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  passert(pName NEQ NULL);
+
+  memcpy(lName, pName, 20);
+  lName[20] = 0;
+  for (i = strlen(lName); i < 20; i++)
+    lName[i] = ' ';
+  
+  memcpy(gEngspecPtr[pEngNr].Name, lName, 20); 
+}
+
+void
+PutEngMoneyCost(Uns16 pEngNr, Uns16 pMoneyCost)
+{
+  InitEng();
+
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  gEngspecPtr[pEngNr].MoneyCost = pMoneyCost;
+}
+
+void
+PutEngTritCost(Uns16 pEngNr, Uns16 pTritCost)
+{
+  InitEng();
+
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  gEngspecPtr[pEngNr].TritCost = pTritCost;
+}
+
+void
+PutEngDurCost(Uns16 pEngNr, Uns16 pDurCost)
+{
+  InitEng();
+
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  gEngspecPtr[pEngNr].DurCost = pDurCost;
+}
+
+void
+PutEngMolyCost(Uns16 pEngNr, Uns16 pMolyCost)
+{
+  InitEng();
+
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  gEngspecPtr[pEngNr].MolyCost = pMolyCost;
+}
+
+void
+PutEngTechLevel(Uns16 pEngNr, Uns16 pTechLevel)
+{
+  InitEng();
+
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR));
+  gEngspecPtr[pEngNr].TechLevel = pTechLevel;
+}
+
+void
+PutEngFuelConsumption(Uns16 pEngNr, Uns16 pSpeed, Uns32 pFuelConsumption)
+{
+  InitEng();
+
+  passert((pEngNr >= 1) AND(pEngNr <= ENGINE_NR) AND(pSpeed <= MAX_SPEED));
+
+   /* NOTE: Speed is 0 to 9 but the fuel consumption array only has 9
+     elements. We must handle speed==0 specially and then subtract 1 from the 
+     given speed */
+
+  if (pSpeed EQ 0) return;
+ gEngspecPtr[pEngNr].FuelConsumption[pSpeed - 1] = pFuelConsumption;
+}
+
+
 IO_Def
 Read_Engspec_File(void)
 {
@@ -158,6 +237,44 @@ Read_Engspec_File(void)
     lError = IO_FAILURE;
   return (lError);
 }
+
+IO_Def
+Write_Engspec_File(void)
+{
+  FILE *lEngFile;
+  IO_Def lError = IO_SUCCESS;
+
+  InitEng();
+
+  if ((lEngFile =
+              OpenOutputFile(ENGSPEC_FILE,
+                ROOT_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+#ifdef __MSDOS__
+    if (ENGINE_NR NEQ fwrite(gEngspecPtr + 1, sizeof(Engspec_Struct),
+                ENGINE_NR, lEngFile)) {
+      Error("Can't write file '%s'", ENGSPEC_FILE);
+      lError = IO_FAILURE;
+    }
+#else
+    Uns16 lEng;
+
+    for (lEng = 1; lEng <= ENGINE_NR; lEng++) {
+      if (!DOSWriteStruct(EngspecStruct_Convert, NumEngspecStruct_Convert,
+                  gEngspecPtr + lEng, lEngFile)) {
+        Error("Can't write file '%s'", ENGSPEC_FILE);
+        lError = IO_FAILURE;
+        break;
+      }
+    }
+#endif
+
+    fclose(lEngFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return (lError);
+}
+
 
 /*************************************************************
   $HISTORY:$
