@@ -136,6 +136,28 @@ PutMinefieldOwner(Uns16 pID, RaceType_Def pRace)
   GetMinefield(pID)->Race = pRace;
 }
 
+void
+PutMinefieldPositionX(Uns16 pID, Uns16 pX)
+{
+  passert((pX >= MIN_COORDINATE) AND(pX <= MAX_COORDINATE));
+
+  GetMinefield(pID)->Position[X_Part] = pX;
+}
+
+void
+PutMinefieldPositionY(Uns16 pID, Uns16 pY)
+{
+  passert((pY >= MIN_COORDINATE) AND(pY <= MAX_COORDINATE));
+
+  GetMinefield(pID)->Position[Y_Part] = pY;
+}
+
+void
+PutMinefieldWeb(Uns16 pID, Boolean pWeb)
+{
+  GetMinefield(pID)->Web = (pWeb ? 1 : 0);
+} 
+
 Boolean
 IsMinefieldExist(Uns16 pID)
 {

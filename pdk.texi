@@ -14,7 +14,7 @@
 @subtitle PDK Library Version 4.4
 @sp 2
 @center TexInfo version
-@center Version 2003-12-03
+@center Version 2003-28-08
 @end titlepage
 
 @node Top,(dir),(dir),(dir)
@@ -2566,6 +2566,9 @@ crash if this assumption isn't met.
 * IsMinefieldWeb::
 * PutMinefieldUnits::
 * PutMinefieldOwner::
+* PutMinefieldPositionX::
+* PutMinefieldPositionY::
+* PutMinefieldWeb::
 * CreateMinefield::
 @end menu
 
@@ -2582,6 +2585,9 @@ Functions in this section:
 @item IsMinefieldWeb
 @item PutMinefieldUnits
 @item PutMinefieldOwner
+@item PutMinefieldPositionX
+@item PutMinefieldPositionY
+@item PutMinefieldWeb
 @item CreateMinefield
 @end itemize
 @end iftex
@@ -2646,13 +2652,32 @@ it returns False.
 This function sets the number of units in the given minefield. If the
 number of units is set to 0, the minefield is considered to be gone.
 
-@node PutMinefieldOwner,CreateMinefield,PutMinefieldUnits,Minefield Accessors
+@node PutMinefieldOwner,PutMinefieldPositionX,PutMinefieldUnits,Minefield Accessors
 @subsection void PutMinefieldOwner(Uns16 pID, RaceType_Def pRace)
 @findex PutMinefieldOwner
 
 This function sets the owner of the minefield to the given race.
 
-@node CreateMinefield,,PutMinefieldOwner,Minefield Accessors
+@node PutMinefieldPositionX,PutMinefieldPositionY,PutMinefieldOwner,Minefield Accessors
+@subsection void PutMinefieldPositionX(Uns16 pID, Uns16 pX)
+@findex PutMinefieldPositionX
+
+This function sets the X component of the center of the given minefield.
+
+@node PutMinefieldPositionY,PutMinefieldWeb,PutMinefieldPositionX,Minefield Accessors
+@subsection void PutMinefieldPositionY(Uns16 pID, Uns16 pY)
+@findex PutMinefieldPositionY
+
+This function sets the Y component of the center of the given minefield.
+
+@node PutMinefieldWeb,CreateMinefield,PutMinefieldPositionY,Minefield Accessors
+@subsection void PutMinefieldWeb(Uns16 pID, Boolean pWeb)
+@findex PutMinefieldWeb
+
+This function changes minefield pID type. If pWeb is True the minefield is set to
+be web minefield, otherwise the minefield set to be a normal minefield.
+
+@node CreateMinefield,,PutMinefieldWeb,Minefield Accessors
 @subsection Uns16 CreateMinefield(Uns16 pXloc, Uns16 pYloc, RaceType_Def pRace, Uns32 pUnits, Boolean pIsWeb)
 @findex CreateMinefield
 

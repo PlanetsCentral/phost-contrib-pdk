@@ -1307,6 +1307,9 @@ Pconfig_Struct;
   extern Boolean IsMinefieldWeb(Uns16 pID);
   extern void PutMinefieldUnits(Uns16 pID, Uns32 pUnits);
   extern void PutMinefieldOwner(Uns16 pID, RaceType_Def pRace);
+  extern void PutMinefieldPositionX(Uns16 pID, Uns16 pX);
+  extern void PutMinefieldPositionY(Uns16 pID, Uns16 pY);
+  extern void PutMinefieldWeb(Uns16 pID, Boolean pWeb);
   extern Uns16 CreateMinefield(Uns16 pXloc, Uns16 pYloc, RaceType_Def pRace,
         Uns32 pUnits, Boolean pIsWeb);
 
