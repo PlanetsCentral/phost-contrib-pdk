@@ -9,7 +9,7 @@ Version 3.2.4.3
 * Added ability to modify static game data (Piotr Winiarczyk)
 * Added ability to evaluate scores for ships, planets, bases and
   minefields (Piotr Winiarczyk)
-
+* Added race kill functions (Piotr Winiarczyk).
 
 
 Version 3.2.4.2 --  Released September 2001

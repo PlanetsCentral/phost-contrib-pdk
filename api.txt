@@ -153,6 +153,7 @@ PDK is encouraged.
     ShipsType_Def      -- an enumerated type listing ships types in terms
                           of being war ship or freighter
     PointsType_Def     -- an enumerated type listing points type
+    PlayerKillType_Def -- an enumerated type listing player kill switches types
 
 
 Data Structures
@@ -401,32 +402,32 @@ current wormhole information.
 
            Boolean Write_Truehull_File(void)
 This routine writes the TRUEHULL.DAT file to the root directory. Any changes
-of race-assigned hulls made by calling PutTrueHull procedure are saved to this file. 
+of race-assigned hulls made by calling PutTrueHull procedure are saved to this file.
 
            Boolean Write_Hullspec_File(void)
 This routine writes the HULLSPEC.DAT file to the root directory. Any changes
-made to hulls specification are saved to this file.            
+made to hulls specification are saved to this file.
 
            Boolean Write_Engspec_File(void)
 This routine writes the ENGSPEC.DAT file to the root directory. Any changes
-made to engines specification are saved to this file. 
+made to engines specification are saved to this file.
 
            Boolean Write_Beamspec_File(void)
 This routine writes the BEAMSPEC.DAT file to the root directory. Any changes
-made to beams specification are saved to this file. 
+made to beams specification are saved to this file.
 
            Boolean Write_Torpspec_File(void)
 This routine writes the TORPSPEC.DAT file to the root directory. Any changes
-made to torpedos specification are saved to this file. 
+made to torpedos specification are saved to this file.
 
            Boolean Write_Planetname_File(void)
 This routine writes the PLANET.NM file to the root directory. Any changes
-to planet names made by calling PutPlanetName procedure are saved to this file. 
+to planet names made by calling PutPlanetName procedure are saved to this file.
 
            Boolean Write_Xyplan_File(void)
 This routine writes the XYPLAN.DAT file to the root directory. Any changes
 to planet coordinates made by calling PutPlanetLocationX or PutPlanetLocationY
-procedures are saved to this file. 
+procedures are saved to this file.
 
            Boolean WriteHostData(void)
 This routine is a short-cut way of calling all of the individual
@@ -500,6 +501,8 @@ Player Status
 -------------
 
 The following functions require a prior call to ReadHostData().
+Basic player status functions are defined here. Player kill functions are
+implemented too.
 
            Boolean PlayerIsActive(RaceType_Def pPlayer)
 This function returns True if the given player is active in this game,
@@ -519,6 +522,37 @@ character string.
 This function sets the password for a given player. The 'pPwd' parameter
 must be a null-terminated plain-text string of no more than 10 characters.
 The player's password is only saved when Write_HostGen_File() is called.
+
+           Boolean KillPlayerConfigure(PlayerKillType_Def lKillConf)
+This function returns kill config switch lKillConf.
+
+           void PutKillPlayerConfigure(PlayerKillType_Def lKillConf, Boolean lValue)
+This function sets kill config switch lKillConf to value lValue.
+
+           void KillPlayer(RaceType_Def Race)
+This functions kills a given player. All his alliances are cleared
+and player is set inactive. Ships, planets, bases and minefields are
+erased if appropriate kill config switch is set to True. To manipulate
+kill config switches see KillPlayerConfigure and PutKillPlayerConfigure
+procedures.
+
+          void KillPlayerShips(RaceType_Def Race)
+This functions kills all ships of a given player.
+
+          void KillPlayerPlanets(RaceType_Def Race)
+This functions kills all planets of a given player. Colonists number
+is set to 0, colonist happines is set to 100, planet owner is set to
+NoOwner, planet FC is randomized. If KillPlayerConfigure
+(KILL_Cash_Supplies) returns True all supplies and cash on planets are
+deleted. If KillPlayerConfigure (KILL_Structures) returns True all
+mineral mines, factories and defence posts on planets are deleted.
+
+          void KillPlayerBases(RaceType_Def Race)
+This functions kills all bases of a given player.
+
+          void KillPlayerMinefields(RaceType_Def Race)
+This functions kills all minefields of a given player setting their
+units number to 0.
 
 Ship Accessors
 --------------
@@ -725,13 +759,13 @@ its owner, which is specified in 'pOwner'. The hull type, weapons, engines,
 etc. must all be set separately.
 
            Uns16 ShipTotalMass(Uns16 sID)
-This routine returns total ship mass including hull, equipment, cargo, 
+This routine returns total ship mass including hull, equipment, cargo,
 ammunition and fuel masses.
-           
+
            Uns16 ShipTravelMass(Uns16 sID)
 This routine returns total ship mass and total ship mass of ship beeing
-tow by this ship, if ship sID is towing.           
-           
+tow by this ship, if ship sID is towing.
+
            Uns16 ShipCargoMass(Uns16 sID)
 This routine returns given ship cargo mass, summing cargo tritanium, duranium,
 molybdenum, supplies, clans and ship ammunition (torpedos or fighters).
@@ -743,7 +777,7 @@ each call to this routine. Otherwise, the name is stored in the area
 pointed to by 'pBuffer', which must be at least 21 characters long. The
 return value of this routine points to either 'pBuffer' if it is non-zero or
 to the temporary area containing the ship's name.
-           
+
            Boolean IsShipFCSpecial(Uns16 sID)
 This routine returns True if given ship Friendly Code is special.
 
@@ -949,63 +983,63 @@ is just a short-cut for checking both PlanetNativePopulation() and
 PlanetNatType().
 
            Boolean IsPlanetFCSpecial(Uns16 pID)
-This routine returns True if given planet Friendly Code is special.           
-           
+This routine returns True if given planet Friendly Code is special.
+
            char *PlanetNatString(Uns16 pID, char *pBuffer)
 This function returns given planet natives name as string. If the 'pName' parameter
 is 0, then the name is stored in a temporary area which is overwritten with
 each call to this routine. Otherwise, the name is stored in the area
 pointed to by 'pName', which must be at least 21 characters long. The
 return value of this routine points to either 'pName' if it is non-zero or
-to the temporary area containing the ship's name.           
-           
+to the temporary area containing the ship's name.
+
            char *PlanetNatGovmString(int pID, char *pBuffer)
-This function returns given planet natives goverment type name as string. 
-If the 'pName' parameter is 0, then the name is stored in a temporary 
-area which is overwritten with each call to this routine. Otherwise, 
-the name is stored in the area pointed to by 'pName', which must be at 
-least 21 characters long. The return value of this routine points to either 
-'pName' if it is non-zero or to the temporary area containing the ship's name.              
-           
+This function returns given planet natives goverment type name as string.
+If the 'pName' parameter is 0, then the name is stored in a temporary
+area which is overwritten with each call to this routine. Otherwise,
+the name is stored in the area pointed to by 'pName', which must be at
+least 21 characters long. The return value of this routine points to either
+'pName' if it is non-zero or to the temporary area containing the ship's name.
+
            Uns16 PlanetMaxFactories(Uns16 pID)
 This function returns given planet maximal number of factories allowed
 to build due to colonist population.
-           
+
            Uns16 PlanetMaxDefense(Uns16 pID)
-This function returns given planet maximal number of defence outposts 
+This function returns given planet maximal number of defence outposts
 allowed to build due to colonist population.
-           
+
            Uns16 PlanetMaxMines(Uns16 pID)
 This function returns given planet maximal number of mineral mines allowed
 to build due to colonist population.
-           
+
            Uns16 PlanetMining(Uns16 pID, Uns16 Mineral)
-This function returns given planet mining production of given material 
+This function returns given planet mining production of given material
 from mineral mines.
-           
+
            Uns16 PlanetGovTaxRate(Uns16 pID)
 This function returns given planet natives tax modyficastor due to nativies
-goverment type. If Anarchy type native goverment is present on planet this 
+goverment type. If Anarchy type native goverment is present on planet this
 function will return 20, for participatory goverment this will be 160.
-           
+
            Uns16 NumberOfShipsHissingPlanet(Uns16 pID)
 This function returns number of ships hissing given planet. Ship owner should be
 Gorn, ship mission must be set to Hiss, ship must have fuel and beams to be counted.
-           
+
            int PlanetNatHappyChange(Uns16 pID)
 This function returns given planet natives happines change next turn due
-to taxes and hissing.           
-           
+to taxes and hissing.
+
            int PlanetColHappyChange(Uns16 pID)
-This function returns given planet colonist happines change next turn due 
-to taxes and hissing.           
-           
+This function returns given planet colonist happines change next turn due
+to taxes and hissing.
+
            Uns16 PlanetColIncome(Uns16 pID)
 This function returns given planet income from colonist.
-           
+
            Uns16 PlanetNatIncome(Uns16 pID)
-This function returns given planet income from natives.           
-           
+This function returns given planet income from natives.
+
            Uns16 PlanetSuppIncome(Uns16 pID)
 This function returns given planet total supplies production including factories
 and Bovinoid natives.
@@ -1038,8 +1072,8 @@ To save changes use Write_Xyplan_File() function.
 
            void PutPlanetName(Uns16 pID, char *pName)
 This routine sets the given planet's name to a new value. The 'pName'
-parameter must point to a null-terminated string. Only the first 
-PLANETNAME_SIZE characters will be used. To save changes use 
+parameter must point to a null-terminated string. Only the first
+PLANETNAME_SIZE characters will be used. To save changes use
 Write_Planetname_File() function.
 
            void PutPlanetOwner(Uns16 pID, RaceType_Def pOwner)
@@ -1290,8 +1324,8 @@ CPNumMinefields otherwise.
 
            Boolean IsMinefieldExist(Uns16 pID)
 This function returns True if the minefield ID is lower than
-CPNumMinefields (configuration variable) and the minefield 
-with the given ID exists (i.e., has more than 0 units in it). 
+CPNumMinefields (configuration variable) and the minefield
+with the given ID exists (i.e., has more than 0 units in it).
 The ID number must be in the range 1 through MINE_NR.
 
            double MinefieldRadius(Uns16 pID)
@@ -1561,13 +1595,13 @@ This routine sets the number of megacredits required to build the given
 hull to pMoneyCost.
 
            PutTrueHull(RaceType_Def pRace, Uns16 pHullIndex, Uns16 pHullNr)
-This routine sets a race-specific hull number pHullIndex from the range 
-1  through RACEHULLS to a true hull number pHullNr in the range 1 through HULL_NR. 
+This routine sets a race-specific hull number pHullIndex from the range
+1  through RACEHULLS to a true hull number pHullNr in the range 1 through HULL_NR.
 Setting pHullNr to 0, make the given race hull index unused for that race.
 
            PutHullName(Uns16 pHullNr, const char *pName)
 This routine sets the name of a given hull to pName. The 'pName'
-parameter must point to a null-terminated string. Only the first 30 characters 
+parameter must point to a null-terminated string. Only the first 30 characters
 will be used.
 
 Engine Accessors
@@ -1612,7 +1646,7 @@ by an engine of the given type at the warp speed specified by 'pSpeed'.
 
            void PutEngineName(Uns16 pEngNr, const char *pName)
 This routine sets the name of a given engine to pName. The 'pName'
-parameter must point to a null-terminated string. Only the first 20 characters 
+parameter must point to a null-terminated string. Only the first 20 characters
 will be used.
 
            void PutEngMoneyCost(Uns16 pEngNr, Uns16 pMoneyCost)
@@ -1693,7 +1727,7 @@ torpedo type.
 
            void PutTorpName(Uns16 pTorpNr, char *pName)
 This routine sets the name of a given torpedo to pName. The 'pName'
-parameter must point to a null-terminated string. Only the first 20 characters 
+parameter must point to a null-terminated string. Only the first 20 characters
 will be used.
 
            void PutTorpTorpCost(Uns16 pTorpNr, Uns16 pTorpCost)
@@ -1778,7 +1812,7 @@ beam type.
 
            void PutBeamName(Uns16 pBeamNr, char *pName)
 This routine sets the name of a given beam to pName. The 'pName'
-parameter must point to a null-terminated string. Only the first 20 characters 
+parameter must point to a null-terminated string. Only the first 20 characters
 will be used.
 
            void PutBeamMoneyCost(Uns16 pBeamNr, Uns16 pMoneyCost)
@@ -2020,11 +2054,11 @@ routine does NOT take into account priority overrides via the PBn planetary
 friendly codes.
 
        Uns16 BuildQueueBaseID(Uns16 pPosition)
-This function returns ID of base that placed build order for a given 
+This function returns ID of base that placed build order for a given
 position in build queue.
 
        Uns32 BuildQueuePriority(Uns16 pPosition)
-This function returns priority of build order for a given position  
+This function returns priority of build order for a given position
 in build queue.
 
        Boolean BuildQueueIsCloning(Uns16 pPosition)
@@ -2033,34 +2067,34 @@ in build queue is a cloning. False if it is normal build order.
 
        RaceType_Def BuildQueueShipOwner(Uns16 pPosition)
 This function returns ship owner of cloned ship for given position
-in build queue. 
-       
+in build queue.
+
        RaceType_Def BuildQueueOwner(Uns16 pPosition)
-This function returns owner of build order for given position 
-in build queue. 
+This function returns owner of build order for given position
+in build queue.
 
        Uns16 BuildQueueHullType(Uns16 pPosition)
-This function returns hull type number of build order for given position 
+This function returns hull type number of build order for given position
 in build queue. Returned hull number is in range 1 to HULL_NR.
-       
+
        Uns16 BuildQueueEngineType(Uns16 pPosition)
-This function returns engine type number of build order for given position 
+This function returns engine type number of build order for given position
 in build queue. Returned hull number is in range 1 to ENGINE_NR.
 
        Uns16 BuildQueueBeamType(Uns16 pPosition)
-This function returns beam type number of build order for given position 
+This function returns beam type number of build order for given position
 in build queue. Returned hull number is in range 1 to BEAM_NR.
 
        Uns16 BuildQueueTorpType(Uns16 pPosition)
-This function returns torpedo type number of build order for given position 
+This function returns torpedo type number of build order for given position
 in build queue. Returned hull number is in range 1 to TORP_NR.
 
        Uns16 BuildQueueBeamNumber(Uns16 pPosition)
-This function returns beam number mounted to hull of build order for 
+This function returns beam number mounted to hull of build order for
 given position in build queue.
-       
+
        Uns16 BuildQueueTorpNumber(Uns16 pPosition)
-This function returns torpedo lunchers number mounted to hull of 
+This function returns torpedo lunchers number mounted to hull of
 build order for given position in build queue.
 
        void PutBuildQueuePriority(Uns16 pPosition, Uns32 pPriority)
@@ -2858,7 +2892,7 @@ If the function succeeds it returns True.
        Boolean IsShipRemoteControlled(Uns16 pShip)
 This function returns True if the given ship number is under remote
 control.
-       
+
        Boolean IsShipRemoteForbidden(Uns16 pShip)
 This function returns True if the given ship is forbidden from being
 controlled.
@@ -3198,7 +3232,8 @@ Score Functions (new - 4.3)
 
 The following functions allow programs to evaluate scores for ships,
 planets, bases and mines. Default settings are compatibile with PTSCORE
-v1.4 program.
+v1.4 program. THost scores can be evaluated too. Basic global count
+functions are implemented.
 
         Uns32 PointsFor(CargoType_Def lCargo)
 This function returns points for given material.
@@ -3299,7 +3334,7 @@ Setting CountType to UNUSED_POINTS counts only ship cargo
         Uns32 PointsForPlanet(Uns16 pID, PointsType_Def CountType)
 This function returns points for given planet. Setting CountType to
 USED_POINTS makes procedure counts points only for planet structures
-(PointsForPlanetStructures is called).  Setting CountType to
+(PointsForPlanetStructures is called). Setting CountType to
 UNUSED_POINTS counts only planet cargo (PointsForPlanetMinerals is
 called). ALL_POINTS sums all points.
 
@@ -3308,7 +3343,7 @@ This function returns points for given base. Setting CountType to
 USED_POINTS makes procedure counts points for base build cost, torpedos
 stored in base, base defence system and base tech levels
 (PointsForBaseOnPlanet, PointsForBaseTorpedos, PointsForBaseDefense and
-PointsForBaseTechLevels are called).  Setting CountType to
+PointsForBaseTechLevels are called). Setting CountType to
 UNUSED_POINTS counts base stored equipment. All hulls, engines, beams
 and torpedo tubes are counted (PointsForBaseStorage is called).
 ALL_POINTS sums all points.
@@ -3320,28 +3355,69 @@ that minefield was layed using the most cheapest, in points, torpedos.
 Setting CountType to UNUSED_POINTS make procedure to return zero. No
 race specific corrections are made.
 
-        Uns32 RaceScoreForShips( RaceType_Def Race, PointsType_Def
-                                 CountType, ShipsType_Def ShipsType)
+        Uns32 RaceScoreForShips(RaceType_Def Race, PointsType_Def
+                                CountType, ShipsType_Def ShipsType)
 This function returns points for given race ships. Points type are
 controled by CountType parameter. ShipsType parameter can filter
 counted ships, so only war ships are scored (WAR_SHIPS), freighters
 (FREIGHTER_SHIPS) or there is no filtering at all (ALL_SHIPS).
 
-        Uns32 RaceScoreForPlanets( RaceType_Def Race, PointsType_Def
-                                   CountType)
+        Uns32 RaceScoreForPlanets(RaceType_Def Race, PointsType_Def
+                                  CountType)
 This function returns points for given race planets. Points type are
 controled by CountType parameter.
 
-        Uns32 RaceScoreForBases( RaceType_Def Race, PointsType_Def
-                                 CountType)
+        Uns32 RaceScoreForBases(RaceType_Def Race, PointsType_Def
+                                CountType)
 This function returns points for given race bases. Points type are
 controled by CountType parameter.
 
-        Uns32 RaceScoreForMinefields( RaceType_Def Race, PointsType_Def
-                                      CountType, Boolean RaceModify)
+        Uns32 RaceScoreForMinefields(RaceType_Def Race, PointsType_Def
+                                     CountType, Boolean RaceModify)
 This function returns points for given race minefields. Points type
 are controled by CountType parameter. Setting RaceModify to True makes
 points to be corrected by race UnitsPerTorpRate PConfig.src parameter,
-so real torpedo laying costs are counted.  Making RaceModify False
+so real torpedo laying costs are counted. Making RaceModify False
 gives no such correction.
+
+        Uns32 RaceShipsNumber(RaceType_Def Race,
+                              ShipsType_Def ShipsType)
+This function returns number of ships for a given race.
+
+        Uns32 RacePlanetsNumber(RaceType_Def Race)
+This function returns number of planet for a given race.
+
+        Uns32 RaceBasesNumber(RaceType_Def Race)
+This function returns number of bases for a given race.
+
+        Uns32 RaceFightersNumber(RaceType_Def Race)
+This function returns total number of fighters for a given race.
+Fighters from bases and ships are counted.
+
+        Uns32 RaceTorpedosNumber(RaceType_Def Race, Uns16 TorpType)
+This function returns total number of torpedos of a given type for a
+given race. Torpedos from bases and ships are counted.
+
+        Uns32 RaceFactoriesNumber(RaceType_Def Race)
+This function returns total number of factories for a given race.
+
+        Uns32 RaceMineralMinesNumber(RaceType_Def Race)
+This function returns total number of mineral mines for a given race.
+
+        Uns32 RaceDefencePostsNumber(RaceType_Def Race)
+This function returns total number of planetary defence posts for a
+given race.
+
+        Uns32 RaceBaseDefenceNumber(RaceType_Def Race)
+This function returns total number of base defence posts for a given
+race.
+
+        Uns32 RaceCargoNumber(RaceType_Def Race,
+                              CargoType_Def CargoType)
+This function returns total number of cargo of a given type for a
+given race. Cargo from planets and ships are counted.
+
+        Uns32 RaceMinefieldUnitsNumber(RaceType_Def Race)
+This function returns total number of layed minefields units for a
+given race. No race specific correction are made.
 

@@ -12,7 +12,7 @@
 @subtitle PDK Library Version 3.2.4.3
 @sp 2
 @center TexInfo version
-@center Version 2001-12-08 23:38
+@center Version 2001-12-23 13:09
 @end titlepage
 
 @node Top,(dir),(dir),(dir)
@@ -172,6 +172,7 @@ all revisions.
 @vindex DOSCVT_Def
 @vindex ShipsType_Def
 @vindex PointsType_Def
+@vindex PlayerKillType_Def
 @chapter Common Types 
 
 The following typedefs are used throughout the PDK code as both function
@@ -218,6 +219,7 @@ can read/write in DOS format (see "Cross-Platform Portability Part II")
 @item ShipsType_Def @tab an enumerated type listing ships types in terms 
 of being war ship or freighter
 @item PointsType_Def @tab an enumerated type listing points type
+@item PlayerKillType_Def @tab an enumerated type listing player kill switches types
 @end multitable
 
 @node Data Structures,Global Variables,Common Types,Top
@@ -830,6 +832,7 @@ passwords are set to NOPASSWORD.
 @node Player Status,Ship Accessors,Data File Mastering,Function Call Interface
 @section Player Status
 
+Basic player status functions are defined here. Player kill functions are implemented too.
 The following functions require a prior call to ReadHostData().
 
 @menu
@@ -837,6 +840,13 @@ The following functions require a prior call to ReadHostData().
 * PutPlayerIsActive::
 * PlayerPassword::
 * PutPlayerPassword::
+* KillPlayerConfigure::
+* PutKillPlayerConfigure::
+* KillPlayer::
+* KillPlayerShips::
+* KillPlayerPlanets::
+* KillPlayerBases::
+* KillPlayerMinefields::
 @end menu
 
 @iftex
@@ -846,6 +856,13 @@ Functions in this section:
 @item PutPlayerIsActive
 @item PlayerPassword
 @item PutPlayerPassword
+@item KillPlayerConfigure
+@item PutKillPlayerConfigure
+@item KillPlayer
+@item KillPlayerShips
+@item KillPlayerPlanets
+@item KillPlayerBases
+@item KillPlayerMinefields
 @end itemize
 @end iftex
 
@@ -872,13 +889,63 @@ Write_HostGen_File() is performed.
 This function returns the password for a given player as a null-terminated
 character string.
 
-@node PutPlayerPassword,,PlayerPassword,Player Status
+@node PutPlayerPassword,KillPlayerConfigure,PlayerPassword,Player Status
 @findex PutPlayerPassword
 @subheading void PutPlayerPassword(RaceType_Def pPlayer, const char *pPwd)
 
 This function sets the password for a given player. The 'pPwd' parameter
 must be a null-terminated plain-text string of no more than 10 characters.
 The player's password is only saved when Write_HostGen_File() is called.
+
+@node KillPlayerConfigure,PutKillPlayerConfigure,PutPlayerPassword,Player Status
+@findex KillPlayerConfigure
+@subheading Boolean KillPlayerConfigure(PlayerKillType_Def lKillConf)
+
+This function returns kill config switch lKillConf.
+
+@node PutKillPlayerConfigure,KillPlayer,KillPlayerConfigure,Player Status
+@findex PutKillPlayerConfigure
+@subheading void PutKillPlayerConfigure(PlayerKillType_Def lKillConf, Boolean lValue)
+
+This function sets kill config switch lKillConf to value lValue.
+
+@node KillPlayer,KillPlayerShips,PutKillPlayerConfigure,Player Status
+@findex KillPlayer
+@subheading void KillPlayer(RaceType_Def Race)
+
+This functions kills a given player. All his alliances are cleared and player is
+set inactive. Ships, planets, bases and minefields are erased if appropriate
+kill config switch is set to True. To manipulate kill config switches see
+KillPlayerConfigure and PutKillPlayerConfigure procedures.
+
+@node KillPlayerShips,KillPlayerPlanets,KillPlayer,Player Status
+@findex KillPlayerShips
+@subheading void KillPlayerShips(RaceType_Def Race)
+
+This functions kills all ships of a given player.
+
+@node KillPlayerPlanets,KillPlayerBases,KillPlayerShips,Player Status
+@findex KillPlayerPlanets
+@subheading void KillPlayerPlanets(RaceType_Def Race)
+
+This functions kills all planets of a given player. Colonists number is set to 0,
+colonist happines is set to 100, planet owner is set to NoOwner, planet FC is randomized.
+If KillPlayerConfigure (KILL_Cash_Supplies) returns True all supplies and cash on planets are deleted.
+If KillPlayerConfigure (KILL_Structures) returns True all mineral mines, factories and 
+defence posts on planets are deleted.
+
+@node KillPlayerBases,KillPlayerMinefields,KillPlayerPlanets,Player Status
+@findex KillPlayerBases
+@subheading void KillPlayerBases(RaceType_Def Race)
+
+This functions kills all bases of a given player.
+
+@node KillPlayerMinefields,,KillPlayerBases,Player Status
+@findex KillPlayerMinefields
+@subheading void KillPlayerMinefields(RaceType_Def Race)
+
+This functions kills all minefields of a given player setting their
+units number to 0.
 
 @node Ship Accessors,Planet Accessors,Player Status,Function Call Interface
 @section Ship Accessors
@@ -6090,7 +6157,8 @@ supply its data and size to this function.
 
 The following functions allow programs to evaluate scores for
 ships, planets, bases and mines. Default settings are compatibile
-with PTSCORE v1.4 program.
+with PTSCORE v1.4 program. THost scores can be evaluated too.
+Basic global count functions are implemented.
 
 @menu
 * PointsFor::
@@ -6123,6 +6191,17 @@ with PTSCORE v1.4 program.
 * RaceScoreForPlanets::
 * RaceScoreForBases::
 * RaceScoreForMinefields::
+* RaceShipsNumber::
+* RacePlanetsNumber::
+* RaceBasesNumber::
+* RaceFightersNumber::
+* RaceTorpedosNumber::
+* RaceFactoriesNumber::
+* RaceMineralMinesNumber::
+* RaceDefencePostsNumber::
+* RaceBaseDefenceNumber::
+* RaceCargoNumber::
+* RaceMinefieldUnitsNumber::
 @end menu
 
 @iftex
@@ -6157,6 +6236,17 @@ with PTSCORE v1.4 program.
 @item RaceScoreForPlanets     
 @item RaceScoreForBases       
 @item RaceScoreForMinefields  
+@item RaceShipsNumber
+@item RacePlanetsNumber
+@item RaceBasesNumber
+@item RaceFightersNumber
+@item RaceTorpedosNumber
+@item RaceFactoriesNumber
+@item RaceMineralMinesNumber
+@item RaceDefencePostsNumber
+@item RaceBaseDefenceNumber
+@item RaceCargoNumber
+@item RaceMinefieldUnitsNumber
 @end itemize
 @end iftex
 
@@ -6372,7 +6462,7 @@ by CountType parameter.
 This function returns points for given race bases. Points type are controled
 by CountType parameter.
 
-@node RaceScoreForMinefields,,RaceScoreForBases,Score Functions
+@node RaceScoreForMinefields,RaceShipsNumber,RaceScoreForBases,Score Functions
 @findex RaceScoreForMinefields
 @subheading Uns32 RaceScoreForMinefields( RaceType_Def Race, PointsType_Def CountType, Boolean RaceModify)
 
@@ -6380,6 +6470,76 @@ This function returns points for given race minefields. Points type are controle
 by CountType parameter. Setting RaceModify to True makes points to be corrected by
 race UnitsPerTorpRate PConfig.src parameter, so real torpedo laying costs are counted.
 Making RaceModify False gives no such correction.
+
+@node RaceShipsNumber,RacePlanetsNumber,RaceScoreForMinefields,Score Functions
+@findex RaceShipsNumber
+@subheading Uns32 RaceShipsNumber( RaceType_Def Race, ShipsType_Def ShipsType)
+
+This function returns number of ships for a given race.
+
+@node RacePlanetsNumber,RaceBasesNumber,RaceShipsNumber,Score Functions
+@findex RacePlanetsNumber
+@subheading Uns32 RacePlanetsNumber(RaceType_Def Race)
+
+This function returns number of planet for a given race.
+
+@node RaceBasesNumber,RaceFightersNumber,RacePlanetsNumber,Score Functions
+@findex RaceBasesNumber
+@subheading Uns32 RaceBasesNumber( RaceType_Def Race)
+
+This function returns number of bases for a given race.
+
+@node RaceFightersNumber,RaceTorpedosNumber,RaceBasesNumber,Score Functions
+@findex RaceFightersNumber
+@subheading Uns32 RaceFightersNumber(RaceType_Def Race)
+
+This function returns total number of fighters for a given race. Fighters
+from bases and ships are counted.
+
+@node RaceTorpedosNumber,RaceFactoriesNumber,RaceFightersNumber,Score Functions
+@findex RaceTorpedosNumber
+@subheading Uns32 RaceTorpedosNumber(RaceType_Def Race, Uns16 TorpType)
+
+This function returns total number of torpedos of a given type for a given race. 
+Torpedos from bases and ships are counted.
+
+@node RaceFactoriesNumber,RaceMineralMinesNumber,RaceTorpedosNumber,Score Functions
+@findex RaceFactoriesNumber
+@subheading Uns32 RaceFactoriesNumber(RaceType_Def Race)
+
+This function returns total number of factories for a given race. 
+
+@node RaceMineralMinesNumber,RaceDefencePostsNumber,RaceFactoriesNumber,Score Functions
+@findex RaceMineralMinesNumber
+@subheading Uns32 RaceMineralMinesNumber(RaceType_Def Race)
+
+This function returns total number of mineral mines for a given race. 
+
+@node RaceDefencePostsNumber,RaceBaseDefenceNumber,RaceMineralMinesNumber,Score Functions
+@findex RaceDefencePostsNumber
+@subheading Uns32 RaceDefencePostsNumber(RaceType_Def Race)
+
+This function returns total number of planetary defence posts for a given race. 
+
+@node RaceBaseDefenceNumber,RaceCargoNumber,RaceDefencePostsNumber,Score Functions
+@findex RaceBaseDefenceNumber
+@subheading Uns32 RaceBaseDefenceNumber(RaceType_Def Race)
+
+This function returns total number of base defence posts for a given race. 
+
+@node RaceCargoNumber,RaceMinefieldUnitsNumber,RaceBaseDefenceNumber,Score Functions
+@findex RaceCargoNumber
+@subheading Uns32 RaceCargoNumber(RaceType_Def Race,CargoType_Def CargoType)
+
+This function returns total number of cargo of a given type for a given race. 
+Cargo from planets and ships are counted.
+
+@node RaceMinefieldUnitsNumber,,RaceCargoNumber,Score Functions
+@findex RaceMinefieldUnitsNumber
+@subheading Uns32 RaceMinefieldUnitsNumber(RaceType_Def Race)
+
+This function returns total number of layed minefields units for a given race. 
+No race specific correction are made.
 
 @node Variables Index,,,Top
 @unnumbered Variables Index

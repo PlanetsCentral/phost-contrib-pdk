@@ -261,6 +261,30 @@ extern "C" {
     UTIL_Dat
   } UtilMode_Def;
 
+  typedef enum {
+    USED_POINTS = 0,
+    UNUSED_POINTS,
+    ALL_POINTS,
+    THOST_POINTS
+  } PointsType_Def;
+
+  typedef enum {
+    WAR_SHIPS = 0,
+    FREIGHTER_SHIPS,
+    ALL_SHIPS
+  } ShipsType_Def;
+
+  typedef enum {
+    KILL_Ships = 0,
+    KILL_Planets,
+    KILL_Bases,
+    KILL_Minefields,
+    KILL_Structures,
+    KILL_Cash_Supplies,
+    NumKILL
+  } PlayerKillType_Def;
+
+
 #define GAME_NAME_SIZE  32  /* Maximum size of game names */
     
 /** Host configuration. This structure contains all host configuration
@@ -711,13 +735,20 @@ Pconfig_Struct;
   extern void InitializeHostGen(void);
 
 /*
- *  Player status functions
+ *  Player status and kill race functions
  */
 
   extern Boolean PlayerIsActive(RaceType_Def pPlayer);
   extern void PutPlayerIsActive(RaceType_Def pPlayer, Boolean pActive);
   extern const char *PlayerPassword(RaceType_Def pPlayer);
   extern void PutPlayerPassword(RaceType_Def pPlayer, const char *pPasswd);
+  extern Boolean KillPlayerConfigure(PlayerKillType_Def lKillConf);
+  extern void PutKillPlayerConfigure(PlayerKillType_Def lKillConf, Boolean lValue);
+  extern void KillPlayerPlanets(RaceType_Def Race);
+  extern void KillPlayerShips(RaceType_Def Race);
+  extern void KillPlayer(RaceType_Def Race);
+  extern void KillPlayerBases(RaceType_Def Race);
+  extern void KillPlayerMinefields(RaceType_Def Race);
 
 /*
  *  Build Queue Interface
@@ -1361,18 +1392,6 @@ Pconfig_Struct;
 /*
  *  points
  */
-  typedef enum {
-    USED_POINTS = 0,
-    UNUSED_POINTS,
-    ALL_POINTS
-  } PointsType_Def;
-
-  typedef enum {
-    WAR_SHIPS = 0,
-    FREIGHTER_SHIPS,
-    ALL_SHIPS
-  } ShipsType_Def;
-
   extern Uns32 PointsFor(CargoType_Def lCargo);
   extern void PutPointsFor(CargoType_Def lCargo, Uns16 lPoints);
   extern Uns32 PointsForFighter(void);
@@ -1405,7 +1424,18 @@ Pconfig_Struct;
   extern Uns32 RaceScoreForPlanets( RaceType_Def Race, PointsType_Def CountType);
   extern Uns32 RaceScoreForBases( RaceType_Def Race, PointsType_Def CountType);
   extern Uns32 RaceScoreForMinefields( RaceType_Def Race, PointsType_Def CountType, Boolean RaceModify);
-
+  extern Uns32 RaceShipsNumber( RaceType_Def Race, ShipsType_Def ShipsType);
+  extern Uns32 RacePlanetsNumber(RaceType_Def Race);
+  extern Uns32 RaceBasesNumber( RaceType_Def Race);
+  extern Uns32 RaceFightersNumber(RaceType_Def Race);
+  extern Uns32 RaceTorpedosNumber(RaceType_Def Race, Uns16 TorpType);
+  extern Uns32 RaceFactoriesNumber(RaceType_Def Race);
+  extern Uns32 RaceMineralMinesNumber(RaceType_Def Race);
+  extern Uns32 RaceDefencePostsNumber(RaceType_Def Race);
+  extern Uns32 RaceBaseDefenceNumber(RaceType_Def Race);
+  extern Uns32 RaceCargoNumber(RaceType_Def Race,CargoType_Def CargoType);
+  extern Uns32 RaceMinefieldUnitsNumber(RaceType_Def Race);
+  
 #ifdef __cplusplus
 }
 #endif

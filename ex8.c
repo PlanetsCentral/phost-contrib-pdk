@@ -56,7 +56,11 @@ main(int argc, char *argv[])
     if (! ReadGlobalData()) return 1;
     if (! ReadHostData()) return 1;
 
+    Info("PTScores - used");
+    Info("");
+
     Info(" #   Ships Planets   Bases   Mines   Total");
+    Info("------------------------------------------");
     for ( Race=1; Race <=RACE_NR; Race++)
     if (PlayerIsActive(Race))
     {
@@ -69,6 +73,27 @@ main(int argc, char *argv[])
       Info("%2d %7d %7d %7d %7d %7d",Race,ShipScore,PlanetScore,
        BaseScore,MinefieldScore,TotalScore);
     }
+    Info("------------------------------------------");
+
+    Info("");
+    Info("THost score");
+    Info("");
+
+    Info(" #   Ships Planets   Bases   Total");
+    Info("------------------------------------");
+    for ( Race=1; Race <=RACE_NR; Race++)
+    if (PlayerIsActive(Race))
+    {
+      ShipScore      = RaceScoreForShips(Race,THOST_POINTS,ALL_SHIPS);
+      PlanetScore    = RaceScoreForPlanets(Race,THOST_POINTS);
+      BaseScore      = RaceScoreForBases(Race,THOST_POINTS);
+      TotalScore     = ShipScore + PlanetScore + BaseScore ;
+    
+      Info("%2d %7d %7d %7d %7d",Race,ShipScore,PlanetScore,
+       BaseScore,TotalScore);
+    }
+    Info("------------------------------------------");
+
 
     FreePHOSTLib();
 
