@@ -91,7 +91,7 @@ to be registered to the HOST/PHOST program.
 How do I get started?
 =====================
 
-Read through the *.DOC/*.TXT files that come with this distribution.
+Read through the *.TXT files that come with this distribution.
 
 Read through some of the example programs (EX*.C files) to get an idea
 how the PDK works. You may even want to try compiling them, running
@@ -104,15 +104,17 @@ PDK application programming interface (API).
 The Distribution Files
 ======================
 
-Here is a description of the files that are included with all distributions
-of the PDK (for all platforms):
+Here is a description of the files that are of interest for people who
+want to write programs with the PDK (that is, just use the PDK instead
+of hacking it).
 
-     PDK.DOC         -- You're reading it
-     LEGAL.DOC       -- Legal information for the PDK
-     INSTALL.DOC     -- Guide to installing the PDK
-     CHANGES.DOC     -- Revision history of the PDK
-     API.DOC         -- The main documentation -- describes the application
-                        programming interface (API) to the PDK
+     PDK.TXT         -- You're reading it
+     LEGAL.TXT       -- Legal information for the PDK
+     INSTALL.TXT     -- Guide to installing the PDK
+     CHANGES.TXT     -- Revision history of the PDK
+     PDK.INF         -- The main documentation in GNU Info format (use
+                        an Info reader of your choice to read it)
+     PDK-API.TXT     -- The main documentation in plain text format.
      PHOSTPDK.H      -- Header file for the PDK library
      EX1.C           -- PDK example program: counts the number of ships,
                         planets, and bases that a player has and reports
@@ -142,12 +144,8 @@ of the PDK (for all platforms):
      EX9.C           -- PDK example program: command processor. This
                         implements a simple wire-transfer between planets
                         using the command processor.
-
-In the Win32/Windows NT distribution for CBuilder and BorlandC, there is:
-     PDK.LIB         -- Win32 library of the PDK
-
-In all other distributions, there is:
-     libpdk.a        -- The PDK library
+     EX10.C          -- PDK example program: list hull functions
+     NULL.C          -- Null add-on. Framework for your own stuff.
 
 
 Feedback
@@ -168,9 +166,9 @@ who support and encourage the PHOST project. Thanks to Rick Rogers for
 helping out with the Microsoft C port.
 
 Updates to the PDK were done by Piotr Winiarczyk, Heiko Schlenker,
-Stefan Reuther, Alexander Babanov.
+Stefan Reuther, Alexander Babanov, Maurits van Rees.
 
-The Portable Host Project Team is:
+The original Portable Host Project Team is:
     Mike Campbell, Jeff Hupp, Michael Lemon, Stefan Lundgren,
     Sean Martens, Matt Mueller, Steffen Pietsch, Falko Poiker,
     Chris Smith, Andrew Sterian, Thomas Voigt

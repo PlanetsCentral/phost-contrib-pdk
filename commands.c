@@ -28,7 +28,7 @@
   *  All files in this distribution are Copyright (C) 1995-2000 by the
   *  program authors: Andrew Sterian, Thomas Voigt, and Steffen
   *  Pietsch. This file Copyright (C) 2002 Stefan Reuther. You can
-  *  reach the PHOST team via email (support@phost.org).
+  *  reach the PHOST team via email (support@phost.de).
   *
   *  This program is free software; you can redistribute it and/or
   *  modify it under the terms of the GNU General Public License as

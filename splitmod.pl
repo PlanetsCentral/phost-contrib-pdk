@@ -176,7 +176,7 @@ if ($keep_override) {
             while (1) {
                 m{\G[\w\s]+}sgc and do { $item .= $&; next; };
                 m{\G\{}sgc and do { $item .= $&; ++$brace; next; };
-                m{\G\}\;?}sgc and do { $item .= $&; next if --$brace>0 || $is_typedef; last; };
+                m{\G\}\;?}sgc and do { $item .= $&; next if --$brace>0 || ($is_typedef && $& eq '}'); last; };
                 m{\G"([^\"\\]|\\.)*"}sgc and do { $item .= $&; next; };
                 m{\G'([^\'\\]|\\.)*'}sgc and do { $item .= $&; next; };
                 m{\G/\*(.*?)\*/}sgc and do { $item .= $&; last if $1 =~ /\bEND\s?BLOCK\b/; next; };
@@ -191,7 +191,7 @@ if ($keep_override) {
         }
     }
 }
-    
+
 ######################### Distributing into groups ########################
 
 my $nextgroup;                  # the group we're in

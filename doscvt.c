@@ -58,6 +58,24 @@ ReadDOSUns32(const void *pVal)
 #endif
 }
 
+void
+WriteDOSUns16(void* pData, Uns16 pItem)
+{
+    unsigned char* lPtr = pData;
+    *lPtr++ = pItem & 255;
+    *lPtr++ = pItem >> 8;
+}
+
+void
+WriteDOSUns32(void* pData, Uns32 pItem)
+{
+    unsigned char* lPtr = pData;
+    *lPtr++ = pItem & 255;
+    *lPtr++ = pItem >> 8;
+    *lPtr++ = pItem >> 16;
+    *lPtr++ = pItem >> 24;
+}
+
 Boolean
 DOSRead16(Uns16 * pData, Uns16 pNum, FILE * pInFile)
 {

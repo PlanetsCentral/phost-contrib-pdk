@@ -273,14 +273,9 @@ extern "C" {
   typedef enum {
     TS_No,                      /* Feature is off */
     TS_Yes,                     /* Feature is on */
-    TS_Allies                   /* Feature is available to allies only */
-  } Tristate;
-
-  typedef enum {
-    TSX_No,                     /* Feature is off */
-    TSX_Yes,                    /* Feature is on */
+    TS_Allies,                  /* Feature is available to allies only */
     TSX_External                /* Feature is externalized */
-  } TristateX;
+  } Tristate;
 
   typedef enum {
     UTIL_Ext,
@@ -335,9 +330,7 @@ typedef struct
              FreeFighters[12],      /*!< free fighters per starbase */
              MiningRate[12],        /*!< mineral mining rate */
              TaxRate[12];           /*!< taxation rate -- NO LONGER USED */
-    Boolean  RebelsBuildFighters,   /*!< Rebels allowed to build fighters in space */
-             ColoniesBuildFighters, /*!< Colonies allowed to build fighters in space */
-             RobotsBuildFighters;   /*!< Robots allowed to build fighters in space */
+    Boolean  AllowBuildFighters[12];
     Uns16    CloakFailure;          /*!< % chance of cloaking failure */
     Boolean  RobCloakedShips;       /*!< Privateers can rob cloaked ships */
     Uns16    ScanRange[12],         /*!< Enemy ship scan range */
@@ -435,7 +428,7 @@ typedef struct
     Boolean  CPEnableLanguage;               /*!< Enable 'language' command processor command */
     Boolean  CPEnableBigTargets;             /*!< Enable 'bigtargets' command */
     Boolean  CPEnableRaceName;               /*!< Enable 'racename' command */
-    TristateX CPEnableAllies;                /*!< Enable 'allies' command */
+    Tristate CPEnableAllies;                 /*!< Enable 'allies' command */
     Boolean  CPEnableMessage;                /*!< Enable 'message' command (obsolete) */
     Boolean  CPEnableRumor;                  /*!< Enable 'rumor' command */
     Boolean  DelayAllianceCommands;          /*!< Alliance management only after combat */
@@ -455,7 +448,7 @@ typedef struct
     Uns16    WrmTravelWarpSpeed;             /*!< speed at which ships must travel thru wormholes */
     Boolean  WrmTravelCloaked;               /*!< allow ships to remain cloaked thru wormholes */
     Uns16    WrmEntryPowerX100;              /*!< entry radius power of wormhole mass */
-    TristateX CPEnableGive;                  /*!< allow the 'give' CP command */
+    Tristate CPEnableGive;                   /*!< allow the 'give' CP command */
     Boolean  AllowTowCloakedShips;           /*!< allow cloaked ships to be towed */
     Uns16    RobCloakedChance;               /*!< percent chance that rob cloaked succeeds */
     Uns16    PlanetaryTorpsPerTube;          /*!< number of free torps to give per tube */
@@ -493,7 +486,7 @@ typedef struct
     Uns16    WraparoundRectangle[4];         /*!< Vertices of wraparound rectangle */
     Uns16    Dummy1;                         /*!< Old colonial fighter sweep rate */
     Uns16    Dummy2;                         /*!< Old colonial fighter sweep range */
-    TristateX CPEnableRemote;                /*!< Allow the CP 'remote' command */
+    Tristate CPEnableRemote;                 /*!< Allow the CP 'remote' command */
     Boolean  AllowAlliedChunneling;          /*!< allow chunnel to +s allies */
     Uns16    ColTaxRate[12],                 /*!< tax rate for colonists */
              NatTaxRate[12];                 /*!< tax rate for natives */
@@ -553,6 +546,7 @@ typedef struct
     Tristate AllowShipnames;
     Uns16    ConfigLevel;       /*!< 0=normal, 1=gripe for optional options, 2=gripe for all options */
     Tristate BuildPointReport;
+    Boolean  AlternativeMinesDestroyMines;
 
 #ifdef PHOST4
     Uns16    NumShips;
@@ -564,6 +558,13 @@ typedef struct
     Uns16    NewNativesRaceRate[9];
     Uns16    NewNativesGovernmentRate[9];
     Uns16    PlayerSpecialMission[12];       /*!< Player-to-special-mission map */
+    Uns16    WrmScanRange[12];
+
+    Uns16    FuelUsagePerFightFor100KT;
+    Uns16    FuelUsagePerTurnFor100KT;
+    Tristate CPEnableEnemies;
+    Tristate CPEnableShow;
+    Tristate CPEnableRefit;
 
     Uns16    NumExperienceLevels;
     char     ExperienceLevelNames[255];
@@ -577,6 +578,9 @@ typedef struct
     Uns16    EPCombatKillScaling;
     Uns16    EPCombatDamageScaling;
     Uns16    EPShipAlchemy100KT;
+    Uns16    EPCombatBoostRate[10];
+    Int16    EPCombatBoostLevel[10];
+    Uns16    EPTrainingScale[12];
 
     Int16    EModBayRechargeRate[10];
     Int16    EModBayRechargeBonus[10];
@@ -601,6 +605,8 @@ typedef struct
     Int16    EModHullDamageScaling[10];
     Int16    EModCrewKillScaling[10];
     Int16    EModMineHitOddsBonus[10];
+
+    Tristate TowedShipsCooperate;
 #endif
 
     /* Combat-related Options -- always leave these at the end */
@@ -1370,6 +1376,40 @@ Pconfig_Struct;
   extern Uns16 TrueHull(RaceType_Def pRace, Uns16 pHullIndex);
   extern const char *HullName(Uns16 pHullNr, char *pBuffer);
 
+  /* NOTE: Following Ship functions Added by Maurits 2004-07-30 */
+  extern Boolean ShipIsUnclonable(Uns16 pShip);
+  extern Boolean ShipIsCloneableOnce(Uns16 pShip);
+  extern Boolean ShipIsUngiveable(Uns16 pShip);
+  extern Boolean ShipIsGiveableOnce(Uns16 pShip);
+  extern Boolean ShipHasLevel2Tow(Uns16 pShip);
+
+  /* NOTE: Following Hull functions Added by Maurits 2004-07-30 */
+  extern Boolean HullDoesAlchemy(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullDoesRefinery(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullDoesAdvancedRefinery(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullHeatsTo50(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullCoolsTo50(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullHeatsTo100(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullCanHyperwarp(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullIsGravitonic(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullScansAllWormholes(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullIsGamblingShip(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullIsAntiCloaking(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullDoesImperialAssault(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullDoesChunneling(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullHasRamScoop(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullDoesFullBioscan(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullHasAdvancedCloak(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullCanCloak(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullDoesBioscan(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullHasGloryDevice(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullHasHEGloryDevice(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullIsUnclonable(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullIsCloneableOnce(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullIsUngiveable(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullIsGiveableOnce(Uns16 pHull, Uns16 Owner);
+  extern Boolean HullHasLevel2Tow(Uns16 pHull, Uns16 Owner);
+
 /*
  *   Engine functions
  */
@@ -1612,6 +1652,27 @@ Pconfig_Struct;
   extern void ComplainWithSubspaceMessage(Uns16 pRace, const char* pLine, const char* pReason, void* pData);
   extern void ComplainWithWarningMessage(Uns16 pRace, const char* pLine, const char* pReason, void* pData);
   extern char* GetToken(const char** pString, const char* pDelim);
+
+  /* PHost 4 auxdata stuff */
+  struct Auxdata_Chunk;
+  extern struct Auxdata_Chunk* GetAuxdataChunkById(int pId);
+  extern size_t  AuxdataChunkSize(struct Auxdata_Chunk* pChunk);
+  extern void*   AuxdataChunkData(struct Auxdata_Chunk* pChunk);
+
+  struct Experience_Struct {          /* this struct is opaque, don't look into it. */
+    void* mOldPoints;
+    void* mNewPoints;
+  };
+
+  typedef struct Experience_Struct Exp_Handle;
+  extern Exp_Handle ShipExperience(Uns16 pShipId);
+  extern Exp_Handle PlanetExperience(Uns16 pPlanetId);
+
+  extern int   ExperienceLevel(Exp_Handle pH);
+  extern void  AddToExperience(Exp_Handle pH, Uns32 pNumber);
+  extern Uns32 ExperiencePoints(Exp_Handle pH);
+  extern void  PutExperiencePoints(Exp_Handle pH, Uns32 pPoints);
+  extern Uns32 NewExperiencePoints(Exp_Handle pH);
 #ifdef __cplusplus
 }
 #endif

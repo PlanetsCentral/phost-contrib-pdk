@@ -121,3 +121,6 @@ Random: RandRawSeed, RandRaw, SetRandomSeed, RandomRange, RandomReal
 
 ; worm.c -- fixme?
 keep worm.c
+
+; exp.c
+AddExp: AddToExperience, SaturatedAdd

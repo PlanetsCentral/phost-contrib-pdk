@@ -41,7 +41,6 @@ Read_Turntime_File(void)
 
        Unfortunately, only NEXTTURN_FILE contains the turn number. */
     Uns16 lMajor, lMinor;
-    const char* lFile;
     GameFilesVersion(&lMajor, &lMinor);
 
     gNewlyMastered = False;

@@ -12,6 +12,27 @@
 
 static const Uns16 EXT_MESSAGE_SIZE = 8; /* size of ExtMessage_Struct */
 
+enum {
+    aux_BaseNatives      = 1,
+    aux_AllianceInfo     = 2,
+    aux_ShipScanInfo     = 3,
+    aux_BuildQueue       = 4,
+    aux_PAL              = 5,
+    aux_Remote           = 6,
+    aux_ShipSpecial      = 7,
+    aux_ShipVisible      = 8,
+    aux_ShipExperience   = 9,
+    aux_PlanetExperience = 10,
+    aux_Enemies          = 11,
+
+    /* 100+ are transient records */
+    aux_ShipFlags        = 101,
+    aux_PlanetFlags      = 102,
+    aux_ShipNewExp       = 103,
+    aux_PlanetNewExp     = 104,
+    aux_TAL              = 105
+};
+
 typedef unsigned char Byte;
 typedef unsigned char Uns8;
 typedef Uns16 CRCType;

@@ -1,6 +1,6 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                          Frequently Asked Questions
-                             Version 3.2.4.2
+                             Version 3.2.4.5
 
 This file provides answers to many common questions about the PDK. The
 questions are broken up into two parts:
@@ -44,8 +44,8 @@ I. Specific PDK Questions
    work with the PDK.
 
    Finally, once you have an idea of the PDK structure, start reading the
-   monstrous API.DOC file. This file contains a complete reference to the
-   PDK. It is best to browse through it once, and then simply refer to
+   monstrous PDK-API.DOC file. This file contains a complete reference to
+   the PDK. It is best to browse through it once, and then simply refer to
    specific sections of it as necessary.
 
 2. Why does the numbering of things start at 1 instead of 0?

@@ -72,17 +72,6 @@ enum {
 
 static int gVersionOverride = 0;
 
-enum {
-    aux_BaseNatives   = 1,
-    aux_AllianceInfo  = 2,
-    aux_ShipScanInfo  = 3,
-    aux_BuildQueue    = 4,
-    aux_PAL           = 5,
-    aux_Remote        = 6,
-    aux_ShipSpecial   = 7,
-    aux_ShipVisible   = 8
-};
-
 static Boolean
 IsValidVersionNumber(int pVersion)
 {
@@ -123,7 +112,7 @@ ReadUnknownChunk(FILE* pFile, Uns16 pType, Uns16 pSize)
 }
 
 static void
-FreeUnknownChunks()
+FreeUnknownChunks(void)
 {
     while (sFirstChunk) {
         Auxdata_Chunk* p = sFirstChunk;
@@ -173,10 +162,49 @@ WriteUnknownChunks(FILE* pFile)
     }
     return True;
 }
+
+struct Auxdata_Chunk*
+GetAuxdataChunkById(int pId)
+{
+    struct Auxdata_Chunk* lPtr;
+    for (lPtr = sFirstChunk; lPtr != 0 && lPtr->mType != pId; lPtr = lPtr->mNext)
+        ;
+    return lPtr;
+}
+
+size_t
+AuxdataChunkSize(struct Auxdata_Chunk* pChunk)
+{
+    return pChunk ? pChunk->mSize : 0;
+}
+
+void*
+AuxdataChunkData(struct Auxdata_Chunk* pChunk)
+{
+    return pChunk ? &pChunk[1] : 0;
+}
 #else
 # define IsValidVersionNumber(x) ((x) == PHOST_VERSION_MAJOR)
 # define FreeUnknownChunks()
 # define VER(v3,v4) (v3)
+struct Auxdata_Chunk*
+GetAuxdataChunkById(int pId)
+{
+    return 0;
+}
+size_t
+AuxdataChunkSize(struct Auxdata_Chunk* pChunk)
+{
+    (void) pChunk;
+    return 0;
+}
+
+void*
+AuxdataChunkData(struct Auxdata_Chunk* pChunk)
+{
+    (void) pChunk;
+    return 0;
+}
 #endif
 
 static void
@@ -1776,3 +1804,4 @@ IsCLOAKCFound(void)
 {
   return gCloakcLoaded;
 }
+

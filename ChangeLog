@@ -1,3 +1,21 @@
+2004-08-07  Stefan Reuther  <Streu@gmx.de>
+
+	* hullfunc.c (shipHasSpecial): add support for ship-specific functions
+
+	* documentation updated
+
+2003-08-01  Maurits van Rees
+
+	* added HullDoesXXX() functions
+	
+2003-12-23  Stefan Reuther  <Streu@gmx.de>
+
+	* exp.c: new
+
+	* auxdata.c (GetAuxdataChunkById et al): new
+
+	* makefile.gcc: added `docs' target
+
 Thu Aug 28 19:46 2003  Piotr
 
 	* vgapdat4.c (PutMinefieldPositionX, PutMinefieldPositionY, PutMinefieldWeb):

@@ -52,6 +52,11 @@ typedef enum {
   SPC_Bioscan,
   SPC_GloryDevice,              /* Low damage glory device */
   SPC_HEGloryDevice,            /* High damage glory device */
+  SPC_Unclonable,
+  SPC_CloneOnce,
+  SPC_Ungiveable,
+  SPC_GiveOnce,
+  SPC_Level2Tow,
 
   NumSpecials,
 
@@ -79,7 +84,12 @@ static const char *gSpecialNames[] = {
   "Cloak",
   "Bioscan",
   "GloryDeviceLowDamage",
-  "GloryDeviceHighDamage"
+  "GloryDeviceHighDamage",
+  "Unclonable",
+  "CloneOnce",
+  "Ungiveable",
+  "GiveOnce",
+  "Level2Tow"
 };
 
 #define NumSpecialNames (sizeof(gSpecialNames)/sizeof(gSpecialNames[0]))
@@ -239,14 +249,42 @@ shipHasSpecial(Uns16 pShip, Special_Def pSpecial)
   /* NOTE: Do NOT map through EffRace() */
   Uns16 lOwner;
   Uns16 *lPtr;
+  struct Auxdata_Chunk* lChunk;
 
   InitHullfunc();
+
+  lChunk = GetAuxdataChunkById(aux_ShipSpecial);
+  if (pSpecial < 64 && AuxdataChunkSize(lChunk) >= 8 * pShip) {
+      unsigned char* lEle = AuxdataChunkData(lChunk);
+      if (lEle[8 * (pShip-1) + pSpecial / 8] & (1 << (pSpecial & 7)))
+          return True;
+  }
 
   lOwner = ShipOwner(pShip);
   lPtr = gHullfunc[ShipHull(pShip)];
 
   if (lPtr) {
     return (lPtr[pSpecial] & (1 << lOwner)) ? True : False;
+  }
+
+  return False;
+}
+
+static Boolean
+hullHasSpecial(Uns16 pHull, Special_Def pSpecial, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  /* NOTE: Do NOT map through EffRace() */
+  Uns16 *lPtr;
+
+  passert(Owner >= 1 AND Owner <= 11);
+
+  InitHullfunc();
+
+  lPtr = gHullfunc[pHull];
+
+  if (lPtr) {
+    return (lPtr[pSpecial] & (1 << Owner)) ? True : False;
   }
 
   return False;
@@ -259,9 +297,23 @@ ShipDoesAlchemy(Uns16 pShip)
 }
 
 Boolean
+HullDoesAlchemy(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Alchemy, Owner);
+}
+
+Boolean
 ShipDoesRefinery(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_Refinery);
+}
+
+Boolean
+HullDoesRefinery(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Refinery, Owner);
 }
 
 Boolean
@@ -271,9 +323,23 @@ ShipDoesAdvancedRefinery(Uns16 pShip)
 }
 
 Boolean
+HullDoesAdvancedRefinery(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_AdvancedRefinery, Owner);
+}
+
+Boolean
 ShipHeatsTo50(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_HeatsTo50);
+}
+
+Boolean
+HullHeatsTo50(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_HeatsTo50, Owner);
 }
 
 Boolean
@@ -283,9 +349,23 @@ ShipCoolsTo50(Uns16 pShip)
 }
 
 Boolean
+HullCoolsTo50(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_CoolsTo50, Owner);
+}
+
+Boolean
 ShipHeatsTo100(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_HeatsTo100);
+}
+
+Boolean
+HullHeatsTo100(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_HeatsTo100, Owner);
 }
 
 Boolean
@@ -295,9 +375,23 @@ ShipCanHyperwarp(Uns16 pShip)
 }
 
 Boolean
+HullCanHyperwarp(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Hyperdrive, Owner);
+}
+
+Boolean
 ShipIsGravitonic(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_Gravitonic);
+}
+
+Boolean
+HullIsGravitonic(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Gravitonic, Owner);
 }
 
 Boolean
@@ -307,9 +401,23 @@ ShipScansAllWormholes(Uns16 pShip)
 }
 
 Boolean
+HullScansAllWormholes(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_ScansAllWormholes, Owner);
+}
+
+Boolean
 ShipIsGamblingShip(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_Gambling);
+}
+
+Boolean
+HullIsGamblingShip(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Gambling, Owner);
 }
 
 Boolean
@@ -319,9 +427,23 @@ ShipIsAntiCloaking(Uns16 pShip)
 }
 
 Boolean
+HullIsAntiCloaking(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_AntiCloak, Owner);
+}
+
+Boolean
 ShipDoesImperialAssault(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_ImperialAssault);
+}
+
+Boolean
+HullDoesImperialAssault(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_ImperialAssault, Owner);
 }
 
 Boolean
@@ -331,9 +453,23 @@ ShipDoesChunneling(Uns16 pShip)
 }
 
 Boolean
+HullDoesChunneling(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Chunneling, Owner);
+}
+
+Boolean
 ShipHasRamScoop(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_Ramscoop);
+}
+
+Boolean
+HullHasRamScoop(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Ramscoop, Owner);
 }
 
 Boolean
@@ -343,9 +479,23 @@ ShipDoesFullBioscan(Uns16 pShip)
 }
 
 Boolean
+HullDoesFullBioscan(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_FullBioscan, Owner);
+}
+
+Boolean
 ShipHasAdvancedCloak(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_AdvancedCloak);
+}
+
+Boolean
+HullHasAdvancedCloak(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_AdvancedCloak, Owner);
 }
 
 Boolean
@@ -355,9 +505,25 @@ ShipCanCloak(Uns16 pShip)
 }
 
 Boolean
+HullCanCloak(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Cloak, Owner) \
+      OR HullHasAdvancedCloak(pHull, Owner);;
+}
+
+Boolean
 ShipDoesBioscan(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_Bioscan) OR ShipDoesFullBioscan(pShip);
+}
+
+Boolean
+HullDoesBioscan(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Bioscan, Owner) \
+      OR HullDoesFullBioscan(pHull, Owner);
 }
 
 Boolean
@@ -367,9 +533,93 @@ ShipHasGloryDevice(Uns16 pShip)
 }
 
 Boolean
+HullHasGloryDevice(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_GloryDevice, Owner);
+}
+
+Boolean
 ShipHasHEGloryDevice(Uns16 pShip)
 {
   return shipHasSpecial(pShip, SPC_HEGloryDevice);
+}
+
+Boolean
+HullHasHEGloryDevice(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_HEGloryDevice, Owner);
+}
+
+Boolean
+ShipIsUnclonable(Uns16 pShip)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return shipHasSpecial(pShip, SPC_Unclonable);
+}
+
+Boolean
+HullIsUnclonable(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Unclonable, Owner);
+}
+
+Boolean
+ShipIsCloneableOnce(Uns16 pShip)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return shipHasSpecial(pShip, SPC_CloneOnce);
+}
+
+Boolean
+HullIsCloneableOnce(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_CloneOnce, Owner);
+}
+
+Boolean
+ShipIsUngiveable(Uns16 pShip)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return shipHasSpecial(pShip, SPC_Ungiveable);
+}
+
+Boolean
+HullIsUngiveable(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Ungiveable, Owner);
+}
+
+Boolean
+ShipIsGiveableOnce(Uns16 pShip)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return shipHasSpecial(pShip, SPC_GiveOnce);
+}
+
+Boolean
+HullIsGiveableOnce(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_GiveOnce, Owner);
+}
+
+Boolean
+ShipHasLevel2Tow(Uns16 pShip)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return shipHasSpecial(pShip, SPC_Level2Tow);
+}
+
+Boolean
+HullHasLevel2Tow(Uns16 pHull, Uns16 Owner)
+{
+  /* NOTE: Added by Maurits 2004-07-30 */
+  return hullHasSpecial(pHull, SPC_Level2Tow, Owner);
 }
 
 /* ----------------------------------------------------------------------- */

@@ -264,7 +264,6 @@ typedef enum {
     CFType_String,
     CFType_BuildQueue_Def,
     CFType_Tristate,
-    CFType_TristateX,
     CFType_MAX
 } CFType;
 
@@ -278,7 +277,6 @@ static const int sConfigItemSize[CFType_MAX] = {
     sizeof(char),
     sizeof(BuildQueue_Def),
     sizeof(Tristate),
-    sizeof(TristateX)
 };
 
 static const char* const sConfigItemNames[CFType_MAX] = {
@@ -291,7 +289,6 @@ static const char* const sConfigItemNames[CFType_MAX] = {
     "string",
     "build queue",
     "tristate",
-    "tristate"
 };
 
 typedef Boolean (*ConfigReader_Func)(const struct ConfigItem_Struct*, char* value);
@@ -508,31 +505,14 @@ static Boolean
 parseTristate(const ConfigItem_Struct* pItem,
              char* pValue, int pIndex, void* pData)
 {
-    int match = ListMatch(pValue, "False True Allies No Yes"); /* order is important */
-    if (match < 0) {
-        Error("%s: invalid tristate value for option '%s'", CONFIG_FILE, pItem->mName);
+    int match = ListMatch(pValue, "False True Allies External No Yes"); /* order is important */
+    if (match >= 4)
+        match -= 4;
+    if (match < 0 || match > pItem->mMax) {
+        Error("%s: invalid value for option '%s'", CONFIG_FILE, pItem->mName);
         return False;
     } else {
-        if (match >= 3)
-            match -= 3;
         ((Tristate*) pData)[pIndex] = match;
-        return True;
-    }
-}
-
-/** Parse tristate, into a tristate array. For use with Tokenize. */
-static Boolean
-parseTristateX(const ConfigItem_Struct* pItem,
-               char* pValue, int pIndex, void* pData)
-{
-    int match = ListMatch(pValue, "False True External No Yes"); /* order is important */
-    if (match < 0) {
-        Error("%s: invalid tristate value for option '%s'", CONFIG_FILE, pItem->mName);
-        return False;
-    } else {
-        if (match >= 3)
-            match -= 3;
-        ((TristateX*) pData)[pIndex] = match;
         return True;
     }
 }
@@ -757,9 +737,6 @@ DoAssignOption(int pOptInd, char* pValue, Boolean pDefault)
                         (char*) gConfigInfo + lItem->mOffset);
      case CFType_Tristate:
         return Tokenize(lItem, pValue, parseTristate,
-                        (char*) gConfigInfo + lItem->mOffset);
-     case CFType_TristateX:
-        return Tokenize(lItem, pValue, parseTristateX,
                         (char*) gConfigInfo + lItem->mOffset);
      case CFType_MAX:
         return False;

@@ -1,6 +1,22 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                             Summary of Revisions
-                              Version 3.2.4.3
+                              Version 3.2.4.5
+
+
+Version 4.5
+============
+
+* Added support for PHost 4 (i.e. there are now interfaces to 4.0
+  features)
+* Added ShipDoesXXX() functions (Maurits van Rees)
+* Added PutMinefieldLocationX/Y() and PutMinefieldWeb() (Piotr Winiarczyk)
+
+
+Version 4.4b
+=============
+
+* Added support for PHost 4 (i.e. add-ons now compile and run almost
+  unchanged with PHost 4)
 
 
 Version 3.2.4.3
