@@ -1,0 +1,52 @@
+/* Format is:
+
+  "NameInSourceFile", StructureMember, NumberOfItemsInArray, ItemType, Default
+
+	The definitions need not be in the same order as the structure members.
+	But it helps.
+*/
+
+CFDefine("Homeworlds", mHomeworlds[1], 11, Uns16, "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0")
+CFDefine("HomeworldsRadius", mHomeworldsRadius, 1, Uns16, "500")
+CFDefine("HomeworldClans", mHomeworldClans[1], 11, Uns32, "2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500")
+CFDefine("DesertCrystalHomeworld", mDesertCrystalHomeworld, 1, Boolean, "Yes")
+CFDefine("HomeworldCash", mHomeworldCash[1], 11, Uns32, "5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000")
+CFDefine("HomeworldBase", mHomeworldBases[1], 11, Boolean, "Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes")
+CFDefine("HomeworldCoreN", mHomeworldCoreN[1], 11, Uns32, "3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000")
+CFDefine("HomeworldCoreT", mHomeworldCoreT[1], 11, Uns32, "1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000")
+CFDefine("HomeworldCoreD", mHomeworldCoreD[1], 11, Uns32, "2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000")
+CFDefine("HomeworldCoreM", mHomeworldCoreM[1], 11, Uns32, "650, 650, 650, 650, 650, 650, 650, 650, 650, 650, 650")
+CFDefine("HomeworldSurfaceN", mHomeworldSurfaceN[1], 11, Uns16, "2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000")
+CFDefine("HomeworldSurfaceT", mHomeworldSurfaceT[1], 11, Uns16, "300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300")
+CFDefine("HomeworldSurfaceD", mHomeworldSurfaceD[1], 11, Uns16, "350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350")
+CFDefine("HomeworldSurfaceM", mHomeworldSurfaceM[1], 11, Uns16, "150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150")
+CFDefine("StartingEngineTech", mBaseEngineTech[1], 11, Uns16, "7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7")
+CFDefine("TwoFreeShips", mTwoFreeShips[1], 11, Boolean, "Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes")
+CFDefine("Scenario", mScenario, 1, List, "Classic Ashes Disunited")
+CFDefine("RaceIsPlaying", mRaces[1], 11, Boolean, "Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes")
+CFDefine("Password1", mPasswords[1][0], 11, String, "none")
+CFDefine("Password2", mPasswords[2][0], 11, String, "none")
+CFDefine("Password3", mPasswords[3][0], 11, String, "none")
+CFDefine("Password4", mPasswords[4][0], 11, String, "none")
+CFDefine("Password5", mPasswords[5][0], 11, String, "none")
+CFDefine("Password6", mPasswords[6][0], 11, String, "none")
+CFDefine("Password7", mPasswords[7][0], 11, String, "none")
+CFDefine("Password8", mPasswords[8][0], 11, String, "none")
+CFDefine("Password9", mPasswords[9][0], 11, String, "none")
+CFDefine("Password10", mPasswords[10][0], 11, String, "none")
+CFDefine("Password11", mPasswords[11][0], 11, String, "none")
+CFDefine("PlanetCoreRangesUsual", mPlanetCoreRangesUsual, 8, Uns16, "0, 0, 0, 0, 700, 500, 500, 200")
+CFDefine("PlanetCoreRangesAlternate", mPlanetCoreRangesAlternate, 8, Uns16, "700, 500, 500, 200, 12000, 12000, 12000, 12000")
+CFDefine("PlanetCoreUsualFrequency", mPlanetCoreUsualFrequency, 4, Uns16, "75, 80, 85, 85")
+CFDefine("PlanetSurfaceRanges", mPlanetSurfaceRanges, 8, Uns16, "0, 0, 0, 0, 250, 50, 40, 25")
+CFDefine("PlanetDensityRanges", mPlanetDensityRanges, 8, Uns16, "10, 10, 10, 10, 100, 100, 100, 100")
+CFDefine("NativesOnPlanetFrequency", mNativesOnPlanetFrequency, 1, Uns16, "60")
+CFDefine("NativeTypeFrequencies", mNativeTypeFrequencies, 9, Uns16, "25, 50, 50, 50, 50, 50, 50, 50, 25")
+CFDefine("NativeGovFrequencies", mNativeGovFrequencies, 9, Uns16, "25, 50, 50, 50, 50, 50, 50, 50, 25")
+CFDefine("NativeClansRange", mNativeClansRange, 2, Uns32, "25, 90000")
+CFDefine("OldEmpireRace", mOldEmpireRace, 1, Uns16, "8")
+CFDefine("OldEmpirePlanets", mOldEmpirePlanets, 1, Uns16, "100")
+CFDefine("OwnedPlanets", mOwnedPlanets[1], 11, Uns16, "10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10")
+CFDefine("AllOwnedPlanetsTheSame", mAllOwnedPlanetsTheSame, 1, Boolean, "Yes")
+
+#undef CFDefine

@@ -1,0 +1,195 @@
+                     THE PORTABLE HOST DEVELOPMENT KIT
+                             Version 3.2.3.3
+
+What is the Portable Host Development Kit ?
+===========================================
+
+The Portable Host Development Kit (or PDK) is a development tool for use by
+programmers of VGA Planets host add-ons and utilities. VGA Planets is a
+play-by-email game for the IBM PC written by Tim Wisseman. The PDK
+liberates programmers from having to worry about file formats and data
+structures and provides a simple programming interface in their place.
+Programmers can concentrate on writing innovative utilities and add-ons
+without having to reinvent the wheel as far as basic input, output, and
+data structure accesses are concerned.
+
+Using the PDK to write a host utility or add-on has several advantages:
+
+      * There's no need to know or understand the host file formats and
+        data structures. All access to host data is through a simple
+        programming interface.
+
+      * There's no need to write code to read and/or write the host files.
+        One simple function call can be used to read all the data files and
+        another single call can be used to write them all back out!
+
+      * The programming interface to the PDK is compatible with HOST
+        3.1x, HOST 3.2, PHOST 3.15.1.x, and PHOST 3.2.2.x. This means that
+        your code will work with all 4 of the above host programs.
+
+      * The PDK is portable to multiple hardware platforms; in fact, all of
+        the platforms that are supported by PHOST are also supported by the
+        PDK. The programming interface to the PDK stays the same regardless
+        of what platform is used. This makes porting the add-on or utility
+        a snap! Simply recompile on a new platform with the PDK for that
+        platform.
+
+      * The PDK keeps up with changes in the file formats so your code
+        doesn't have to. When a new PDK is released, simply recompile with
+        the latest version and your program is instantly compatible with
+        the latest formats.
+
+Best of all, the PDK is freeware (but not in the public domain). You can
+use the PDK at no cost to write your programs. You can even sell your
+programs if you wish; there are no royalties or other fees. You must,
+however, observe the restrictions described in the file LEGAL.DOC that
+comes with the PDK distribution.
+
+What languages are supported?
+=============================
+
+The PDK was written in C. Thus, C and C++ programs may be written using the
+PDK. Other languages may be used if they provide an interface to C-type
+variable and function declarations but this has not been attempted.
+
+For the DOS distribution, the only memory model supported is the large
+model.
+
+Under DOS, the PDK library was compiled using Borland C++ 5.0 (but all code
+is C code, not C++ code). A version of the PDK library for users of
+Borland C++ 3.1 may be available in the future.
+
+
+How to get it?
+==============
+
+The latest version of the PDK distribution can be found at the PHOST
+WWW site:
+
+    http://www.nefo.med.uni-muenchen.de/~phost/phost3.html
+
+The most recent version is 3.2.3.3 as of April 2, 2000.
+
+
+What does the PDK *NOT* do?
+===========================
+
+The PDK is still being expanded and enhanced so there are some functions
+that will be added as time goes by. Currently, though, the PDK is complete
+enough to allow for serious application development.
+
+It should be noted that the PDK provides no mechanisms for tampering with
+the shareware/registered distinction in player turn files. That is, the PDK
+cannot be used to write a utility that will make a shareware player appear
+to be registered to the HOST/PHOST program.
+
+How do I get started ?
+======================
+
+Read through the *.DOC files that come with this distribution. A suggested
+reading order is:
+             LEGAL.DOC
+             INSTALL.DOC
+
+Then, read through some of the example programs (EX*.C files). You may even
+want to try compiling them, running them, and modifying them to "get your
+hands dirty" with PDK programming. Once you have obtained a feel for how to
+program with the PDK, browse through the API.DOC file for a complete
+description of the PDK application programming interface (API).
+
+What's with this long version number?
+=====================================
+
+The version information for the PDK has 4 components: the first 2 describe
+the original HOST version which the PDK is compatible with (with respect to
+file formats). For example, PDK version 3.2.X.XX means that this version is
+intended to be compatible with HOST 3.2 and PHOST 3.2.2.x as well as prior
+versions. The last 2 components describe the revision level of the PDK
+itself. The third component is the major revision number and changes when
+the latest revision of the PDK becomes incompatible with previous versions.
+The last component is the minor revision number and changes with each new
+release.
+
+It is safe to simply replace an older version of the PDK with a newer
+version when only the minor revision number changes. When a
+backwards-incompatible version of the PDK is released, the major revision
+number will be incremented. Upgrade instructions will be provided at this
+time.
+
+
+The Distribution Files
+======================
+
+Here is a description of the files that are included with all distributions
+of the PDK (for all platforms):
+
+     PDK.DOC         -- You're reading it
+     LEGAL.DOC       -- Legal information for the PDK
+     INSTALL.DOC     -- Guide to installing the PDK
+     CHANGES.DOC     -- Revision history of the PDK
+     API.DOC         -- The main documentation -- describes the application
+                        programming interface (API) to the PDK
+     PHOSTPDK.H      -- Header file for the PDK library
+     EX1.C           -- PDK example program: counts the number of ships,
+                        planets, and bases that a player has and reports
+                        them in a player message
+     EX2.C           -- PDK example program: alternative mine decay
+                        algorithm reduces minefields so that the radius
+                        changes by a constant amount every turn
+     EX3.C           -- PDK example program: Micheal Keane's Invasion
+                        program ported to use the PDK. Score points for
+                        invading homeworlds and any other world the host
+                        indicates.
+     EX4.C           -- PDK example program: a simple replacement for
+                        MASTER. No options, no scenarios, just an example
+                        and possibly a template for bigger and better
+                        things.
+     EX5.C           -- PDK example program: an add-on example using the
+                        AUXHOST facility of HOST/PHOST 3.2. This program
+                        implements a simple base-to-base transporter that
+                        is able to transfer cargo from one starbase to
+                        another.
+     EX6.C           -- PDK example program: a text-only battle simulator
+                        with minimal functionality. It is mean to
+                        demonstrate the interface to the PDK combat module.
+
+In the Borland-DOS distribution, there is:
+     PDK.LIB         -- Large-model library of the PDK for Borland C++ 4.5
+                        (other compiler versions are likely to work)
+
+In the Win32/Windows NT distribution, there is:
+     PDK.LIB         -- Win32 library of the PDK
+
+In all other distributions, there is:
+     libpdk.a        -- The PDK library
+
+The library in the DOS-only distributions assumes a 286 or better processor
+(coprocessor is optional). The library in the Win32 distribution
+requires a 386 or better processor (coprocessor is optional).
+
+Feedback
+========
+
+Your comments, suggestions, and bug reports are appreciated. Please
+send mails to
+
+                          spock@snafu.de
+
+Please understand that we will only be able to support specific questions
+regarding the PDK and will, in general, not be able to help with general
+programming or design issues.
+
+Credits
+=======
+
+The PDK is an offshoot of the PHOST program, which was programmed by
+Andrew Sterian, Thomas Voigt, and Steffen Pietsch. Thanks are due to the
+many many people who helped with the development of PHOST and to all those
+who support and encourage the PHOST project. Thanks to Rick Rogers for
+helping out with the Microsoft C port.
+
+The Portable Host Project Team is:
+    Mike Campbell, Jeff Hupp, Michael Lemon, Stefan Lundgren,
+    Sean Martens, Matt Mueller, Steffen Pietsch, Falko Poiker,
+    Chris Smith, Andrew Sterian, Thomas Voigt
+

@@ -1,0 +1,44 @@
+[Andrew Sterian]
+* Release:
+          - For Win95/WinNT using Borland, -a1 (lib and PUTILS and ExplMap)
+          - For DJGPP v2.0 (not PUTILS)
+          - For Linux (PUTILS, lib, ExplMap)
+
+* Build for Win32s
+
+* Update ExplMap for wraparound support
+
+* Add accessors for IsPlayerRegistered()
+
+* Killrace should be able to add a race. Add Stefan's suggestions for
+  Killrace.
+
+* PMASTER should do disunited kingdoms, and should print warnings when
+  something is assigned twice (doesn't it already?)
+
+* Compatibility with Microsoft:
+                - Distribute library pdkmsc.lib with normal pdk.lib,
+                  and add in pdkmsx.lib, and add mscxtra.obj.
+
+* Add code to write UTIL.DAT files. And perhaps routines to write specific
+  records. Add code to write the general object record.
+
+* UFO.HST support.
+
+* Add code to write PHONEY.HST file.
+
+* Upgrade KILLRACE to do Thomas's suggestions (return minerals to
+  ground).
+
+
+[Thomas Voigt]
+* Provide hooks for Warning(), Error(), Info() and ErrorExit() 
+  (programs should be able to prevent exit and handle the error)
+
+* make PDK work with HOST
+
+* make documentation autoduck-based
+
+* exchange more runtime information with PHOST (CloakHasFailed, ShipChunneled,
+  ShipHyperwarped etc.)
+

@@ -1,0 +1,108 @@
+                     THE PORTABLE HOST DEVELOPMENT KIT
+                         Frequently Asked Questions
+                             Version 3.2.4.1
+
+This file provides answers to many common questions about the PDK. The
+questions are broken up into two parts:
+
+          I.  Specific PDK Questions
+          II. HOST/PHOST Programming Questions
+
+Index of Questions
+==================
+
+I. Specific PDK Questions
+-------------------------
+
+1. Where do I start? There's so much to read!
+2. Why does the numbering of ships/planets/bases/mines start at 1 instead
+   of 0?
+3. What's the difference between IsBaseExist() and IsBasePresent()?
+4. When I try to link my program I get lots of undefined references to PDK
+   routines.
+
+II. HOST/PHOST Programming Questions
+------------------------------------
+
+1. My program is trying to write messages but they don't come out right.
+
+
+I. Specific PDK Questions
+=========================
+
+1. Where do I start? There's so much to read!
+
+   Start by reading the PDK.DOC file. Then read the INSTALL.DOC file which
+   simply tells you that you need be concerned with only two files, the
+   header file "phostpdk.h" and the library file "pdk.lib" for DOS, and
+   "libpdk.a" for Unix. You include the header file in your programs, and
+   link your program with the library.
+
+   Then, to get a feel for how to work with the PDK, read through the
+   example programs, "ex1.c", "ex2.c", etc. These are simple,
+   self-contained, commented programs that demonstrate how easy it is to
+   work with the PDK.
+
+   Finally, once you have an idea of the PDK structure, start reading the
+   monstrous API.DOC file. This file contains a complete reference to the
+   PDK. It is best to browse through it once, and then simply refer to
+   specific sections of it as necessary.
+
+2. Why does the numbering of things start at 1 instead of 0?
+
+   This numbering convention is consistent with the natural numbering
+   system used in the data files. In addition, certain fields (such as the
+   ID number of the ship being towed, or intercepted, etc.) use 0 as an
+   indication of "no-item" (e.g., there is no ship being towed).
+
+   In fact, some data files use a 0-based numbering scheme while others use
+   a 1-based scheme. For consistency, everything has been presented as
+   being 1-based in the API.
+
+3. What's the difference between IsBaseExist() and IsBasePresent()?
+
+   To answer this question, we must first describe how the host maintains
+   planet and base owner status. Planets and bases have separate owner
+   fields (accessible using PlanetOwner() and BaseOwner()). When a planet
+   with a base in orbit is owned, both planet and base must have the same
+   owner. But it is possible that a planet becomes unowned, yet the base
+   remains intact. In this case, PlanetOwner() is NoOwner but BaseOwner()
+   retains its value. It is therefore useful to distinguish between bases
+   that are orbiting owned planets and bases which are orbiting unowned
+   planets.
+
+   The IsBaseExist() and IsBasePresent() routines can be used to
+   distinguish these cases. IsBasePresent() returns True if the given base
+   is physically present. The owned status of the corresponding planet is
+   irrelevant. IsBaseExist(), however, only returns True if the base is
+   physically present AND the planet is owned (in which case the base and
+   planet owners are the same). The majority of code uses IsBaseExist().
+
+4. When I try to link my program I get lots of undefined references to PDK
+   routines.
+
+   Remember to include the PDK.LIB (or libpdk.a for Unix distributions)
+   file in your compilation. For a command line compilation, add the
+   library file to the list of objects to be compiled. For example:
+
+                bcc -ml ex1.c pdk.lib
+
+   using the Borland compiler. Using GCC under Unix,
+
+                gcc -o ex1 ex1.c -L. -lpdk
+
+
+II. HOST/PHOST Programming Questions
+====================================
+
+1. My program is trying to write messages but they don't come out right.
+
+   Ensure that you call the PDK message routines with strings that consist
+   of plain text with no control-characters (except for 0Dh) and that
+   conform to the following rules:
+           * There must be no more than 20 lines in your message
+           * Each line must have no more than 40 characters
+           * The last character in each line must be 0Dh (13 decimal),
+             especially important for the last line of your message.
+           * There are no 0Ah characters at the end of lines
+

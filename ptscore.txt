@@ -1,0 +1,235 @@
+PTSCORE v1.4
+
+
+This will be very likely the last version since I don't work on my VGAP utils
+anymore. I included the sources so that everybody can develop the program
+further. Please note that the sources to PTSCORE are distributed under the
+GNU general public license.
+
+
+
+What's new in v1.4 ?
+====================
+v1.4 
+- Sources are included (PDK based) 
+
+v1.3c
+- Option to include the original scores
+- Support for names.dat file (see "Player names")
+
+
+
+
+Aim
+===
+The internal VGA Planets score is not very accurate. A tiny scout
+counts as much as a big carrier, and a planet with just one clan 
+is as good as a planet with 300 mines and 200 factories.
+
+PTSCORE will give you a score that counts your minerals, supplies,
+megacredits and all ships/bases/planetary structures that you have built.
+It is also able to give you a more detailed score (with details about
+bases, warships, planets and freighters) but you can also remove all
+information that you don't want to give to your players.
+You can also calculate team scores.
+
+
+
+Usage
+=====
+PTSCORE [options] [gamedirectory] [rootdirectory]
+
+gamedirectory : This is the directory where the host data is located and
+                where ptscore looks for the global data files first. Global
+                data files are files that are not game-specific like the
+                starmap (xyplan.dat), the shiplist and the planet names.
+                The ptscore.log file is created in the game directory.
+
+rootdirectory : This is the directory where ptscore looks for the global
+                datafiles if it can't find them in the game directory.
+
+Control options :
+       -h  : print help
+       -r  : don't append score to results
+       -m  : mute operation (don't print the score to the screen)
+       -f  : don't generate a ptscore.log file
+       -t  : configure teams
+
+Scoring options :
+       -v  : votes mode (overrides all other scoring options)
+       -T  : disable total score
+       -U  : disable used score
+       -R  : disable used/total relation
+       -P  : enable planetary detailed score
+       -B  : enable starbase detailed score
+       -W  : enable warship detailed score
+       -F  : enable freighter score
+       -p  : enable planet count
+       -b  : enable base count
+       -w  : enable warship count
+       -f  : enable freighter count
+       -S? : sort score by [t]otal, [u]sed, [r]atio, [b]ases,
+             [p]lanets, [w]arships, [f]reighters or [0] race number
+
+
+
+Examples :
+
+Assume the host data is in dir .\test .
+
+PTSCORE test -mPBWFSw
+
+will generate a score that contains all available scores except the total
+score. The score is sorted by the warship score. Doesn't make much sense
+because the total score can still be calculated by the percentage score,
+but anyway ... :-)
+The score will not appear on the screen.
+
+
+PTSCORE -rSt
+
+will show a score that is sorted by the total score on the screen.
+The -r switch is necessary to prevent ptscore from writing the score to
+the results.
+
+
+PTSCORE -t
+
+will prompt you for the team setup (the default is that no player belongs to
+a team) and exit without generating a score. You should run PTSCORE -t once
+before you use it for a team game.
+
+
+
+Files
+=====
+In the game directory or in the root directory :
+HULLSPEC.DAT  ENGSPEC.DAT  BEAMSPEC.DAT  TORPSPEC.DAT  TRUEHULL.DAT
+
+In the game directory (with the host data files) you need :
+BDATA.HST  PDATA.HST  SHIP.HST  MINES.HST   NEXTTURN.HST
+
+If you want to use team scores and you configure the teams, ptscore
+will create a 'TEAM.DAT' file in the game directory.
+
+
+
+
+Player names
+============
+
+PTSCORE will look for a "names.dat" file in the host data subdirectory.
+If the file is found then PTSCORE will consider the 11 first lines of this
+file as the names of the players (race 1 .. race 11) and add these names
+to the scoring info of these players in the ptscore.log file.
+
+This way you can send out the name, email or whatever you consider of
+importance along with the score file. Just create a plain text file called
+"names.dat" in the host directory, put the text for player #1 in the first
+line and so on. For players who are not active you must insert a blank
+line. You can use up to 80 characters for this line, however, it is
+recommended that you keep the lines as short as possible so that all
+lines of ptscore.log are shorter than 80 characters (the size of a text
+screen). The names are not added to the message inserted into the result
+files. A sample names.dat file is included to this zip file.
+
+
+
+
+
+Defaults 
+========
+The default parameters are
+* sort by used score
+* enable total & used score + ratio
+* write directly to the results and generate PTSCORE.LOG file
+
+
+
+
+
+Score calculation 
+=================
+Each kt minerals counts 3 points, each supply and megacredit counts one 
+point. Each structure equals the score that was necessary to build it, 
+except fighters which count 20 points each (thats the score for a fighter
+that was built in space). Fuel counts nothing.
+The space mine score depends on the torpedo score : ptscore will assume that
+the player used the torp with the lowest possible (ptscore-)score.
+The space mine score is added to the warship score (this is because torps
+loaded onto ships count for the warship score and mine laying shouldn't
+be obvious to the other players).
+
+
+Don't be curious if you find differences between SCORE4a and PTSCORE.
+SCORE4a 'forgets' the beams mounted on ships and all structures
+which are currently in starbase storage (hulls, engines, beams, tubes).
+
+
+If you select no command line parameters you will see the following
+scores. You can blank any of them.
+
+'total'   : This score column contains your overall score, counting
+            all minerals, supplies, megacredits, ships, bases and
+            planetary structures.
+
+'used'    : You can use your minerals/credits to build ships. You can also
+            let them rot on your planets, so they will do nothing.
+            The 'used' score tells you how much of your score is 'used'
+            (base score + planetary score + warship score + freighter score).
+
+'%'       : The effectivity, rates your ability to use your resources.
+            It is used_score*100/total_score and shows the percentage of
+            your score that you used to build ships/bases/mines etc.
+
+
+These scores are optional :
+
+'bases'   : the score from base defense, base fighters and tech levels.
+            Hulls and other structures in storage won't count because
+            there is no practical use for them in combat.
+
+'planets' : the score from mines, factories and defense.
+
+'warships': the score used to build warships. It includes the ammunition
+            (torps, fighters), but not the cargo of warships.
+            The space mine score is added to this score.
+
+'ships'   : the score from the freighters without the cargo.
+
+
+
+
+Votes mode
+==========
+This mode uses Juha Pohjalainens algorithm from votes.exe to generate a score.
+Every factory and every defense post is worth 1 point, and starbase tech levels
+are worth the amount of money that was spent to upgrade the tech levels 
+divided by 100 (so a tech level of 10 is worth 45 points).
+Then 499 votes are split among the players according to their score.
+
+
+
+History
+=======
+v1.0 : first public release
+v1.1 : added team mode and sort possibilities
+v1.2 : first release for several platforms, added votes mode and mine field
+       scores
+v1.3 : added new scoring options for Tims score
+v1.3a: Support for names.dat file
+v1.3b: Fixed bug with broken output
+v1.4 : Includes sources
+
+
+
+Disclaimer of warranties
+========================
+PTSCORE is not warranted in any way.  If you use it you use it at your own 
+risk. The author is not liable for any damage or loss of data that may
+occur during regular usage of PTSCORE.  
+The sources are distributed under the GNU general public licence. Please
+check the file "copying" for more information.
+
+
+11/2/97     Thomas

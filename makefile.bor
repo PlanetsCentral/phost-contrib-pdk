@@ -1,0 +1,96 @@
+# !include c:/makefile.inc
+
+.autodepend
+
+#DEBUGFLAGS=-v -y
+
+SRCS=auxdata.c pconfig.c crc.c enum.c hostio.c main.c portable.c \
+	 vgapdata.c vgapmsg.c vgaputil.c worm.c doscvt.c rstmsg.c \
+	 vgapdat1.c vgapdat2.c vgapdat3.c vgapdat4.c vgapdat5.c msgtmp.c \
+     pgetopt.c alldata.c vgapdat6.c vgapdat7.c vgapdat8.c vgapdat9.c \
+     vgapdatb.c vgapdatc.c battle.c hullfunc.c listmat.c
+OBJS=$(SRCS:.c=.obj)
+
+BC4DIR=f:\bc5
+CC=$(BC4DIR)\BIN\bcc32
+CFGFILE=bcc32.cfg
+INCDIR=$(BC4DIR)\include
+LIBDIR=$(BC4DIR)\lib
+TLIB=$(BC4DIR)\BIN\TLIB
+
+all:    $(CFGFILE) pdk.lib ptscore sendmess crack killrace pmaster
+lib:    $(CFGFILE) pdk.lib
+
+$(CFGFILE):
+	copy &&!
+$(DEBUGFLAGS)
+-w+ -w-use -WX -j3 -Z -3 -d -O -Ob -Oe -Og -Oi -Om -Op -Ot -A
+-UMICROSQUISH -N
+-I.
+-I$(INCDIR)
+-L$(LIBDIR)
+! $(CFGFILE)
+
+test: test.c phostpdk.h pdk.lib
+	$(CC) -otest test.c pdk.lib
+
+killrace: killrace.c phostpdk.h pdk.lib
+	$(CC) killrace.c pdk.lib
+
+sendmess: sendmess.c phostpdk.h pdk.lib
+	$(CC) sendmess.c pdk.lib
+
+crack: crack.c phostpdk.h pdk.lib
+	$(CC) crack.c pdk.lib
+
+ptscore: ptscore.c ptscore.h phostpdk.h pdk.lib
+	$(CC) ptscore.c pdk.lib
+
+pmaster: pmaster.c phostpdk.h pdk.lib
+	$(CC) pmaster.c pdk.lib
+
+pdk.lib: $(OBJS)
+	 -@del pdk.lib
+     $(TLIB) pdk.lib @&&!
++$(OBJS:.obj=.obj +)
+!
+
+clean:
+	 -@del *.obj
+	 -@del pdk.lib
+     -@del mscpdk.lib
+	 -@del *.exe
+	 -@del *.log
+	 -@del *.zip
+	 -@del *.uue
+     -@del $(CFGFILE)
+
+realclean: clean
+
+archive:
+		-@del pdk.zip
+        zip -9 pdk.zip *.*
+
+distrib:
+		-@del phostpdk.zip
+        zip -9 phostpdk.zip pdk.lib phostpdk.h api.doc changes.doc \
+			  install.doc legal.doc pdk.doc faq.doc ex*.c
+
+install:
+        -@tdstrip ptscore.exe
+        -@tdstrip sendmess.exe
+        -@tdstrip crack.exe
+        -@tdstrip killrace.exe
+        -@tdstrip pmaster.exe
+
+port:
+     -@*del /y pdkport.zip
+     zip -9 pdkport.zip *.c *.h *.hi makefile.* mkfdist.* pmaster.cfg *.doc
+
+putils: all
+        -@del putils.zip
+        zip -9 putils.zip ptscore.exe sendmess.exe crack.exe killrace.exe \
+                  pmaster.exe readme.doc ptscore.doc pmaster.cfg
+
+.c.obj:
+	$(CC) -c $(CFLAGS)$<

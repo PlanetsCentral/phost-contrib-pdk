@@ -1,0 +1,54 @@
+#RANLIB=emxomfar
+#RANLIB=true
+
+SRCS=auxdata.c configio.c crc.c enum.c hostio.c main.c portable.c \
+	 vgapdata.c vgapmsg.c vgaputil.c worm.c doscvt.c vgapdat1.c \
+	 vgapdat2.c vgapdat3.c vgapdat4.c vgapdat5.c msgtmp.c \
+	 rstmsg.c pgetopt.c alldata.c vgapdat6.c vgapdat7.c vgapdat8.c vgapdat9.c \
+	 vgapdatb.c vgapdatc.c battle.c
+OBJS=$(SRCS:.c=.o)
+
+CC=c:\emx\bin\gcc -Wall -O3 -D__OS2__
+
+all: defcfg.hi pdk.a sendmess crack ptscore killrace pmaster pdk
+
+pdk: defcfg.hi pdk.a putils pdkdistrib
+
+pdkdistrib:
+	-del pdk.zip
+	pkzip pdk phostpdk.h pdk.a api.doc changes.doc faq.doc install.doc legal.doc pdk.doc ex*.c
+
+defcfg.hi: gconfig
+	.\gconfig.exe
+
+gconfig: configio.c
+	$(CC) -o gconfig.exe -DGCONFIG configio.c
+	-del configio.o
+
+sendmess: sendmess.o phostpdk.h pdk.a
+	$(CC) -o sendmess.exe sendmess.o -L. -lpdk -lm
+
+killrace: killrace.o phostpdk.h pdk.a
+	$(CC) -o killrace.exe killrace.o -L. -lpdk -lm
+
+crack: crack.o phostpdk.h pdk.a
+	$(CC) -o crack.exe crack.o -L. -lpdk -lm
+
+ptscore: ptscore.o phostpdk.h pdk.a
+	$(CC) -o ptscore.exe ptscore.o -L. -lpdk -lm
+
+pmaster: pmaster.o phostpdk.h pdk.a
+	$(CC) -o pmaster.exe pmaster.o -L. -lpdk -lm
+
+pdk.a: defcfg.hi $(OBJS)
+	-del pdk.a
+	ar s pdk.a $(OBJS)
+#	$(RANLIB) pdk.a
+
+putils:
+	-del putils.zip
+	pkzip putils sendmess.exe crack.exe ptscore.exe killrace.exe pmaster.exe readme.doc ptscore.doc pmaster.cfg
+
+clean:
+	-del *.o pdk.a gconfig.exe defcfg.hi crack.exe sendmess.exe ptscore.exe killrace.exe pmaster.exe *.log Makefile
+

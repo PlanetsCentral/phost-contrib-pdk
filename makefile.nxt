@@ -1,0 +1,55 @@
+RANLIB=ranlib
+#RANLIB=true
+
+SRCS=auxdata.c configio.c crc.c enum.c hostio.c main.c portable.c \
+	 vgapdata.c vgapmsg.c vgaputil.c worm.c doscvt.c vgapdat1.c \
+	 vgapdat2.c vgapdat3.c vgapdat4.c vgapdat5.c msgtmp.c \
+	 rstmsg.c pgetopt.c alldata.c vgapdat6.c vgapdat7.c vgapdat8.c vgapdat9.c \
+	 vgapdatb.c vgapdatc.c battle.c
+OBJS=$(SRCS:.c=.o)
+
+CC=cc -Wall -O2
+
+all: defcfg.hi libpdk.a sendmess crack ptscore killrace pmaster
+
+pdk: defcfg.hi libpdk.a pdkdistrib
+
+pdkdistrib:
+	-rm -f pdk.tar*
+	tar -cvf pdk.tar phostpdk.h libpdk.a api.doc changes.doc faq.doc install.doc legal.doc pdk.doc ex*.c
+
+defcfg.hi: gconfig
+	./gconfig
+
+gconfig: configio.c
+	$(CC) -o gconfig -DGCONFIG configio.c
+	-rm configio.o
+
+sendmess: sendmess.o phostpdk.h libpdk.a
+	$(CC) -o sendmess sendmess.o -L. -lpdk -lm
+
+killrace: killrace.o phostpdk.h libpdk.a
+	$(CC) -o killrace killrace.o -L. -lpdk -lm
+
+crack: crack.o phostpdk.h libpdk.a
+	$(CC) -o crack crack.o -L. -lpdk -lm
+
+ptscore: ptscore.o phostpdk.h libpdk.a
+	$(CC) -o ptscore ptscore.o -L. -lpdk -lm
+
+pmaster: pmaster.o phostpdk.h libpdk.a
+	$(CC) -o pmaster pmaster.o -L. -lpdk -lm
+
+libpdk.a: defcfg.hi $(OBJS)
+	-rm -f libpdk.a
+	ar r libpdk.a $(OBJS)
+	$(RANLIB) libpdk.a
+
+distrib:
+	-rm -f putils.tar*
+	cp mkfdist.gcc Makefile
+	tar -cvf putils.tar phostpdk.h sendmess.o crack.o ptscore.o killrace.o pmaster.o libpdk.a Makefile readme.doc ptscore.doc pmaster.cfg
+
+clean:
+	-rm -f *.o libpdk.a gconfig defcfg.hi crack sendmess ptscore killrace pmaster *.log Makefile
+

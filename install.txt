@@ -1,0 +1,30 @@
+                     THE PORTABLE HOST DEVELOPMENT KIT
+                         Installation Instructions
+                             Version 3.2.4.1
+
+The installation of the PDK is very straightforward.
+
+    * Simply place the PHOSTPDK.H file in a global or local include
+      directory and place the PDK.LIB (or MSCPDK.LIB, or PDK32.LIB, or
+      libpdk.a) file in a global or local library directory.
+
+To use the PDK, you need only do the following:
+
+    * Include the file <phostpdk.h> in your source files.
+
+    * Link with the PDK.LIB (or MSCPDK.LIB, or PDK32.LIB, or libpdk.a)
+      library.
+
+That's it!
+
+Platform-Specific Notes
+=======================
+
+* For the DOS distribution, your program must be compiled in the large model.
+
+* For Win32 systems are several PDK versions available to support different
+  compilers. Currently we support BorlandC++ 5.0, Borland/Inprise CBuilder 4
+  and Cygwin GCC.
+
+
+

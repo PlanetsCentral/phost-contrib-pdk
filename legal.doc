@@ -1,0 +1,50 @@
+                     THE PORTABLE HOST DEVELOPMENT KIT
+                            Legal Information
+                             Version 3.2.3.3
+
+All software and documentation in this distribution is copyrighted and must
+only be distributed in accordance with the terms below. The software and
+documentation is NOT in the public domain but remains the property of the
+program authors. All users of this software are given a license to
+reasonably use this software subject to the conditions below.
+
+If any part of this software and/or documentation is to be included as part
+of a compilation, including but not limited to a CD-ROM distribution, then
+the authors of this software must be contacted and express permission must
+be obtained from all authors for the software and/or documentation to be
+included in the compilation.
+
+The software library included with this distribution may be linked with
+other modules to form a final executable program that is not restricted as
+to distribution or cost. If this executable program is itself distributed,
+then documentation must accompany this program that credits the use of the
+software in this distribution in the construction of the executable
+program. Also, the documentation must indicate clearly the means by which
+any user using the executable program can obtain a free copy of the
+software in this distribution.
+
+The software and documentation may be used at no charge and may be
+distributed freely but must always be distributed intact and as a unit with
+all files present, including this file. The software and documentation may
+be modified for personal use but no modified files may be distributed under
+any circumstances, except for the example program files (with filenames
+ex*.c) which may be modified and distributed as long as all modifications
+are clearly documented and marked with the name of the person who made the
+modifications along with the modification date. All copies of the software
+and documentation must be distributed at no cost, monetary or otherwise,
+except for a reasonable fee to cover the cost of physical media (if the
+copies are distributed on physical media) which may not exceed US$3.00
+(three US dollars) in value (at current exchange rates, if applicable) per
+copy.
+
+The software and any documentation are provided "as is" without express or
+implied warranty including, but not limited to, the implied warranties of
+merchantability and fitness for a particular purpose. In no event will the
+authors of this software be liable for direct, incidental or consequential
+damages of any kind, even if the authors have been advised of the
+possibility of such damages.
+
+All files in this distribution are Copyright (C) 1995,1996 by the program
+authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
+All Rights Reserved.
+
