@@ -203,7 +203,6 @@ static void clearTeam(const char *pTeamStr)
 {
     Uns16 lPlayer, lPlayer2;
     Boolean lAlly[RACE_NR+1];
-    Uns16 lLevel;
 
     parsePlayerSpec(pTeamStr, lAlly);
 

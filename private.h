@@ -24,13 +24,16 @@ enum {
     aux_ShipExperience   = 9,
     aux_PlanetExperience = 10,
     aux_Enemies          = 11,
+    aux_ShipExtraSpecial = 12,
+    aux_ShipExtraDef     = 13,
 
     /* 100+ are transient records */
     aux_ShipFlags        = 101,
     aux_PlanetFlags      = 102,
     aux_ShipNewExp       = 103,
     aux_PlanetNewExp     = 104,
-    aux_TAL              = 105
+    aux_TAL              = 105,
+    aux_SpecialInhibited = 106
 };
 
 typedef unsigned char Byte;

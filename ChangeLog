@@ -1,3 +1,11 @@
+2004-12-30  Stefan Reuther  <Streu@gmx.de>
+
+	* auxdata.c: added Enemies accessors
+
+	* tons.c, alldata.c: modified to allow read-only operation w.r.t tons
+
+	* battle.c, pally.c, ptscore.c: fixed some warnings
+
 2004-12-28  Stefan Reuther  <Streu@gmx.de>
 
 	* hullfunc.c (doHullAssignment): don't die on invalid hull names

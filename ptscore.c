@@ -507,7 +507,9 @@ ReadPlayers(void)
 {
   int x;
   FILE *PlayerFile;
+#ifdef __TOURNAMENT__
   char dummy[80];
+#endif
 
   PlayerFile =
         OpenInputFile(gPlayerFileName,
@@ -639,7 +641,7 @@ GenerateScoreMessage(char *pBuffer)
 
 #ifndef NO_SHIPS
 
-  sprintf(lTmpLines[16], "\0");
+  strcpy(lTmpLines[16], "");
   for (lCount = 1, lShipNr = 0; lCount <= SHIP_NR; lCount++)
     if (IsShipExist(lCount))
       lShipNr++;

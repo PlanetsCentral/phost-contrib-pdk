@@ -1805,3 +1805,54 @@ IsCLOAKCFound(void)
   return gCloakcLoaded;
 }
 
+/*
+ *      E N E M I E S
+ */
+
+Boolean
+ShipHasEnemy(Uns16 pShipId, RaceType_Def pEnemy)
+{
+    if (ShipOwner(pShipId) == pEnemy)
+        return False;
+    if (ShipMission(pShipId) == Kill)
+        return True;
+    if (ShipEnemy(pShipId) == NoRace)
+        return False;
+    if (PlayerHasEnemy(ShipOwner(pShipId), pEnemy))
+        return True;
+    return ShipEnemy(pShipId) == pEnemy;
+}
+
+Boolean
+PlayerHasEnemy(RaceType_Def pPlayer, RaceType_Def pEnemy)
+{
+    Auxdata_Chunk* lChunk = GetAuxdataChunkById(aux_Enemies);
+    if (lChunk && AuxdataChunkSize(lChunk) >= sizeof(Uns16) * pPlayer && pPlayer > 0) {
+        char* lPtr = (char*) AuxdataChunkData(lChunk) + sizeof(Uns16)*(pPlayer-1);
+        return (ReadDOSUns16(lPtr) & (1 << pEnemy)) != 0;
+    }
+    return False;
+}
+
+Boolean
+PutPlayerHasEnemy(RaceType_Def pPlayer, RaceType_Def pEnemy, Boolean pIsEnemy)
+{
+    Auxdata_Chunk* lChunk = GetAuxdataChunkById(aux_Enemies);
+    if (lChunk && AuxdataChunkSize(lChunk) >= sizeof(Uns16) * pPlayer && pPlayer > 0) {
+        char* lPtr   = (char*) AuxdataChunkData(lChunk) + sizeof(Uns16)*(pPlayer-1);
+        Uns16 lFlags = ReadDOSUns16(lPtr);
+        if (pIsEnemy)
+            lFlags |= 1 << pEnemy;
+        else
+            lFlags &= ~(1 << pEnemy);
+        WriteDOSUns16(lPtr, lFlags);
+        return True;
+    }
+    return False;
+}
+
+Boolean
+IsPlayerEnemyAllowed(void)
+{
+    return GetAuxdataChunkById(aux_Enemies) != 0;
+}

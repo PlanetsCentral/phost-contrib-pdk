@@ -4315,6 +4315,9 @@ alliance status will not be saved since the AUXDATA.HST file is never
 written if it has not been read. In any case, the Write_AuxData_File()
 function must be called to save any changes in alliance status.
 
+PHost 4.0h added the @code{enemies} command to set up permanent primary
+enemies. These can be accessed from the PDK as well.
+
 @menu
 * AllyAddRequest::              
 * AllyDropRequest::             
@@ -4324,6 +4327,10 @@ function must be called to save any changes in alliance status.
 * IsAllyOfferConditional::      
 * PlayerAllowsAlly::            
 * PutPlayerAllowsAlly::         
+* ShipHasEnemy::                
+* PlayerHasEnemy::              
+* PutPlayerHasEnemy::           
+* IsPlayerEnemyAllowed::        
 @end menu
 
 @iftex
@@ -4337,6 +4344,10 @@ Functions in this section:
 @item IsAllyOfferConditional
 @item PlayerAllowsAlly
 @item PutPlayerAllowsAlly
+@item ShipHasEnemy
+@item PlayerHasEnemy
+@item PutPlayerHasEnemy
+@item IsPlayerEnemyAllowed
 @end itemize
 @end iftex
 
@@ -4414,13 +4425,63 @@ Note that this routine is just a shorthand method of writing:
           )
 @end example
 
-@node PutPlayerAllowsAlly,  , PlayerAllowsAlly, Alliance Management
+@node PutPlayerAllowsAlly, ShipHasEnemy, PlayerAllowsAlly, Alliance Management
 @subsection void PutPlayerAllowsAlly(RaceType_Def pPlayer, RaceType_Def pRace, AllianceLevel_Def pLevel, AllianceState_Def pState)
 @findex PutPlayerAllowsAlly
 
 This routine indicates that player 'pPlayer' has offered, denied, or
 conditionally offered (according to the setting of 'pState') the 'pLevel'
 level of alliance to player 'pRace'.
+
+@node ShipHasEnemy, PlayerHasEnemy, PutPlayerAllowsAlly, Alliance Management
+@subsection Boolean ShipHasEnemy(Uns16 pShipId, RaceType_Def pEnemy)
+@findex ShipHasEnemy
+
+This function checks whether the specified race @code{pEnemy} qualifies
+as an enemy of @code{pShipId}. It checks the following properties:
+@itemize @minus
+@item ship owner. A ship cannot be its own enemy.
+@item mission. With Kill, everyone qualifies as enemy.
+@item primary enemy. Without primary enemy and Kill, the ship is not
+aggressive. Otherwise, the ship is aggressive to the races specified
+as permanent primary enemies as well as the race set as PE.
+@end itemize
+
+This function does not check alliance relationships. It is possible and
+allowed to have an ally as permanent enemy (like it is possible to set a
+ship's PE to an ally). Unless the player offers the appropriate alliance
+level, the enemy relationship will take effect.
+
+@node PlayerHasEnemy, PutPlayerHasEnemy, ShipHasEnemy, Alliance Management
+@subsection Boolean PlayerHasEnemy(RaceType_Def pPlayer, RaceType_Def pEnemy)
+@findex PlayerHasEnemy
+
+Checks whether the @code{pPlayer} has set @code{pEnemy} as a permanent
+enemy. If the host version in use does not support permanent enemies,
+returns @code{False}.
+
+@node PutPlayerHasEnemy, IsPlayerEnemyAllowed, PlayerHasEnemy, Alliance Management
+@subsection Boolean PutPlayerHasEnemy(RaceType_Def pPlayer, RaceType_Def pEnemy, Boolean pIsEnemy)
+@findex PutPlayerHasEnemy
+
+Sets @code{pEnemy} as permanent enemy of @code{pPlayer} if
+@code{pIsEnemy} is True, removes the permanent enemy if @code{pIsEnemy}
+is False.
+
+This function returns true if the operation succeeds, false if it fails. 
+It can fail if the parameters are out of range, or the host version in
+use does not support permanent enemies.
+
+@node IsPlayerEnemyAllowed,  , PutPlayerHasEnemy, Alliance Management
+@subsection Boolean IsPlayerEnemyAllowed(void)
+@findex IsPlayerEnemyAllowed
+
+Returns true iff the host version in use supports permanent enemies,
+i.e. the @ref{PutPlayerHasEnemy} call.
+
+PHost version 4.0h and later supports that feature, older ones don't.
+
+@c ----------------------------------------------------------------------
 
 @node Game Status Interface, File Utility Functions, Alliance Management, Function Call Interface
 @section Game Status Interface

@@ -96,6 +96,7 @@ ReadHostData(void)
   if (!ReadWormholeFile())
     goto read_fail;
 #endif
+  ReadTonsFile();
 
   /* No auxdata file if this is a newly mastered game */
   if (!gNewlyMastered) {
@@ -139,6 +140,7 @@ WriteHostData(void)
     goto write_fail;
   if (WriteCLOAKCFile()NEQ IO_SUCCESS)
     goto write_fail;
+  WriteTonsFile();
 
 #ifndef MICROSQUISH
   if (!WriteWormholeFile())

@@ -1694,6 +1694,14 @@ Pconfig_Struct;
   Uns32 GetTons(enum Tons pWhich, RaceType_Def pPlayer);
   void  PutTons(enum Tons pWhich, RaceType_Def pPlayer, Uns32 pValue);
   void  ClearThisTurnTons(void);
+  void  ReadTonsFile(void);
+  void  WriteTonsFile(void);
+
+  /* Enemies */
+  Boolean ShipHasEnemy(Uns16 pShip, RaceType_Def pEnemy);
+  Boolean PlayerHasEnemy(RaceType_Def pPlayer, RaceType_Def pEnemy);
+  Boolean PutPlayerHasEnemy(RaceType_Def pPlayer, RaceType_Def pEnemy, Boolean pIsEnemy);
+  Boolean IsPlayerEnemyAllowed(void);
 #ifdef __cplusplus
 }
 #endif

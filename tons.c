@@ -37,19 +37,13 @@ static Uns32 gTons[4 * OLD_RACE_NR];
 static const char TONS_FILE[] = "tons.hst";
 
 static Boolean gTonsDirty = False;
-static Boolean gTonsLoaded = False;
-
-static void ShutdownTonsScore(void);
 
 /** Initialize this module. */
-static void
-InitTonsScore(void)
+void
+ReadTonsFile(void)
 {
     int lRead = 0;
     FILE* lFile;
-
-    if (gTonsLoaded)
-        return;
 
     lFile = OpenInputFile(TONS_FILE, NO_MISSING_ERROR | GAME_DIR_ONLY);
     if (lFile) {
@@ -62,14 +56,12 @@ InitTonsScore(void)
     while (lRead < OLD_RACE_NR * 4)
         gTons[lRead++] = 0;
 
-    gTonsLoaded = True;
     gTonsDirty = False;
-    RegisterCleanupFunction(ShutdownTonsScore);
 }
 
 /** Shut down this module, and write out score. */
-static void
-ShutdownTonsScore(void)
+void
+WriteTonsFile(void)
 {
     Uns32 lAllTons[OLD_RACE_NR * 4];
     FILE* lFile;
@@ -83,15 +75,13 @@ ShutdownTonsScore(void)
             Error("Can't write '%s'", TONS_FILE);
         fclose(lFile);
     }
-    gTonsDirty  = False;
-    gTonsLoaded = False;
+    gTonsDirty = False;
 }
 
 /** Add score. */
 void
 AddToTonsScore(RaceType_Def pWinner, RaceType_Def pLoser, Uns32 pTonnage)
 {
-    InitTonsScore();
     if (pWinner > 0 && pWinner <= OLD_RACE_NR) {
         gTons[pWinner-1]               += pTonnage;
         gTons[pWinner-1 + OLD_RACE_NR] += pTonnage;
@@ -107,7 +97,6 @@ Uns32
 GetTons(enum Tons pWhich, RaceType_Def pPlayer)
 {
     if (pPlayer > 0 && pPlayer <= OLD_RACE_NR) {
-        InitTonsScore();
         return gTons[OLD_RACE_NR*pWhich + pPlayer-1];
     } else {
         return 0;
@@ -119,7 +108,6 @@ PutTons(enum Tons pWhich, RaceType_Def pPlayer, Uns32 pValue)
 {
     passert (pPlayer > 0 && pPlayer <= OLD_RACE_NR);
 
-    InitTonsScore();
     gTonsDirty = True;
     gTons[OLD_RACE_NR*pWhich + pPlayer-1] = pValue;
 }
@@ -129,7 +117,6 @@ ClearThisTurnTons(void)
 {
     int i;
 
-    InitTonsScore();
     for (i = 0; i < OLD_RACE_NR; ++i)
         gTons[i + OLD_RACE_NR] = gTons[i + 3*OLD_RACE_NR] = 0;
     gTonsDirty = True;

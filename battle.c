@@ -1201,7 +1201,6 @@ void
 Combat(Combat_Struct * pShip1, Combat_Struct * pShip2)
 {
   Uns16 lCount;
-  char lName[64];
   Boolean lTerminate;           /* True if user wants to immediately quit */
 
   /* Allocate our status structures if necessary */
