@@ -29,7 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *      Basic count functions implemented.                        *
  *  Functions:                                                    *
  *  Change Record:                                                *
- *                                                                *
+ *     22.12.2001 - THost point added.                            *
+ *                  Race statistic functions                      *
  *                                                                *
  ******************************************************************/
 
@@ -386,9 +387,22 @@ RaceScoreForShips( RaceType_Def Race,
                  PointsType_Def CountType,
                   ShipsType_Def ShipsType)
 {
-  Uns16 lCount;
+  Uns16 lCount,lCount_2;
   Uns32 lScore=0;
-  
+
+  if (CountType==THOST_POINTS)
+  {
+      lCount   = RaceShipsNumber(Race,WAR_SHIPS);
+      lCount_2 = RaceShipsNumber(Race,FREIGHTER_SHIPS);
+
+      if ((ShipsType==WAR_SHIPS)||(ShipsType==ALL_SHIPS))
+         lScore += lCount*10;   // 10 points for each armed ship in THost
+
+      if ((ShipsType==FREIGHTER_SHIPS)||(ShipsType==ALL_SHIPS))
+         lScore += lCount*1;    // 1 point for each armed ship in THost
+         
+  }
+  else
   for (lCount=1; lCount <= SHIP_NR ; lCount++)
       if (IsShipExist(lCount))
        if ((ShipOwner(lCount)==Race)&&(IsShipType(lCount,ShipsType)))
@@ -404,6 +418,9 @@ RaceScoreForPlanets( RaceType_Def Race,
   Uns16 lCount;
   Uns32 lScore=0;
   
+  if (CountType==THOST_POINTS) lScore = RacePlanetsNumber(Race) * 10;
+                              // 10 points for each planet in THost
+  else
   for (lCount=1; lCount <= PLANET_NR ; lCount++)
       if (IsPlanetExist(lCount))
        if (PlanetOwner(lCount)==Race)
@@ -419,6 +436,9 @@ RaceScoreForBases( RaceType_Def Race,
   Uns16 lCount;
   Uns32 lScore=0;
   
+  if (CountType==THOST_POINTS) lScore = RaceBasesNumber(Race) * 120;
+                               // 120 points for each base in THost
+  else
   for (lCount=1; lCount <= BASE_NR ; lCount++)
       if (IsBaseExist(lCount))
        if (BaseOwner(lCount)==Race)
@@ -437,6 +457,8 @@ RaceScoreForMinefields( RaceType_Def Race,
   Uns32  lScore=0;
   double lModifiedScore=0;
   
+  if (CountType==THOST_POINTS) lScore = 0; // no points for minefields in THost
+  else
   for (lCount=1; lCount <= MINE_NR ; lCount++)
       if (IsMinefieldExist(lCount))
        if (MinefieldOwner(lCount)==Race)
@@ -446,5 +468,193 @@ RaceScoreForMinefields( RaceType_Def Race,
 
  if (RaceModify) return lModifiedScore;
  else            return lScore;
+}
+
+Uns32
+RaceShipsNumber( RaceType_Def Race, ShipsType_Def ShipsType)
+{
+  Uns16 lCount;
+  Uns32 lScore=0;
+  
+  for (lCount=1; lCount <= SHIP_NR ; lCount++)
+      if (IsShipExist(lCount))
+       if ((ShipOwner(lCount)==Race)&&(IsShipType(lCount,ShipsType)))
+         lScore++;
+
+ return lScore;
+}
+
+Uns32
+RacePlanetsNumber(RaceType_Def Race)
+{
+  Uns16  lCount;
+  Uns32  lScore=0;
+
+  for (lCount=1; lCount <= PLANET_NR ; lCount++)
+      if (IsPlanetExist(lCount))
+       if (PlanetOwner(lCount)==Race)
+         lScore++;
+
+  return lScore;
+}
+
+Uns32
+RaceBasesNumber( RaceType_Def Race)
+{
+  Uns16 lCount;
+  Uns32 lScore=0;
+  
+  for (lCount=1; lCount <= BASE_NR ; lCount++)
+      if (IsBaseExist(lCount))
+       if (BaseOwner(lCount)==Race)
+         lScore++;
+
+ return lScore;
+}
+
+Uns32
+RaceFightersNumber(RaceType_Def Race)
+{
+  Uns16 lCount;
+  Uns32 lScore=0;
+
+  /* Check bases first */
+
+  for (lCount=1; lCount <= BASE_NR ; lCount++)
+      if (IsBaseExist(lCount))
+       if (BaseOwner(lCount)==Race)
+         lScore+=BaseFighters(lCount);
+
+  /* Check ships */
+
+  for (lCount=1; lCount <= SHIP_NR ; lCount++)
+      if (IsShipExist(lCount))
+       if ((ShipOwner(lCount)==Race)&&(ShipBays(lCount)) )
+         lScore+=ShipAmmunition(lCount);
+
+ return lScore;
+}
+
+Uns32
+RaceTorpedosNumber(RaceType_Def Race, Uns16 TorpType)
+{
+  Uns16 lCount;
+  Uns32 lScore=0;
+
+  /* Check bases first */
+
+  for (lCount=1; lCount <= BASE_NR ; lCount++)
+      if (IsBaseExist(lCount))
+       if (BaseOwner(lCount)==Race)
+         lScore+=BaseTorps(lCount,TorpType);
+
+  /* Check ships */
+
+  for (lCount=1; lCount <= SHIP_NR ; lCount++)
+      if (IsShipExist(lCount))
+       if ((ShipOwner(lCount)==Race)&&(ShipTubeNumber(lCount)))
+         if (ShipTorpType(lCount)==TorpType)
+           lScore+=ShipAmmunition(lCount);
+
+ return lScore;
+}
+
+Uns32
+RaceFactoriesNumber(RaceType_Def Race)
+{
+  Uns16 lCount;
+  Uns32 lScore=0;
+
+  for (lCount=1; lCount <= PLANET_NR ; lCount++)
+      if (IsPlanetExist(lCount))
+       if (PlanetOwner(lCount)==Race)
+          lScore += PlanetFactories(lCount);
+
+  return lScore;
+}
+
+Uns32
+RaceMineralMinesNumber(RaceType_Def Race)
+{
+  Uns16 lCount;
+  Uns32 lScore=0;
+
+  for (lCount=1; lCount <= PLANET_NR ; lCount++)
+      if (IsPlanetExist(lCount))
+       if (PlanetOwner(lCount)==Race)
+          lScore+=PlanetMines(lCount);
+
+  return lScore;
+}
+
+Uns32
+RaceDefencePostsNumber(RaceType_Def Race)
+{
+  Uns16 lCount;
+  Uns32 lScore=0;
+
+  for (lCount=1; lCount <= PLANET_NR ; lCount++)
+      if (IsPlanetExist(lCount))
+       if (PlanetOwner(lCount)==Race)
+          lScore+=PlanetDefense(lCount);
+
+  return lScore;
+}
+
+Uns32
+RaceBaseDefenceNumber(RaceType_Def Race)
+{
+  Uns16 lCount;
+  Uns32 lScore=0;
+
+  for (lCount=1; lCount <= BASE_NR ; lCount++)
+      if (IsBaseExist(lCount))
+       if (BaseOwner(lCount)==Race)
+          lScore+=BaseDefense(lCount);
+
+  return lScore;
+}
+
+Uns32
+RaceCargoNumber(RaceType_Def Race,CargoType_Def CargoType)
+{
+  Uns16 lCount;
+  Uns32 lScore=0;
+
+  /* Check planets first */
+
+  for (lCount=1; lCount <= PLANET_NR ; lCount++)
+      if (IsPlanetExist(lCount))
+       if (PlanetOwner(lCount)==Race)
+         lScore+=PlanetCargo(lCount,CargoType);
+
+  /* Check ships */
+
+  for (lCount=1; lCount <= SHIP_NR ; lCount++)
+      if (IsShipExist(lCount))
+       if (ShipOwner(lCount)==Race)
+       {
+           lScore+=ShipCargo(lCount,CargoType);
+           lScore+=ShipTransfer(lCount,CargoType);
+           lScore+=ShipDump(lCount,CargoType);
+       }
+
+ return lScore;
+}
+
+Uns32
+RaceMinefieldUnitsNumber(RaceType_Def Race)
+{
+  Uns16 lCount;
+  Uns32 lScore=0;
+
+  /* Check planets first */
+
+  for (lCount=1; lCount <= MINE_NR ; lCount++)
+      if (IsMinefieldExist(lCount))
+       if (MinefieldOwner(lCount)==Race)
+         lScore+=MinefieldUnits(lCount);
+         
+ return lScore;
 }
 
