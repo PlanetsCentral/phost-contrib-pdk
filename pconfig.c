@@ -200,6 +200,50 @@ Ignore(const char *pStr, ...)
     /* intentionally left blank */
 }
 
+
+/** Read some phost configuration file.
+
+    This function is meant as a flexible version of Read_HConfig_File,
+    enabling you to choose which config file gets read, if the current
+    config should be cleaned and if the defaults should be assigned.
+
+    \return IO_SUCCESS on success, IO_FAILURE on error.
+    See also ConfigFileReaderEx for more information.
+    \param pInFile    config file
+    \param pFileName  name of this file, used for error reporting
+    \param pSection   name of config file section to read
+    \param pUseDefaultSection assume we're in the right section when
+                      there's no section delimiter.
+    \param clear      If True then clear the current config.
+    \param setDefaults If True then do the default assignments after
+                      reading the current config file.
+*/
+IO_Def
+Read_SomeConfig_File(FILE *pInFile, const char *pFileName, \
+                     const char *pSection, Boolean pUseDefaultSection,
+                     Boolean clear, Boolean setDefaults)
+{
+    if ( clear ) {
+        ClearConfig();
+    }
+
+    gCurrentConfigFile = pFileName;
+    if ( ConfigFileReaderEx(pInFile, pFileName, pSection, pUseDefaultSection,
+                            DoAssignment, \
+                            gConfigWarnings ? Warning : Ignore, True) \
+         EQ IO_FAILURE) {
+        return IO_FAILURE;
+    }
+
+    if ( setDefaults ) {
+        DoDefaultAssignments();
+    }
+
+    ReinitWraparound();
+  
+    return IO_SUCCESS;
+}
+
 /** Read host configuration. Reads the pconfig.src file.
     \return IO_SUCCESS on success, IO_FAILURE on error. */
 IO_Def

@@ -803,6 +803,7 @@ Pconfig_Struct;
   extern IO_Def Read_Racenames_File(void);
   extern IO_Def Read_Xyplan_File(void);
   extern IO_Def Read_HostGen_File(void);
+  extern void SpecialReadHullfunc(const char *shiplistFile, const char *hullfuncFile);
 
 /*! Single-write routines */
   extern Boolean Write_Planets_File(Int16 pControl);
@@ -1057,6 +1058,9 @@ Pconfig_Struct;
   extern IO_Def ConfigFileReaderEx(FILE * pInFile, const char *pFileName, const char *pSection,
         Boolean pUseDefaultSection, configAssignment_Func pAssignFunc,
         configError_Func pError, Boolean pContinue);
+    extern IO_Def Read_SomeConfig_File(FILE *pInFile, const char *pFileName, \
+        const char *pSection, Boolean pUseDefaultSection,
+        Boolean clear, Boolean setDefaults);
 
 /*! Wraparound Maps */
   extern Int32 DistanceSquared(Int16 pX1, Int16 pY1, Int16 pX2, Int16 pY2);

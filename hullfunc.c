@@ -640,6 +640,30 @@ HullfuncAssign(const char* name, char* value, const char* line)
 }
 
 void
+SpecialReadHullfunc(const char *shiplistFile, const char *hullfuncFile)
+{
+    FILE* lFile;
+
+    gHull = 0;
+    gSpecial = SPC_NO_SPECIAL;
+
+    InitHullfunc();
+    lFile = fopen(shiplistFile,"r");
+    if (lFile) {
+        ConfigFileReader(lFile, shiplistFile, "hullfunc", False, HullfuncAssign);
+        fclose(lFile);
+        return;
+    }
+    lFile = fopen(hullfuncFile,"r");
+    if (lFile) {
+        ConfigFileReader(lFile, hullfuncFile, "hullfunc", True, HullfuncAssign);
+        fclose(lFile);
+        return;
+    }
+    addDefaultSpecials();
+}
+
+void
 ReadHullfunc(void)
 {
     FILE* lFile;
