@@ -428,6 +428,7 @@ extern "C" {
   extern Boolean Read_Turntime_File(void);
   extern Boolean ReadWormholeFile(void);
   extern void ReadCLOAKCFile(void);
+  extern void HandleMissingAuxdata(void);
 
   extern void ReadHullfunc(void);
 

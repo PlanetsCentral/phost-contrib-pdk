@@ -1,6 +1,12 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                             Summary of Revisions
-                              Version 3.2.4.2
+                              Version 3.2.4.3
+
+
+Version 3.2.4.3
+================
+
+* Added ability to modify static game data (Piotr Winiarczyk)
 
 
 Version 3.2.4.2 --  Released September 2001

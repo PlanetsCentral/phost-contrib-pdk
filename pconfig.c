@@ -355,6 +355,21 @@ DoDefaultAssignments(void)
   gAssigningDefaults = False;
 }
 
+/** Return address of specified PConfig key.
+    Usage as `if (*(Boolean*)PConfigValueFromName("AllowAlliedChunneling")))'
+    When programs use this function instead of directly accessing gPconfigInfo,
+    pdk can be turned into a DLL eventually. */
+void*
+PConfigValueFromName(const char* name)
+{
+  int ix;
+  for (ix = 0; ix < CF_NumItems; ix++) {
+    if (!stricmp(Names[ix], name))
+      return (char*)gPconfigInfo + Pos[ix];
+  }
+  return 0;
+}
+
 /** Assign one config option. This is the configAssignment_Func used
     to parse pconfig.src. \internal */
 static Boolean
@@ -441,6 +456,14 @@ checkEOLGarbage(void)
   return 0;
 }
 
+static void
+killComment(char* pString)
+{
+    char* p = strchr(pString, '#');
+    if (p)
+        *p = 0;
+}
+
 static int
 getLong(char *str, long *retval, Boolean pAllowEOL)
 {
@@ -472,6 +495,7 @@ readUns8(Uns16 ix, char *val)
   Boolean lAllowEOL = gAllowMA[ix];
   Boolean lDoMA = False;
 
+  killComment(val);
   for (i = 0; i < n; i++) {
     if (!lDoMA) {
       lAllowEOL = (i EQ 1) ? True : False;
@@ -508,6 +532,7 @@ readUns16(Uns16 ix, char *val)
   Boolean lAllowEOL = gAllowMA[ix];
   Boolean lDoMA = False;
 
+  killComment(val);
   for (i = 0; i < n; i++) {
     if (!lDoMA) {
       lAllowEOL = (i EQ 1) ? True : False;
@@ -545,6 +570,7 @@ readInt16(Uns16 ix, char *val)
   Boolean lAllowEOL = gAllowMA[ix];
   Boolean lDoMA = False;
 
+  killComment(val);
   for (i = 0; i < n; i++) {
     if (!lDoMA) {
       lAllowEOL = (i EQ 1) ? True : False;
@@ -581,6 +607,7 @@ readUns32(Uns16 ix, char *val)
   Boolean lAllowEOL = gAllowMA[ix];
   Boolean lDoMA = False;
 
+  killComment(val);
   for (i = 0; i < n; i++) {
     if (!lDoMA) {
       lAllowEOL = (i EQ 1) ? True : False;
@@ -613,6 +640,7 @@ readBooleanType(Uns16 ix, char *val)
   Boolean lDoMA = False;
   int match;
 
+  killComment(val);
   for (i = 0; i < n; i++) {
     if (!lDoMA) {
       p = strtok(val, ", \t");
@@ -653,6 +681,7 @@ readLanguageType(Uns16 ix, char *val)
   int match;
   Boolean lDoMA = False;
 
+  killComment(val);
   for (i = 0; i < n; i++) {
     if (!lDoMA) {
       p = strtok(val, ", \t");
@@ -696,6 +725,7 @@ readBuildQueueType(Uns16 ix, char* val)
     char *p;
     int match;
     
+    killComment(val);
     for (i=0; i<n; i++) {
         p = strtok(val, ", \t");
         val = 0;
@@ -727,6 +757,7 @@ readScoreMethodType(Uns16 ix, char *val)
   char *p;
   int match;
 
+  killComment(val);
   for (i = 0; i < n; i++) {
     p = strtok(val, ", \t");
     val = 0;

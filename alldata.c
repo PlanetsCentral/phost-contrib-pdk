@@ -98,9 +98,12 @@ ReadHostData(void)
 #endif
 
   /* No auxdata file if this is a newly mastered game */
-  if (!gNewlyMastered)
+  if (!gNewlyMastered) {
     if (Read_AuxData_File()NEQ IO_SUCCESS)
       goto read_fail;
+  } else {
+    HandleMissingAuxdata();
+  }
 
   /* read the CLOAKC.HST file after auxdata. This may get the correct cloak
      status even if HOST is used */

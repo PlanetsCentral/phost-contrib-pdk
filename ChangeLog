@@ -1,3 +1,109 @@
+Wed Nov 21 15:09:41 2001  Stefan  <Streu@gmx.de>
+
+	* pconfig.c (PConfigValueFromName): new function.
+
+	* alldata.c (ReadHostData): HandleMissingAuxdata() if gNewlyMastered.
+	PDK add-ons crash with segfault otherwise in first turn.
+
+	* pconfig.c (killComment): new function. Used throughout.
+
+2001-11-12 18:40  hschlen
+
+	* worm.c: [no log message]
+
+2001-11-12 18:40  hschlen
+
+	* vgaputil.c: New routine RND() (Piotr Winiarczyk).
+
+2001-11-12 18:39  hschlen
+
+	* vgapdatb.c: New routines PutPlanetLocationX(),
+	PutPlanetLocationY(), Write_Xyplan_File() (Piotr Winiarczyk).
+
+2001-11-12 18:38  hschlen
+
+	* vgapdat9.c: New routines PutPlanetName(), Write_Planetname_File()
+	(Piotr Winiarczyk).
+
+	* vgapdat8.c: New routines PutBeamName(), PutBeamMoneyCost(),
+	PutBeamTritCost(), PutBeamDurCost(), PutBeamMolyCost(),
+	PutBeamMass(), PutBeamTechLevel(), PutBeamKillPower(),
+	PutBeamDestructivePower(), Write_Beamspec_File() (Piotr
+	Winiarczyk).
+
+2001-11-12 18:35  hschlen
+
+	* vgapdat7.c: New routines PutTorpName(), PutTorpTorpCost(),
+	PutTorpTubeCost(), PutTorpTritCost(), PutTorpDurCost(),
+	PutTorpMolyCost(), PutTorpTubeMass(), PutTorpTechLevel(),
+	PutTorpKillPower(), PutTorpDestructivePower(),
+	Write_Torpspec_File() (Piotr Winiarczyk).
+
+2001-11-12 18:34  hschlen
+
+	* vgapdat6.c: New routines PutEngineName(), PutEngMoneyCost(),
+	PutEngTritCost(), PutEngDurCost(), PutEngMolyCost(),
+	PutEngTechLevel(), PutEngFuelConsumption(), Write_Engspec_File()
+	(Piotr Winiarczyk).
+
+2001-11-12 18:32  hschlen
+
+	* vgapdat5.c: New routines PutHullPicnumber(), PutHullTritCost(),
+	PutHullDurCost(), PutHullMolyCost(), PutHullFuelCapacity(),
+	PutHullCrewComplement(), PutHullEngineNumber(), PutHullMass(),
+	PutHullTechLevel(), PutHullCargoCapacity(), PutHullBays(),
+	PutHullTubeNumber(), PutHullBeamNumber(), PutHullMoneyCost(),
+	PutTrueHull(), PutHullName(), Write_Hullspec_File(),
+	Write_Truehull_File() (Piotr Winiarczyk).
+
+2001-11-12 18:29  hschlen
+
+	* vgapdat3.c: New routine BaseOrderString() (Piotr Winiarczyk).
+
+2001-11-12 18:28  hschlen
+
+	* vgapdat2.c: New routines ShipTotalMass(), ShipTravelMass(),
+	ShipCargoMass(), ShipMissionString(), IsShipFCSpecial() (Piotr
+	Winiarczyk).
+
+2001-11-12 18:26  hschlen
+
+	* vgapdat1.c: New routines IsPlanetFCSpecial(), PlanetNatString(),
+	PlanetNatGovmString(), PlanetMaxFactories(), PlanetMaxDefense(),
+	PlanetMaxMines(), PlanetMining(), PlanetGovTaxRate(),
+	NumberOfShipsHissingPlanet(), PlanetNatHappyChange(),
+	PlanetColHappyChange(), PlanetColIncome(), PlanetNatIncome(),
+	PlanetSuppIncome() (Piotr Winiarczyk).
+
+2001-11-12 18:22  hschlen
+
+	* version.h, api.txt: [no log message]
+
+2001-11-12 18:21  hschlen
+
+	* phostpdk.h: Changes by Piotr Winiarczyk.
+
+2001-11-12 18:20  hschlen
+
+	* killrace.c: New option '-k', added killing of mine fields, planet
+	structures, cash and supplies (Piotr Winiarczyk).
+
+2001-11-12 18:19  hschlen
+
+	* auxdata.c: New routines BuildQueueBaseID(), BuildQueuePriority(),
+	BuildQueueIsCloning(), BuildQueueShipOwner(), BuildQueueOwner(),
+	BuildQueueHullType(), BuildQueueEngineType(), BuildQueueBeamType(),
+	BuildQueueTorpType(), BuildQueueBeamNumber(),
+	BuildQueueTorpNumber(), PutBuildQueuePriority() (Piotr Winiarczyk)
+
+2001-11-12 18:14  hschlen
+
+	* pdk.texi: initial import into CVS (Piotr Winiarczyk)
+
+Mon Nov 12 21:58:22 2001  Stefan  <Streu@gmx.de>
+
+	* battle.c (doBeamFire): one small change to make it faster
+
 Sun Sep 16 17:00:49 2001  Stefan  <Streu@gmx.de>
 
 	* bumped version number to 3.2.4.2
@@ -91,8 +197,3 @@ Fri Feb 23 21:25:43 2001  Stefan  <Streu@gmx.de>
  	done here than in the makefile. Simply because I don't have a
  	`make' which understands `makefile.dj' on my DOS partition ;-)
 	(#ifndef SYSTEM_ID): #error
-
-NOTES:
-	* The Makefile mess should be cleaned. At least, extract the
- 	source file name list and #include it into the others. Document
- 	which Makefile is for which system.

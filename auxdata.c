@@ -1215,7 +1215,7 @@ ShipRemoteOwner(Uns16 pShipID)
      initalized as all 0's)
 */
 
-static void
+void
 HandleMissingAuxdata(void)
 {
   InitAuxData();

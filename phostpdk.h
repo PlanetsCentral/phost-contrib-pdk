@@ -603,6 +603,8 @@ Pconfig_Struct;
 #define CloakMineOddsWarpBonusX100      CloakMineOddsWarpBonus
 #define MineHitOddsWhenCloakedX10       CloakMineOdds
 
+  extern void* PConfigValueFromName(const char* name);
+    
 /*! This record describes an entry in the UFO.HST file */
 
   typedef struct {
