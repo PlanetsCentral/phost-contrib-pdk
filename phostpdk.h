@@ -603,8 +603,6 @@ Pconfig_Struct;
 #define CloakMineOddsWarpBonusX100      CloakMineOddsWarpBonus
 #define MineHitOddsWhenCloakedX10       CloakMineOdds
 
-  extern void* PConfigValueFromName(const char* name);
-    
 /*! This record describes an entry in the UFO.HST file */
 
   typedef struct {
@@ -1359,6 +1357,54 @@ Pconfig_Struct;
                                Uns16* pSizes, void** pData);
   extern Boolean PutUtilFileTransfer(RaceType_Def pRace, const char* pName,
                                      Boolean pText, Uns16 pSize, void* pData);
+
+/*
+ *  points
+ */
+  typedef enum {
+    USED_POINTS = 0,
+    UNUSED_POINTS,
+    ALL_POINTS
+  } PointsType_Def;
+
+  typedef enum {
+    WAR_SHIPS = 0,
+    FREIGHTER_SHIPS,
+    ALL_SHIPS
+  } ShipsType_Def;
+
+  extern Uns32 PointsFor(CargoType_Def lCargo);
+  extern void PutPointsFor(CargoType_Def lCargo, Uns16 lPoints);
+  extern Uns32 PointsForFighter(void);
+  extern Uns32 PointsForBaseDefensePost(void);
+  extern Uns32 PointsForMineralMine(void);
+  extern Uns32 PointsForFactory(void);
+  extern Uns32 PointsForDefencePost(void);
+  extern Uns32 PointsForBaseOnPlanet(void);
+
+  extern Uns32 PointsForHull(Uns16 lHullNr);
+  extern Uns32 PointsForEngine(Uns16 lEngNr);
+  extern Uns32 PointsForBeam(Uns16 lBeamNr);
+  extern Uns32 PointsForTube(Uns16 lTorpNr);
+  extern Uns32 PointsForTorpedo(Uns16 lTorpNr);
+  extern Uns32 PointsForShipParts(Uns16 sID);
+  extern Uns32 PointsForShipCargo(Uns16 sID);
+  extern Uns32 PointsForShipAmmo(Uns16 sID);
+  extern Uns32 PointsForPlanetStructures(Uns16 pID);
+  extern Uns32 PointsForPlanetMinerals(Uns16 pID);
+  extern Uns32 PointsForBaseTechLevels(Uns16 bID);
+  extern Uns32 PointsForBaseDefense(Uns16 bID);
+  extern Uns32 PointsForBaseStorage(Uns16 bID);
+  extern Uns32 PointsForBaseTorpedos(Uns16 bID);
+  extern Uns32 PointsForShip(Uns16 sID, PointsType_Def CountType);
+  extern Uns32 PointsForPlanet(Uns16 pID, PointsType_Def CountType);
+  extern Uns32 PointsForBase(Uns16 bID, PointsType_Def CountType);
+  extern Uns32 PointsForMinefield(Uns16 mID, PointsType_Def CountType);
+  extern Boolean IsShipType(Uns16 sID,ShipsType_Def ShipsType);
+  extern Uns32 RaceScoreForShips( RaceType_Def Race, PointsType_Def CountType, ShipsType_Def ShipsType);
+  extern Uns32 RaceScoreForPlanets( RaceType_Def Race, PointsType_Def CountType);
+  extern Uns32 RaceScoreForBases( RaceType_Def Race, PointsType_Def CountType);
+  extern Uns32 RaceScoreForMinefields( RaceType_Def Race, PointsType_Def CountType, Boolean RaceModify);
 
 #ifdef __cplusplus
 }

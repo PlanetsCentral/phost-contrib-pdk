@@ -12,7 +12,7 @@
 @subtitle PDK Library Version 3.2.4.3
 @sp 2
 @center TexInfo version
-@center Version 2001-11-10 19:17
+@center Version 2001-12-08 23:38
 @end titlepage
 
 @node Top,(dir),(dir),(dir)
@@ -57,6 +57,41 @@ in this file are as follows:
 @end iftex
 
 @node Manifest Constants,Common Types, ,Top
+@vindex RACE_NR  
+@vindex SHIP_NR  
+@vindex PLANET_NR
+@vindex BASE_NR  
+@vindex MINE_NR  
+@vindex HULL_NR  
+@vindex ENGINE_NR
+@vindex BEAM_NR  
+@vindex TORP_NR  
+@vindex LONGNAME_SIZE   
+@vindex SHORTNAME_SIZE  
+@vindex ADJECTIVE_SIZE  
+@vindex PLANETNAME_SIZE 
+@vindex RACEHULLS  
+@vindex MAX_SPEED  
+@vindex MAX_BEAMS  
+@vindex MAX_TUBES  
+@vindex MAX_BAYS   
+@vindex MAX_PLANET_BAYS 
+@vindex MAX_BASE_DEFENSE 
+@vindex MAX_BASE_FIGHTERS
+@vindex MAX_TECH  
+@vindex MAX_DENSITY
+@vindex MAX_HAPPY  
+@vindex MIN_HAPPY  
+@vindex MAX_COORDINATE 
+@vindex MIN_COORDINATE 
+@vindex MAX_SHIP_CREDITS 
+@vindex MAX_WORMHOLES 
+@vindex MAX_MINES
+@vindex MAX_FACTORIES 
+@vindex MAX_DEFENSE
+@vindex MAX_POPULATION
+@vindex MAX_TAX  
+@vindex MAX_TEMP 
 @chapter Manifest Constants
 
 The file PHOSTPDK.H defines some constants that may be useful in writing
@@ -78,6 +113,7 @@ all revisions.
 @end multitable
 
 @multitable @columnfractions .27 .73 
+@item Constant        @tab Description 
 @item LONGNAME_SIZE   @tab The maximum length of a race's full name (30 characters)
 @item SHORTNAME_SIZE  @tab The maximum length of a race's short name (20 characters)
 @item ADJECTIVE_SIZE  @tab The maximum length of a race's adjective (12 characters)
@@ -85,11 +121,12 @@ all revisions.
 @end multitable
 
 @multitable @columnfractions .28 .72 
+@item Constant  @tab Description 
 @item RACEHULLS  @tab The number of hulls a race can build at a base (20)
 @item MAX_SPEED  @tab The maximum warp speed on ships (9)
 @item MAX_BEAMS  @tab The maximum number of beams on a ship (20)
 @item MAX_TUBES  @tab The maximum number of tubes on a ship (20)
-@item MAX_BAYS  @tab The maximum number of fighter bays on a ship (20)
+@item MAX_BAYS   @tab The maximum number of fighter bays on a ship (20)
 @item MAX_PLANET_BAYS @tab The maximum number of bays a planet gets in combat (50)
 @item MAX_BASE_DEFENSE @tab The maximum number of defense posts on a base (200)
 @item MAX_BASE_FIGHTERS @tab The maximum number of fighters on a starbase (60)
@@ -110,6 +147,31 @@ all revisions.
 @end multitable
 
 @node Common Types,Data Structures,Manifest Constants,Top
+@vindex Int16  
+@vindex Uns16  
+@vindex Int32  
+@vindex Uns32  
+@vindex Boolean
+@vindex RandType_Def
+@vindex CargoType_Def
+@vindex RaceType_Def
+@vindex NativeType_Def
+@vindex NativeGovm_Def
+@vindex ShipMission_Def
+@vindex BaseMission_Def
+@vindex BaseFixMission_Def
+@vindex BaseTech_Def
+@vindex BuildOrder_Struct
+@vindex BaseOrder_Struct
+@vindex AllianceLevel_Def
+@vindex AllianceState_Def
+@vindex FileLocation_Def
+@vindex CombatResult_Def
+@vindex Language_Def
+@vindex UtilMode_Def
+@vindex DOSCVT_Def
+@vindex ShipsType_Def
+@vindex PointsType_Def
 @chapter Common Types 
 
 The following typedefs are used throughout the PDK code as both function
@@ -124,35 +186,38 @@ PDK is encouraged.
 @item Uns32 @tab a 32-bit unsigned integer
 @item Boolean @tab an enumerated type with the values False (0) and True (1)
 @item RandType_Def @tab the return type of the PDK's random number functions
- (equivalent to Uns16)
+(equivalent to Uns16)
 @item CargoType_Def @tab an enumerated type listing the possible types of cargo
 @item RaceType_Def @tab an enumerated type listing the different races
 @item NativeType_Def @tab an enumerated type listing the different native types
 @item NativeGovm_Def @tab an enumerated type listing the different native
- government types
+government types
 @item ShipMission_Def @tab an enumerated type listing the various ship missions
 @item BaseMission_Def @tab an enumerated type listing the various base missions
 @item BaseFixMission_Def @tab an enumerated type indicating whether the base
- is performing a fix or a recycle mission
+is performing a fix or a recycle mission
 @item BaseTech_Def @tab an enumerated type listing the 4 types of base tech
 @item BuildOrder_Struct @tab a structure containing the components of a base
- build order
+build order
 @item BaseOrder_Struct @tab a structure containing the components of an entry
- in PHOST's build queue
+in PHOST's build queue
 @item AllianceLevel_Def @tab an enumerated type listing the various levels of
- alliance supported by PHOST
+alliance supported by PHOST
 @item AllianceState_Def @tab an enumerated type listing the 3 possible states
- for each level of alliance (on, off, conditional)
+for each level of alliance (on, off, conditional)
 @item FileLocation_Def @tab an enumerated type listing various options for
- the file management functions
+the file management functions
 @item CombatResult_Def @tab an enumerated type describing the various
- outcomes of a battle
+outcomes of a battle
 @item Language_Def @tab an enumerated type listing the various languages
- supported by PHOST
+supported by PHOST
 @item UtilMode_Def @tab an enumerated type listing UTIL.DAT access modes
 (see "UTILx.DAT functions")
 @item DOSCVT_Def @tab an enumerated type listing data types the PDK
 can read/write in DOS format (see "Cross-Platform Portability Part II") 
+@item ShipsType_Def @tab an enumerated type listing ships types in terms 
+of being war ship or freighter
+@item PointsType_Def @tab an enumerated type listing points type
 @end multitable
 
 @node Data Structures,Global Variables,Common Types,Top
@@ -340,6 +405,7 @@ example source code files that are provided with the PDK distribution.
 * Special Ship Function Accessors::
 * Wraparound Map Functions::
 * UTILx.DAT Functions:: (new - 4.2)
+* Score Functions:: (new - 4.3)
 @end menu
 
 
@@ -1113,7 +1179,7 @@ HULL_NR).
 @findex ShipEngine
 @subheading Uns16 ShipEngine(Uns16 pID)
 
-This function returns the engineneype of the given ship (in the range 1 to
+This function returns the engine type of the given ship (in the range 1 to
 ENGINE_NR).
 
 @node ShipBeamType,ShipBeamNumber,ShipEngine,Ship Accessors
@@ -5935,7 +6001,7 @@ position of ships and/or mines to locations possibly outside the wraparound
 region. Note that PHOST automatically calls an equivalent function any time
 an external (AUXHOST) program returns control to PHOST.
 
-@node UTILx.DAT Functions,,Wraparound Map Functions,Function Call Interface
+@node UTILx.DAT Functions,Score Functions,Wraparound Map Functions,Function Call Interface
 @section UTILx.DAT Functions (new - 4.2)
 
 The following functions allow programs to write UTILx.DAT records.
@@ -6018,6 +6084,302 @@ file. 'pText' is True if this is a text file, False for binary files.
 Note that this function will not attempt to open the file 'pName': this
 is just the name the client will see. You have to read the file and
 supply its data and size to this function.
+
+@node Score Functions,,UTILx.DAT Functions,Function Call Interface
+@section Score Functions (new - 4.3)
+
+The following functions allow programs to evaluate scores for
+ships, planets, bases and mines. Default settings are compatibile
+with PTSCORE v1.4 program.
+
+@menu
+* PointsFor::
+* PutPointsFor::
+* PointsForFighter::
+* PointsForBaseDefensePost::
+* PointsForMineralMine::
+* PointsForFactory::
+* PointsForDefencePost::
+* PointsForBaseOnPlanet::
+* PointsForHull::
+* PointsForEngine::
+* PointsForBeam::
+* PointsForTube::
+* PointsForTorpedo::
+* PointsForShipParts::
+* PointsForShipCargo::
+* PointsForShipAmmo::
+* PointsForPlanetStructures::
+* PointsForPlanetMinerals::
+* PointsForBaseTechLevels::
+* PointsForBaseDefense::
+* PointsForBaseStorage::
+* PointsForBaseTorpedos::
+* PointsForShip::
+* PointsForPlanet::
+* PointsForBase::
+* PointsForMinefield::
+* RaceScoreForShips::
+* RaceScoreForPlanets::
+* RaceScoreForBases::
+* RaceScoreForMinefields::
+@end menu
+
+@iftex
+@itemize @minus
+@item PointsFor
+@item PutPointsFor
+@item PointsForFighter
+@item PointsForBaseDefensePost
+@item PointsForMineralMine
+@item PointsForFactory
+@item PointsForDefencePost
+@item PointsForBaseOnPlanet
+@item PointsForHull
+@item PointsForEngine
+@item PointsForBeam
+@item PointsForTube
+@item PointsForTorpedo
+@item PointsForShipParts
+@item PointsForShipCargo
+@item PointsForShipAmmo
+@item PointsForPlanetStructures
+@item PointsForPlanetMinerals
+@item PointsForBaseTechLevels
+@item PointsForBaseDefense
+@item PointsForBaseStorage
+@item PointsForBaseTorpedos
+@item PointsForShip
+@item PointsForPlanet
+@item PointsForBase
+@item PointsForMinefield
+@item RaceScoreForShips       
+@item RaceScoreForPlanets     
+@item RaceScoreForBases       
+@item RaceScoreForMinefields  
+@end itemize
+@end iftex
+
+@node PointsFor,PutPointsFor,,Score Functions
+@findex PointsFor
+@subheading Uns32 PointsFor(CargoType_Def lCargo)
+
+This function returns points for given material.
+
+@node PutPointsFor,PointsForFighter,PointsFor,Score Functions
+@findex PutPointsFor
+@subheading void PutPointsFor(CargoType_Def lCargo, Uns16 lPoints)
+
+This function sets points for given material.
+
+@node PointsForFighter,PointsForBaseDefensePost,PutPointsFor,Score Functions
+@findex PointsForFighter
+@subheading Uns32 PointsForFighter(void)
+
+This function returns points for one fighter, assuming fighter cost is
+3 tritanium, 2 duranium and 5 supplies.
+
+@node PointsForBaseDefensePost,PointsForMineralMine,PointsForFighter,Score Functions
+@findex PointsForBaseDefensePost
+@subheading Uns32 PointsForBaseDefensePost(void)
+
+This function returns points for one base defence, assuming base defence cost is
+1 duranium and 10 credits.
+
+@node PointsForMineralMine,PointsForFactory,PointsForBaseDefensePost,Score Functions
+@findex PointsForMineralMine
+@subheading Uns32 PointsForMineralMine(void)
+
+This function returns points for one mineral mine, assuming mineral mine cost is
+1 supply and 4 credits.
+
+@node PointsForFactory,PointsForDefencePost,PointsForMineralMine,Score Functions
+@findex PointsForFactory
+@subheading Uns32 PointsForFactory(void)
+
+This function returns points for one factory, assuming factory cost is
+1 supply and 3 credits.
+
+@node PointsForDefencePost,PointsForBaseOnPlanet,PointsForFactory,Score Functions
+@findex PointsForDefencePost
+@subheading Uns32 PointsForDefencePost(void)
+
+This function returns points for one planetary defence post, assuming defence post cost is
+1 supply and 10 credits.
+
+@node PointsForBaseOnPlanet,PointsForHull,PointsForDefencePost,Score Functions
+@findex PointsForBaseOnPlanet
+@subheading Uns32 PointsForBaseOnPlanet(void)
+
+This function returns points for base on planet, assuming base build cost is
+402 tritanium, 120 duranium, 340 molybdenum and 900 credits.
+
+@node PointsForHull,PointsForEngine,PointsForBaseOnPlanet,Score Functions
+@findex PointsForHull
+@subheading Uns32 PointsForHull(Uns16 lHullNr)
+
+This function returns points for hull, assuming normal materials and credits build cost
+for a given hull. The lHullNr parameter should be in range 1 to HULL_NR.
+
+@node PointsForEngine,PointsForBeam,PointsForHull,Score Functions
+@findex PointsForEngine
+@subheading Uns32 PointsForEngine(Uns16 lEngNr)
+
+This function returns points for one engine, assuming normal materials and credits build cost
+for a given engine. The lEngNr parameter should be in range 1 to ENGINE_NR.
+
+@node PointsForBeam,PointsForTube,PointsForEngine,Score Functions
+@findex PointsForBeam
+@subheading Uns32 PointsForBeam(Uns16 lBeamNr)
+
+This function returns points for one beam, assuming normal materials and credits build cost
+for a given beam. The lBeamNr parameter should be in range 1 to BEAM_NR.
+
+@node PointsForTube,PointsForTorpedo,PointsForBeam,Score Functions
+@findex PointsForTube
+@subheading Uns32 PointsForTube(Uns16 lTorpNr)
+
+This function returns points for one torpedo tube, assuming normal materials and 
+credits build cost for a given tube. The lTorpNr parameter should be in range 1 to TORP_NR.
+
+@node PointsForTorpedo,PointsForShipParts,PointsForTube,Score Functions
+@findex PointsForTorpedo
+@subheading Uns32 PointsForTorpedo(Uns16 lTorpNr)
+
+This function returns points for one torpedo, assuming normal materials and 
+credits build cost for a given torpedo. The lTorpNr parameter should be in range 1 to TORP_NR.
+
+@node PointsForShipParts,PointsForShipCargo,PointsForTorpedo,Score Functions
+@findex PointsForShipParts
+@subheading Uns32 PointsForShipParts(Uns16 sID)
+
+This function returns points for ship, assuming normal build costs for
+all ship equipment and hull. Hull, engines, beams and torpedo lunchers costs
+are summed.
+
+@node PointsForShipCargo,PointsForShipAmmo,PointsForShipParts,Score Functions
+@findex PointsForShipCargo
+@subheading Uns32 PointsForShipCargo(Uns16 sID)
+
+This function returns points for ship cargo.
+
+@node PointsForShipAmmo,PointsForPlanetStructures,PointsForShipCargo,Score Functions
+@findex PointsForShipAmmo
+@subheading Uns32 PointsForShipAmmo(Uns16 sID)
+
+This function returns points for ship ammunition. If ship carries fighters,
+fighters are counted. For ships having torpedo tubes, torpedos are counted.
+
+@node PointsForPlanetStructures,PointsForPlanetMinerals,PointsForShipAmmo,Score Functions
+@findex PointsForPlanetStructures
+@subheading Uns32 PointsForPlanetStructures(Uns16 pID)
+
+This function returns points for given planet structures. All mineral mines,
+factories and defence posts are counted.
+
+@node PointsForPlanetMinerals,PointsForBaseTechLevels,PointsForPlanetStructures,Score Functions
+@findex PointsForPlanetMinerals
+@subheading Uns32 PointsForPlanetMinerals(Uns16 pID)
+
+This function returns points for given planet minerals on surface.
+Scores for supplies and cash on planet are added too.
+
+@node PointsForBaseTechLevels,PointsForBaseDefense,PointsForPlanetMinerals,Score Functions
+@findex PointsForBaseTechLevels
+@subheading Uns32 PointsForBaseTechLevels(Uns16 bID)
+
+This function returns points for given base tech levels.
+
+@node PointsForBaseDefense,PointsForBaseStorage,PointsForBaseTechLevels,Score Functions
+@findex PointsForBaseDefense
+@subheading Uns32 PointsForBaseDefense(Uns16 bID)
+
+This function returns points for given base defence posts and fighters.
+
+@node PointsForBaseStorage,PointsForBaseTorpedos,PointsForBaseDefense,Score Functions
+@findex PointsForBaseStorage
+@subheading Uns32 PointsForBaseStorage(Uns16 bID)
+
+This function returns points for given base stored equipment. All hulls,
+engines, beams and torpedo tubes are counted.
+
+@node PointsForBaseTorpedos,PointsForShip,PointsForBaseStorage,Score Functions
+@findex PointsForBaseTorpedos
+@subheading Uns32 PointsForBaseTorpedos(Uns16 bID)
+
+This function returns points for given base stored torpedos.
+
+@node PointsForShip,PointsForPlanet,PointsForBaseTorpedos,Score Functions
+@findex PointsForShip
+@subheading Uns32 PointsForShip(Uns16 sID, PointsType_Def CountType)
+
+This function returns points for given ship. Setting CountType to USED_POINTS
+makes procedure counts points only for ship parts and torpedos 
+(PointsForShipParts and PointsForShipTorpedos are called).
+Setting CountType to UNUSED_POINTS counts only ship cargo
+(PointsForShipCargo is called). ALL_POINTS sums all points.
+
+@node PointsForPlanet,PointsForBase,PointsForShip,Score Functions
+@findex PointsForPlanet
+@subheading Uns32 PointsForPlanet(Uns16 pID, PointsType_Def CountType)
+
+This function returns points for given planet. Setting CountType to USED_POINTS
+makes procedure counts points only for planet structures (PointsForPlanetStructures is called).
+Setting CountType to UNUSED_POINTS counts only planet cargo
+(PointsForPlanetMinerals is called). ALL_POINTS sums all points.
+
+@node PointsForBase,PointsForMinefield,PointsForPlanet,Score Functions
+@findex PointsForBase
+@subheading Uns32 PointsForBase(Uns16 bID, PointsType_Def CountType)
+
+This function returns points for given base. Setting CountType to USED_POINTS
+makes procedure counts points for base build cost, torpedos stored in base,
+base defence system and base tech levels (PointsForBaseOnPlanet, PointsForBaseTorpedos, 
+PointsForBaseDefense and PointsForBaseTechLevels are called).
+Setting CountType to UNUSED_POINTS counts base stored equipment. All hulls,
+engines, beams and torpedo tubes are counted (PointsForBaseStorage is called). 
+ALL_POINTS sums all points.
+
+@node PointsForMinefield,RaceScoreForShips,PointsForBase,Score Functions
+@findex PointsForMinefield
+@subheading Uns32 PointsForMinefield(Uns16 mID, PointsType_Def CountType)
+
+This function returns points for given minefield. Setting CountType to USED_POINTS
+or to ALL_POINTS gives points for minefield mID assuming that minefield was layed 
+using the most cheapest, in points, torpedos. Setting CountType to UNUSED_POINTS
+make procedure to return zero. No race specific corrections are made.
+
+@node RaceScoreForShips,RaceScoreForPlanets,PointsForMinefield,Score Functions
+@findex RaceScoreForShips
+@subheading Uns32 RaceScoreForShips( RaceType_Def Race, PointsType_Def CountType, ShipsType_Def ShipsType)
+
+This function returns points for given race ships. Points type are controled
+by CountType parameter. ShipsType parameter can filter counted ships, so only
+war ships are scored (WAR_SHIPS), freighters (FREIGHTER_SHIPS) or there is no filtering 
+at all (ALL_SHIPS).
+
+@node RaceScoreForPlanets,RaceScoreForBases,RaceScoreForShips,Score Functions
+@findex RaceScoreForPlanets
+@subheading Uns32 RaceScoreForPlanets( RaceType_Def Race, PointsType_Def CountType)
+
+This function returns points for given race planets. Points type are controled
+by CountType parameter.
+
+@node RaceScoreForBases,RaceScoreForMinefields,RaceScoreForPlanets,Score Functions
+@findex RaceScoreForBases
+@subheading Uns32 RaceScoreForBases( RaceType_Def Race, PointsType_Def CountType)
+
+This function returns points for given race bases. Points type are controled
+by CountType parameter.
+
+@node RaceScoreForMinefields,,RaceScoreForBases,Score Functions
+@findex RaceScoreForMinefields
+@subheading Uns32 RaceScoreForMinefields( RaceType_Def Race, PointsType_Def CountType, Boolean RaceModify)
+
+This function returns points for given race minefields. Points type are controled
+by CountType parameter. Setting RaceModify to True makes points to be corrected by
+race UnitsPerTorpRate PConfig.src parameter, so real torpedo laying costs are counted.
+Making RaceModify False gives no such correction.
 
 @node Variables Index,,,Top
 @unnumbered Variables Index

@@ -55,6 +55,7 @@ in this file are as follows:
     - Special Ship Function Accessors
     - Wraparound Map Functions
     - UTILx.DAT Functions (new - 4.2)
+    - Score Functions (new - 4.3)
 
 Manifest Constants
 ==================
@@ -149,6 +150,9 @@ PDK is encouraged.
     DOSCVT_Def         -- an enumerated type listing data types the PDK
                           can read/write in DOS format (see "Cross-Platform
                           Portability Part II")
+    ShipsType_Def      -- an enumerated type listing ships types in terms
+                          of being war ship or freighter
+    PointsType_Def     -- an enumerated type listing points type
 
 
 Data Structures
@@ -3188,3 +3192,156 @@ file. 'pText' is True if this is a text file, False for binary files.
 Note that this function will not attempt to open the file 'pName': this
 is just the name the client will see. You have to read the file and
 supply its data and size to this function.
+
+Score Functions (new - 4.3)
+---------------------------
+
+The following functions allow programs to evaluate scores for ships,
+planets, bases and mines. Default settings are compatibile with PTSCORE
+v1.4 program.
+
+        Uns32 PointsFor(CargoType_Def lCargo)
+This function returns points for given material.
+
+        void PutPointsFor(CargoType_Def lCargo, Uns16 lPoints)
+This function sets points for given material.
+
+        Uns32 PointsForFighter(void)
+This function returns points for one fighter, assuming fighter cost is
+3 tritanium, 2 duranium and 5 supplies.
+
+        Uns32 PointsForBaseDefensePost(void)
+This function returns points for one base defence, assuming base
+defence cost is 1 duranium and 10 credits.
+
+        Uns32 PointsForMineralMine(void)
+This function returns points for one mineral mine, assuming mineral
+mine cost is 1 supply and 4 credits.
+
+        Uns32 PointsForFactory(void)
+This function returns points for one factory, assuming factory cost is
+1 supply and 3 credits.
+
+        Uns32 PointsForDefencePost(void)
+This function returns points for one planetary defence post, assuming
+defence post cost is 1 supply and 10 credits.
+
+        Uns32 PointsForBaseOnPlanet(void)
+This function returns points for base on planet, assuming base build
+cost is 402 tritanium, 120 duranium, 340 molybdenum and 900 credits.
+
+        Uns32 PointsForHull(Uns16 lHullNr)
+This function returns points for hull, assuming normal materials and
+credits build cost for a given hull. The lHullNr parameter should be in
+range 1 to HULL_NR.
+
+        Uns32 PointsForEngine(Uns16 lEngNr)
+This function returns points for one engine, assuming normal materials
+and credits build cost for a given engine. The lEngNr parameter should
+be in range 1 to ENGINE_NR.
+
+        Uns32 PointsForBeam(Uns16 lBeamNr)
+This function returns points for one beam, assuming normal materials
+and credits build cost for a given beam. The lBeamNr parameter should
+be in range 1 to BEAM_NR.
+
+        Uns32 PointsForTube(Uns16 lTorpNr)
+This function returns points for one torpedo tube, assuming normal
+materials and credits build cost for a given tube. The lTorpNr
+parameter should be in range 1 to TORP_NR.
+
+        Uns32 PointsForTorpedo(Uns16 lTorpNr)
+This function returns points for one torpedo, assuming normal materials
+and credits build cost for a given torpedo. The lTorpNr parameter
+should be in range 1 to TORP_NR.
+
+        Uns32 PointsForShipParts(Uns16 sID)
+This function returns points for ship, assuming normal build costs for
+all ship equipment and hull. Hull, engines, beams and torpedo lunchers
+costs are summed.
+
+        Uns32 PointsForShipCargo(Uns16 sID)
+This function returns points for ship cargo.
+
+        Uns32 PointsForShipAmmo(Uns16 sID)
+This function returns points for ship ammunition. If ship carries
+fighters, fighters are counted. For ships having torpedo tubes,
+torpedos are counted.
+
+        Uns32 PointsForPlanetStructures(Uns16 pID)
+This function returns points for given planet structures. All mineral
+mines, factories and defence posts are counted.
+
+        Uns32 PointsForPlanetMinerals(Uns16 pID)
+This function returns points for given planet minerals on surface.
+Scores for supplies and cash on planet are added too.
+
+        Uns32 PointsForBaseTechLevels(Uns16 bID)
+This function returns points for given base tech levels.
+
+        Uns32 PointsForBaseDefense(Uns16 bID)
+This function returns points for given base defence posts and fighters.
+
+        Uns32 PointsForBaseStorage(Uns16 bID)
+This function returns points for given base stored equipment. All
+hulls, engines, beams and torpedo tubes are counted.
+
+        Uns32 PointsForBaseTorpedos(Uns16 bID)
+This function returns points for given base stored torpedos.
+
+        Uns32 PointsForShip(Uns16 sID, PointsType_Def CountType)
+This function returns points for given ship. Setting CountType to
+USED_POINTS makes procedure counts points only for ship parts and
+torpedos (PointsForShipParts and PointsForShipTorpedos are called).
+Setting CountType to UNUSED_POINTS counts only ship cargo
+(PointsForShipCargo is called). ALL_POINTS sums all points.
+
+        Uns32 PointsForPlanet(Uns16 pID, PointsType_Def CountType)
+This function returns points for given planet. Setting CountType to
+USED_POINTS makes procedure counts points only for planet structures
+(PointsForPlanetStructures is called).  Setting CountType to
+UNUSED_POINTS counts only planet cargo (PointsForPlanetMinerals is
+called). ALL_POINTS sums all points.
+
+        Uns32 PointsForBase(Uns16 bID, PointsType_Def CountType)
+This function returns points for given base. Setting CountType to
+USED_POINTS makes procedure counts points for base build cost, torpedos
+stored in base, base defence system and base tech levels
+(PointsForBaseOnPlanet, PointsForBaseTorpedos, PointsForBaseDefense and
+PointsForBaseTechLevels are called).  Setting CountType to
+UNUSED_POINTS counts base stored equipment. All hulls, engines, beams
+and torpedo tubes are counted (PointsForBaseStorage is called).
+ALL_POINTS sums all points.
+
+        Uns32 PointsForMinefield(Uns16 mID, PointsType_Def CountType)
+This function returns points for given minefield. Setting CountType to
+USED_POINTS or to ALL_POINTS gives points for minefield mID assuming
+that minefield was layed using the most cheapest, in points, torpedos.
+Setting CountType to UNUSED_POINTS make procedure to return zero. No
+race specific corrections are made.
+
+        Uns32 RaceScoreForShips( RaceType_Def Race, PointsType_Def
+                                 CountType, ShipsType_Def ShipsType)
+This function returns points for given race ships. Points type are
+controled by CountType parameter. ShipsType parameter can filter
+counted ships, so only war ships are scored (WAR_SHIPS), freighters
+(FREIGHTER_SHIPS) or there is no filtering at all (ALL_SHIPS).
+
+        Uns32 RaceScoreForPlanets( RaceType_Def Race, PointsType_Def
+                                   CountType)
+This function returns points for given race planets. Points type are
+controled by CountType parameter.
+
+        Uns32 RaceScoreForBases( RaceType_Def Race, PointsType_Def
+                                 CountType)
+This function returns points for given race bases. Points type are
+controled by CountType parameter.
+
+        Uns32 RaceScoreForMinefields( RaceType_Def Race, PointsType_Def
+                                      CountType, Boolean RaceModify)
+This function returns points for given race minefields. Points type
+are controled by CountType parameter. Setting RaceModify to True makes
+points to be corrected by race UnitsPerTorpRate PConfig.src parameter,
+so real torpedo laying costs are counted.  Making RaceModify False
+gives no such correction.
+
