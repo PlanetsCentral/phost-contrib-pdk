@@ -15,7 +15,7 @@ SPLITOBJ=$(patsubst %.c, split/%.mo, $(SRCS))
 
 #.SUFFIXES: .o
 
-CC=gcc -Wall -O3 -I.
+CC=gcc -Wall -O3 -I. -g
 
 all: libpdk.a sendmess crack ptscore killrace pmaster pally
 

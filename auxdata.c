@@ -36,6 +36,7 @@ static Uns8 gVersionMinor = 0;
 
 static Uns8 gAuxilliaryInfo[16];
 
+static void InitVersionInfo(void);
 static void InitScanInfo(void);
 static void InitBaseNativeInfo(void);
 static void InitAlliances(void);
@@ -51,6 +52,124 @@ static void FreeCLOAKC(void);
 
 static Boolean gInitialized = False;
 
+enum {
+    P3_SHIP_NR   = 500,
+    P3_PLANET_NR = 500,
+    P3_RACE_NR   = RACE_NR
+};
+
+#ifdef PDK_PHOST4_SUPPORT
+#define VER(v3,v4) (gVersionMajor < 4 ? (v3) : (v4))
+
+static int gVersionOverride = 0;
+
+enum {
+    aux_BaseNatives   = 1,
+    aux_AllianceInfo  = 2,
+    aux_ShipScanInfo  = 3,
+    aux_BuildQueue    = 4,
+    aux_PAL           = 5,
+    aux_Remote        = 6,
+    aux_ShipSpecial   = 7,
+    aux_ShipVisible   = 8
+};
+
+static Boolean
+IsValidVersionNumber(int pVersion)
+{
+    return (pVersion == 3) || (pVersion == 4);
+}
+
+void
+SetNewMajorVersion(int pVersion)
+{
+    if (IsValidVersionNumber(pVersion))
+        gVersionOverride = pVersion;
+}
+
+/* We build a list of Auxdata_Chunks, with the data appended to the
+   individual chunks */
+typedef struct Auxdata_Chunk {
+    struct Auxdata_Chunk* mNext;
+    Uns16                 mType;
+    Uns16                 mSize;
+} Auxdata_Chunk;
+static Auxdata_Chunk *sFirstChunk = 0, **sLastChunk = &sFirstChunk;
+
+static Boolean
+ReadUnknownChunk(FILE* pFile, Uns16 pType, Uns16 pSize)
+{
+    Auxdata_Chunk* p = MemAlloc(pSize + sizeof(Auxdata_Chunk));
+    char* lData = (char*)p + sizeof(Auxdata_Chunk);
+    p->mNext = 0;
+    p->mType = pType;
+    p->mSize = pSize;
+    if (fread(lData, pSize, 1, pFile) != 1) {
+        MemFree(p);
+        return False;
+    }
+    *sLastChunk = p;
+    sLastChunk = &p->mNext;
+    return True;
+}
+
+static void
+FreeUnknownChunks()
+{
+    while (sFirstChunk) {
+        Auxdata_Chunk* p = sFirstChunk;
+        sFirstChunk = sFirstChunk->mNext;
+        MemFree(p);
+    }
+    sLastChunk = &sFirstChunk;
+}
+
+/** Write AUXDATA chunk.
+    \param pType     type of chunk (aux_XXX)
+    \param pFile     file
+    \param pFunc     function to write that chunk
+    \param pSize     size of chunk */
+static Boolean
+WriteAux4(Uns16 pType, FILE* pFile, Boolean (*pFunc)(FILE*), Uns16 pSize)
+{
+    Uns16 lHeader[2];
+    long  lPos;
+    
+    lHeader[0] = pType;
+    lHeader[1] = pSize;
+    EndianSwap16(lHeader, 2);
+    if (fwrite(&lHeader, 1, sizeof(lHeader), pFile) != sizeof(lHeader))
+        return False;
+    lPos = ftell(pFile);
+    if (! pFunc(pFile))
+        return False;
+    passert(ftell(pFile) == lPos + pSize);
+    return True;
+}
+
+static Boolean
+WriteUnknownChunks(FILE* pFile)
+{
+    Uns16 lHeader[2];
+    Auxdata_Chunk* p = sFirstChunk;
+    while (p) {
+        lHeader[0] = p->mType;
+        lHeader[1] = p->mSize;
+        EndianSwap16(lHeader, 2);
+        if (fwrite(&lHeader, 1, sizeof(lHeader), pFile) != sizeof(lHeader))
+            return False;
+        if (fwrite((char*)p + sizeof(Auxdata_Chunk), 1, p->mSize, pFile) != p->mSize)
+            return False;
+        p = p->mNext;
+    }
+    return True;
+}
+#else
+# define IsValidVersionNumber(x) ((x) == PHOST_VERSION_MAJOR)
+# define FreeUnknownChunks()
+# define VER(v3,v4) (v3)
+#endif
+
 static void
 FreeAuxData(void)
 {
@@ -59,6 +178,7 @@ FreeAuxData(void)
   FreeBuildQueue();
   FreeRemoteControl();
   FreeCLOAKC();
+  FreeUnknownChunks();
 
   gInitialized = False;
 }
@@ -69,6 +189,7 @@ InitAuxData(void)
   if (gInitialized)
     return;
 
+  InitVersionInfo();
   InitScanInfo();
   InitBaseNativeInfo();
   InitAlliances();
@@ -120,15 +241,16 @@ WriteScanInfo(FILE * pOutfile)
    was cloaked on the previous turn. */
 
 static Boolean
-ReadScanInfo(FILE * pInfile)
+ReadScanInfo(FILE* pInfile, Uns16 pSize)
 {
   InitAuxData();
 
   passert(gScanInfo NEQ 0);
-  if (1 NEQ fread(gScanInfo, (SHIP_NR + 1) * sizeof(Uns16), 1, pInfile)) {
+  pSize = pSize ? min(pSize / sizeof(Uns16), SHIP_NR+1) : (P3_SHIP_NR+1);
+  if (1 NEQ fread(gScanInfo, pSize * sizeof(Uns16), 1, pInfile)) {
     return False;
   }
-  EndianSwap16(gScanInfo, SHIP_NR + 1);
+  EndianSwap16(gScanInfo, pSize);
   return True;
 }
 
@@ -157,7 +279,7 @@ IsShipCloaked(Uns16 pShip)
     lMinor;
   Boolean lIsAuxdataPresent = GameFilesVersion(&lMajor, &lMinor);
 
-  /* Preconditions for valid cloak info: (a) No auxdata (HOST) and CLOAKC.HST 
+  /* Preconditions for valid cloak info: (a) No auxdata (HOST) and CLOAKC.HST
      was loaded OR (b) auxdata present (PHOST) and version > 2.10 */
 
   if (((!lIsAuxdataPresent) AND(!gCloakcLoaded))
@@ -216,7 +338,7 @@ Uns16
 BuildQueueBaseID(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
   return QueueMember->mBase;
@@ -226,7 +348,7 @@ Uns32
 BuildQueuePriority(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
   return QueueMember->mPriority;
@@ -236,17 +358,21 @@ Boolean
 BuildQueueIsCloning(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
+#ifdef PDK_PHOST4_SUPPORT
+  return QueueMember->mClonedShipId != 0;
+#else
   return QueueMember->mByCloning;
+#endif
 }
 
 RaceType_Def
 BuildQueueShipOwner(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
   return QueueMember->mShipOwner;
@@ -256,7 +382,7 @@ RaceType_Def
 BuildQueueOwner(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
   return BaseOwner(QueueMember->mBase);
@@ -266,21 +392,25 @@ Uns16
 BuildQueueHullType(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
 /* Clonning is a special case */
 
-  return (QueueMember->mByCloning?
-  (&QueueMember->mOrder)->mHull:
-  TrueHull(BaseOwner(QueueMember->mBase),(&QueueMember->mOrder)->mHull));
+#ifdef PDK_PHOST4_SUPPORT
+  return (QueueMember->mClonedShipId ?
+#else
+  return (QueueMember->mByCloning ?
+#endif
+          (&QueueMember->mOrder)->mHull:
+          TrueHull(BaseOwner(QueueMember->mBase),(&QueueMember->mOrder)->mHull));
 }
 
 Uns16
 BuildQueueEngineType(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
   return (&QueueMember->mOrder)->mEngineType;
@@ -290,7 +420,7 @@ Uns16
 BuildQueueBeamType(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
   return (&QueueMember->mOrder)->mBeamType;
@@ -300,7 +430,7 @@ Uns16
 BuildQueueTorpType(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
   return (&QueueMember->mOrder)->mTubeType;
@@ -310,7 +440,7 @@ Uns16
 BuildQueueBeamNumber(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
   return (&QueueMember->mOrder)->mNumBeams;
@@ -320,7 +450,7 @@ Uns16
 BuildQueueTorpNumber(Uns16 pPosition)
 {
   BaseOrder_Struct *QueueMember;
-  
+
   QueueMember=BuildQueueAccess(pPosition);
 
   return (&QueueMember->mOrder)->mNumTubes;
@@ -429,11 +559,14 @@ BuildQueuePush(BaseOrder_Struct * pOrderPtr)
      fields. */
   lCurrPtr = gBaseOrder + lCount;
 
-  if ((memcmp(&lCurrPtr->mOrder, &pOrderPtr->mOrder,
-                    sizeof(BuildOrder_Struct)) EQ 0)
-        AND(lCurrPtr->mByCloning EQ pOrderPtr->mByCloning)
-        AND(lCurrPtr->mShipOwner EQ pOrderPtr->mShipOwner)
-        )
+  if ((memcmp(&lCurrPtr->mOrder, &pOrderPtr->mOrder, sizeof(BuildOrder_Struct)) EQ 0)
+#ifdef PDK_PHOST4_SUPPORT
+      && (lCurrPtr->mClonedShipId == pOrderPtr->mClonedShipId
+          || lCurrPtr->mClonedShipId == 0xFFFF)
+#else
+      && (lCurrPtr->mByCloning EQ pOrderPtr->mByCloning)
+#endif
+      && (lCurrPtr->mShipOwner EQ pOrderPtr->mShipOwner))
     return;                     /* Nothing to do -- they're the same */
 
   /* The orders are different. Subtract penalty priority from the order */
@@ -443,8 +576,7 @@ BuildQueuePush(BaseOrder_Struct * pOrderPtr)
 
   if (lDiff >= lPriority) {
     lPriority = 0;
-  }
-  else {
+  } else {
     lPriority -= lDiff;
   }
 
@@ -499,26 +631,28 @@ ShipsInBuildQueue(void)
 }
 
 static Boolean
-ReadBuildQueue(FILE * pFile)
+ReadBuildQueue(FILE* pFile, Uns16 pSize)
 {
-  passert(gBaseOrder NEQ 0);
+    int lPlanet;
+    passert(gBaseOrder NEQ 0);
+    passert(DOSStructSize(BaseOrderStruct_Convert, NumBaseOrderStruct_Convert) == 26);
 
-  {
-#ifdef __MSDOS__
-    if (PLANET_NR NEQ fread(gBaseOrder, sizeof(BaseOrder_Struct), PLANET_NR,
-                pFile)) goto bad_read;
-#else
-    Uns16 lPlanet;
+    pSize = pSize ? min(PLANET_NR, pSize / 26) : P3_PLANET_NR;
+    for (lPlanet = 0; lPlanet < pSize; lPlanet++) {
+        if (!DOSReadStruct(BaseOrderStruct_Convert, NumBaseOrderStruct_Convert,
+                           gBaseOrder + lPlanet, pFile))
+            goto bad_read;
+    }
 
-    for (lPlanet = 0; lPlanet < PLANET_NR; lPlanet++) {
-      if (!DOSReadStruct(BaseOrderStruct_Convert, NumBaseOrderStruct_Convert,
-                  gBaseOrder + lPlanet, pFile))
-        goto bad_read;
+#ifdef PDK_PHOST4_SUPPORT
+    if (gVersionMajor < 4) {
+        for (lPlanet = 0; lPlanet < pSize; ++lPlanet)
+            if (gBaseOrder[lPlanet].mClonedShipId)
+                gBaseOrder[lPlanet].mClonedShipId = 0xFFFF;
     }
 #endif
-  }
 
-  /* Count the number of current base orders by searching over all orders and 
+  /* Count the number of current base orders by searching over all orders and
      stopping when the base number is 0 */
 
   for (gNumBaseOrders = 0; gBaseOrder[gNumBaseOrders].mBase NEQ 0;
@@ -532,25 +666,28 @@ bad_read:
 }
 
 static Boolean
-WriteBuildQueue(FILE * pFile)
+WriteBuildQueue(FILE* pFile)
 {
+  Uns16 lPlanet;
+  const Uns16 lLimit = VER(P3_PLANET_NR, PLANET_NR);
+
   passert(gBaseOrder NEQ 0);
-
-#ifdef __MSDOS__
-  if (PLANET_NR NEQ fwrite(gBaseOrder, sizeof(BaseOrder_Struct), PLANET_NR,
-              pFile)) goto bad_write;
-#else
-  {
-    Uns16 lPlanet;
-
-    for (lPlanet = 0; lPlanet < PLANET_NR; lPlanet++) {
-      if (!DOSWriteStruct(BaseOrderStruct_Convert, NumBaseOrderStruct_Convert,
-                  gBaseOrder + lPlanet, pFile))
-        goto bad_write;
-    }
-  }
+  for (lPlanet = 0; lPlanet < lLimit; lPlanet++) {
+      BaseOrder_Struct lStruct, *lPointer;
+#ifdef PDK_PHOST4_SUPPORT
+      if (gVersionMajor < 4) {
+          lStruct = gBaseOrder[lPlanet];
+          if (lStruct.mClonedShipId)
+              lStruct.mClonedShipId = 1;
+          lPointer = &lStruct;
+      } else
 #endif
+          lPointer = gBaseOrder + lPlanet;
 
+      if (! DOSWriteStruct(BaseOrderStruct_Convert, NumBaseOrderStruct_Convert,
+                           lPointer, pFile))
+          goto bad_write;
+  }
   return True;
 
 bad_write:
@@ -582,18 +719,44 @@ SortBuildQueue(void)
  *    V E R S I O N  I N F O
  */
 
-static Boolean
-ReadAuxVersionInfo(FILE * pInFile)
+/** Initialize version number.
+    With PHost4 support, users can choose the major version they want using
+    the `PHOST_VERSION' environment variable. Otherwise, we generate the
+    compiled-in version. */
+static void
+InitVersionInfo(void)
 {
-  /* 
-     Format of versioning/turn sequence info: Byte 0 -- major version Byte 1
-     -- minor version Byte 2 -- Turntime_Struct (should match nextturn.hst)
-     Byte 22 -- First battle info Byte 24 -- Auxilliary info (14 bytes) Byte
-     38 -- next section begins */
+#ifdef PDK_PHOST4_SUPPORT
+    if (!gVersionOverride) {
+        char* lValue = getenv("PHOST_VERSION");
+        if (lValue)
+            SetNewMajorVersion(atoi(lValue));
+    }
+    if (gVersionOverride && gVersionOverride != PHOST_VERSION_MAJOR) {
+        gVersionMinor = 0;
+        gVersionMajor = gVersionOverride;
+        return;
+    }
+#endif
+    gVersionMinor = PHOST_VERSION_MINOR;
+    gVersionMajor = PHOST_VERSION_MAJOR;
+}
+
+static Boolean
+ReadAuxVersionInfo(FILE* pInFile)
+{
+  /*
+     Format of versioning/turn sequence info:
+       Byte 0 -- major version
+       Byte 1 -- minor version
+       Byte 2 -- Turntime_Struct (should match nextturn.hst)
+       Byte 22 -- First battle info
+       Byte 24 -- Auxilliary info (14 bytes)
+       Byte 38 -- next section begins
+  */
 
   Uns8 lVersion[2];             /* Element 0: major, element 1: minor */
   Turntime_Struct lTurntime;
-  Boolean lConverted;           /* True if conversions were required */
 
   if (1 NEQ fread(lVersion, 2, 1, pInFile)) {
     return False;
@@ -602,7 +765,7 @@ ReadAuxVersionInfo(FILE * pInFile)
   gVersionMajor = lVersion[0];
   gVersionMinor = lVersion[1];
 
-  if (lVersion[0] NEQ PHOST_VERSION_MAJOR) {
+  if (! IsValidVersionNumber(lVersion[0])) {
     Error("Game data files are incompatible -- they are version %u.%u.\n",
           (Uns16) lVersion[0], (Uns16) lVersion[1]);
     return False;
@@ -613,16 +776,15 @@ ReadAuxVersionInfo(FILE * pInFile)
     goto bad_read;
 #else
   if (!DOSReadStruct(TurntimeStruct_Convert, NumTurntimeStruct_Convert,
-              &lTurntime, pInFile))
+                     &lTurntime, pInFile))
     goto bad_read;
 #endif
 
   /* Check to make sure timestamp matches NEXTTURN.HST. If not, this file is
      stale. */
   if (memcmp(&lTurntime, RawTurnTime(), sizeof(lTurntime))) {
-    Error
-          ("AUXDATA.HST file is from turn %u. It is stale and must be deleted.\n",
-          lTurntime.TurnNumber);
+    Error ("AUXDATA.HST file is from turn %u. It is stale and must be deleted.\n",
+           lTurntime.TurnNumber);
     return False;
   }
 
@@ -637,7 +799,7 @@ bad_read:
 }
 
 static Boolean
-WriteAuxVersionInfo(FILE * pOutFile)
+WriteAuxVersionInfo(FILE* pOutFile)
 {
   Uns8 lVersion[2];             /* Element 0: major, element 1: minor */
   const Turntime_Struct *lTurnPtr;
@@ -669,7 +831,7 @@ bad_write:
 }
 
 Boolean
-GameFilesVersion(Uns16 * pMajor, Uns16 * pMinor)
+GameFilesVersion(Uns16* pMajor, Uns16* pMinor)
 {
   passert(pMajor NEQ 0);
   passert(pMinor NEQ 0);
@@ -713,20 +875,22 @@ FreeBaseNativeInfo(void)
 /* File I/O */
 
 static Boolean
-ReadBaseNativeInfo(FILE * pFile)
+ReadBaseNativeInfo(FILE* pFile, Uns16 pSize)
 {
   passert(gBaseNatives NEQ 0);
-  if (1 NEQ fread(gBaseNatives, PLANET_NR + 1, 1, pFile))
+
+  pSize = pSize ? min(pSize, PLANET_NR+1) : (P3_PLANET_NR+1);
+  if (1 NEQ fread(gBaseNatives, pSize, 1, pFile))
     return False;
 
   return True;
 }
 
 static Boolean
-WriteBaseNativeInfo(FILE * pFile)
+WriteBaseNativeInfo(FILE* pFile)
 {
   passert(gBaseNatives NEQ 0);
-  if (1 NEQ fwrite(gBaseNatives, PLANET_NR + 1, 1, pFile))
+  if (1 NEQ fwrite(gBaseNatives, VER(P3_PLANET_NR, PLANET_NR) + 1, 1, pFile))
     return False;
 
   return True;
@@ -736,12 +900,12 @@ WriteBaseNativeInfo(FILE * pFile)
  *       A L L I A N C E S
  */
 
-#define ALLY_SHIPS_BIT  (1 << ALLY_SHIPS)
-#define ALLY_PLANETS_BIT (1 << ALLY_PLANETS)
-#define ALLY_MINES_BIT  (1 << ALLY_MINES)
-#define ALLY_COMBAT_BIT  (1 << ALLY_COMBAT)
-#define ALLY_VISION_BIT  (1 << ALLY_VISION)
-#define ALLY_OFFER_BIT  (1 << (ALLY_VISION + 1))
+#define ALLY_SHIPS_BIT      (1 << ALLY_SHIPS)
+#define ALLY_PLANETS_BIT    (1 << ALLY_PLANETS)
+#define ALLY_MINES_BIT      (1 << ALLY_MINES)
+#define ALLY_COMBAT_BIT     (1 << ALLY_COMBAT)
+#define ALLY_VISION_BIT     (1 << ALLY_VISION)
+#define ALLY_OFFER_BIT      (1 << (ALLY_VISION + 1))
 
 #define ALLY_SHIPS_COND_BIT   (1 << (8 + ALLY_SHIPS))
 #define ALLY_PLANETS_COND_BIT (1 << (8 + ALLY_PLANETS))
@@ -782,15 +946,15 @@ Boolean
 PlayerAllowsAlly(RaceType_Def pPlayer, RaceType_Def pRace,
       AllianceLevel_Def pLevel)
 {
-  /* A player allows his ally the given level IF: * The level has been
-     configured to be allowed AND * Either the conditional bit for this level 
-     has not been set OR * The ally offers the same level to the player */
+  /* A player allows his ally the given level
+      IF: * The level has been configured to be allowed
+      AND * Either the conditional bit for this level has not been set
+      OR  * The ally offers the same level to the player */
   InitAuxData();
 
-  return (gAlliances[pPlayer][pRace] & (1 << pLevel))
-        AND((!(gAlliances[pPlayer][pRace] & (1 << (pLevel + 8))))
-        OR(gAlliances[pRace][pPlayer] & (1 << pLevel))
-        );
+  return (    gAlliances[pPlayer][pRace] & (1 << pLevel))
+          AND (   (!(gAlliances[pPlayer][pRace] & (1 << (pLevel + 8))))
+               OR (gAlliances[pRace][pPlayer] & (1 << pLevel)));
 }
 
 Boolean
@@ -858,10 +1022,13 @@ PlayersAreAllies(RaceType_Def pPlayer, RaceType_Def pRace)
 }
 
 static Boolean
-ReadAllianceInfo(FILE * pFile)
+ReadAllianceInfo(FILE* pFile, Uns16 pSize)
 {
+  /* make no attempt to reassemble alliances from smaller/larger block */
+  if (pSize && pSize != (RACE_NR+1)*(RACE_NR+1)*sizeof(Uns16))
+      return False;
   if (sizeof(Uns16) NEQ fread(gAlliances, (RACE_NR + 1) * (RACE_NR + 1),
-              sizeof(Uns16), pFile))
+                              sizeof(Uns16), pFile))
     return False;
   EndianSwap16(gAlliances, (RACE_NR + 1) * (RACE_NR + 1));
 
@@ -893,14 +1060,15 @@ InitActivityLevel(void)
 }
 
 static Boolean
-ReadActivityLevel(FILE * pFile)
+ReadActivityLevel(FILE* pFile, Uns16 pSize)
 {
-  if ((RACE_NR + 1) NEQ fread(gActivityLevel, sizeof(gActivityLevel[0]),
-              RACE_NR + 1, pFile))
-    return False;
-  EndianSwap32(gActivityLevel, RACE_NR + 1);
-
-  return True;
+    pSize = pSize ? min(pSize / sizeof(gActivityLevel[0]), RACE_NR+1) : (P3_RACE_NR+1);
+    if (pSize) {
+        if (pSize NEQ fread(gActivityLevel, sizeof(gActivityLevel[0]), pSize, pFile))
+            return False;
+        EndianSwap32(gActivityLevel, pSize);
+    }
+    return True;
 }
 
 static Boolean
@@ -908,7 +1076,7 @@ WriteActivityLevel(FILE * pFile)
 {
   EndianSwap32(gActivityLevel, RACE_NR + 1);
   if ((RACE_NR + 1) NEQ fwrite(gActivityLevel, sizeof(gActivityLevel[0]),
-              RACE_NR + 1, pFile))
+                               RACE_NR + 1, pFile))
     return False;
   EndianSwap32(gActivityLevel, RACE_NR + 1);
 
@@ -971,37 +1139,61 @@ FreeRemoteControl(void)
 }
 
 static Boolean
-ReadRemoteControl(FILE * pFile)
+ReadRemoteControl(FILE* pFile, Uns16 pSize)
 {
-  passert(gRemoteOwner NEQ 0);
-  if ((SHIP_NR + 1) NEQ fread(gRemoteOwner, sizeof(gRemoteOwner[0]),
-              SHIP_NR + 1, pFile))
-    return False;
-  EndianSwap16(gRemoteOwner, SHIP_NR + 1);
-  if ((SHIP_NR + 1) NEQ fread(gOriginalOwner, sizeof(gOriginalOwner[0]),
-              SHIP_NR + 1, pFile))
-    return False;
-  EndianSwap16(gOriginalOwner, SHIP_NR + 1);
+    enum { ITEM_SIZE = sizeof(gRemoteOwner[0]) + sizeof(gOriginalOwner[0]) };
+    Uns16 lCount, lRead;
 
-  return True;
+    passert(gRemoteOwner NEQ 0);
+
+    /* extra mega robust version :) File might have been written by a
+       PHost version that supports more ships than we do, so we have
+       to skip accordingly. */
+    lCount = pSize ? pSize / ITEM_SIZE : (P3_SHIP_NR+1);
+    lRead  = min(lCount, SHIP_NR+1);
+    if (fread(gRemoteOwner, sizeof(gRemoteOwner[0]), lRead, pFile) != lRead)
+        return False;
+    EndianSwap16(gRemoteOwner, lRead);
+    if (lRead != lCount)
+        fseek(pFile, sizeof(gRemoteOwner[0]) * (lCount-lRead), SEEK_CUR);
+    if (fread(gOriginalOwner, sizeof(gOriginalOwner[0]), lRead, pFile) != lRead)
+        return False;
+    EndianSwap16(gOriginalOwner, lRead);
+    return True;
+
+/* Original code: */
+/*   passert(gRemoteOwner NEQ 0); */
+/*   if ((SHIP_NR + 1) NEQ fread(gRemoteOwner, sizeof(gRemoteOwner[0]), */
+/*               SHIP_NR + 1, pFile)) */
+/*     return False; */
+/*   EndianSwap16(gRemoteOwner, SHIP_NR + 1); */
+/*   if ((SHIP_NR + 1) NEQ fread(gOriginalOwner, sizeof(gOriginalOwner[0]), */
+/*               SHIP_NR + 1, pFile)) */
+/*     return False; */
+/*   EndianSwap16(gOriginalOwner, SHIP_NR + 1); */
+
+/*   return True; */
 }
 
 static Boolean
 WriteRemoteControl(FILE * pFile)
 {
-  EndianSwap16(gRemoteOwner, SHIP_NR + 1);
-  if ((SHIP_NR + 1) NEQ fwrite(gRemoteOwner, sizeof(gRemoteOwner[0]),
-              SHIP_NR + 1, pFile))
-    return False;
-  EndianSwap16(gRemoteOwner, SHIP_NR + 1);
+    const size_t lLimit = VER(P3_SHIP_NR, SHIP_NR) + 1;
+    size_t lWritten;
+    
+    EndianSwap16(gRemoteOwner, lLimit);
+    lWritten = fwrite(gRemoteOwner, sizeof(gRemoteOwner[0]), lLimit, pFile);
+    EndianSwap16(gRemoteOwner, lLimit);
+    if (lWritten != lLimit)
+        return False;
 
-  EndianSwap16(gOriginalOwner, SHIP_NR + 1);
-  if ((SHIP_NR + 1) NEQ fwrite(gOriginalOwner, sizeof(gOriginalOwner[0]),
-              SHIP_NR + 1, pFile))
-    return False;
-  EndianSwap16(gOriginalOwner, SHIP_NR + 1);
+    EndianSwap16(gOriginalOwner, lLimit);
+    lWritten = fwrite(gOriginalOwner, sizeof(gOriginalOwner[0]), lLimit, pFile);
+    EndianSwap16(gOriginalOwner, lLimit);
+    if (lWritten != lLimit)
+        return False;
 
-  return True;
+    return True;
 }
 
 /************************************************
@@ -1117,6 +1309,23 @@ ResetShipRemoteControl(Uns16 pShip)
   gOriginalOwner[pShip] = 0;
 }
 
+/** Assign default RC allow/forbit state to pShipId. */
+void
+AssignDefaultForbidState(Uns16 pShipID)
+{
+    Uns16 lMask;
+    
+    InitAuxData();
+    passert(gOriginalOwner NEQ 0);
+
+    lMask = (1 << ShipOwner(pShipID));
+    if (gOriginalOwner[0] & lMask) {
+        gRemoteOwner[pShipID] = 0x8000U; /* forbid */
+    } else {
+        gRemoteOwner[pShipID] &= 0x7FFFU;
+    }
+}
+
 Boolean
 AllowShipRemoteControl(Uns16 pShipID, Uns16 pOrigOwner)
 {
@@ -1191,9 +1400,9 @@ ShipRemoteOwner(Uns16 pShipID)
 }
 
 /*
- *    F I L E    I N P U T A N D  O U T P U T
+ *    F I L E    I N P U T    A N D  O U T P U T
  *
- *       A N D I N I T I A L I Z A T I O N
+ *       A N D   I N I T I A L I Z A T I O N
  */
 
 /* In this routine, we handle the case of a missing auxdata.hst file, as
@@ -1232,21 +1441,76 @@ ReadAuxData(FILE * pAuxDataFile)
 
   if (!ReadAuxVersionInfo(pAuxDataFile))
     goto bad_read;
-  if (!ReadBaseNativeInfo(pAuxDataFile))
+
+#ifdef PDK_PHOST4_SUPPORT
+  if (gVersionMajor >= 4) {
+      Uns16  lHeader[2];
+      long   lPos;
+
+      while (fread(&lHeader, 1, sizeof lHeader, pAuxDataFile) == sizeof lHeader) {
+          EndianSwap16(lHeader, 2);
+          if (lHeader[1] == 0)
+              continue;
+          lPos = ftell(pAuxDataFile);
+          switch (lHeader[0]) {
+           case aux_BaseNatives:
+              if (!ReadBaseNativeInfo(pAuxDataFile, lHeader[1]))
+                  return False;
+              break;
+           case aux_AllianceInfo:
+              if (!ReadAllianceInfo(pAuxDataFile, lHeader[1]))
+                  return False;
+              break;
+           case aux_ShipScanInfo:
+              if (!ReadScanInfo(pAuxDataFile, lHeader[1]))
+                    return False;
+              break;
+           case aux_BuildQueue:
+              if (!ReadBuildQueue(pAuxDataFile, lHeader[1]))
+                  return False;
+              break;
+           case aux_PAL:
+              if (!ReadActivityLevel(pAuxDataFile, lHeader[1]))
+                  return False;
+              break;
+           case aux_Remote:
+              if (!ReadRemoteControl(pAuxDataFile, lHeader[1]))
+                  return False;
+              break;
+           /* case aux_ShipSpecial:
+              if (!ReadShipSpecialDevices(pAuxDataFile, lHeader[1]))
+                  return False; */
+           /* case aux_ShipVisible: */
+              /* FIXME */
+           default:
+              if (!ReadUnknownChunk(pAuxDataFile, lHeader[0], lHeader[1]))
+                  return False;
+              break;
+          }
+          passert(ftell(pAuxDataFile) <= lPos + lHeader[1]);
+          fseek(pAuxDataFile, lPos + lHeader[1], SEEK_SET);
+      }
+
+      gAuxdataLoaded = True;
+      return True;
+  }
+#endif
+
+  /* Load "old-style" AUXDATA file */
+  if (!ReadBaseNativeInfo(pAuxDataFile, 0))
     goto bad_read;
-  if (!ReadAllianceInfo(pAuxDataFile))
+  if (!ReadAllianceInfo(pAuxDataFile, 0))
     goto bad_read;
-  if (!ReadScanInfo(pAuxDataFile))
+  if (!ReadScanInfo(pAuxDataFile, 0))
     goto bad_read;
-  if (!ReadBuildQueue(pAuxDataFile))
+  if (!ReadBuildQueue(pAuxDataFile, 0))
     goto bad_read;
-  if (!ReadActivityLevel(pAuxDataFile))
+  if (!ReadActivityLevel(pAuxDataFile, 0))
     goto bad_read;
-  if (!ReadRemoteControl(pAuxDataFile))
+  if (!ReadRemoteControl(pAuxDataFile, 0))
     goto bad_read;
 
   gAuxdataLoaded = True;
-
   return True;
 bad_read:
   Error("Unable to read from file 'auxdata.hst'");
@@ -1268,6 +1532,21 @@ WriteAuxData(FILE * pAuxDataFile)
 
   if (!WriteAuxVersionInfo(pAuxDataFile))
     goto bad_write;
+#ifdef PDK_PHOST4_SUPPORT
+  if (gVersionMajor >= 4) {
+      if (! (   WriteAux4(aux_BaseNatives,  pAuxDataFile, WriteBaseNativeInfo, (PLANET_NR+1))
+             && WriteAux4(aux_AllianceInfo, pAuxDataFile, WriteAllianceInfo,   (RACE_NR+1)*(RACE_NR+1)*2)
+             && WriteAux4(aux_ShipScanInfo, pAuxDataFile, WriteScanInfo,       2 * (SHIP_NR+1))
+             && WriteAux4(aux_BuildQueue,   pAuxDataFile, WriteBuildQueue,     PLANET_NR * 26)
+             && WriteAux4(aux_PAL,          pAuxDataFile, WriteActivityLevel,  4 * (RACE_NR+1))
+             && WriteAux4(aux_Remote,       pAuxDataFile, WriteRemoteControl,  4 * (SHIP_NR+1))
+             /*&& WriteAux4(aux_ShipSpecial,  pAuxDataFile, WriteShipSpecialDevices, SHIP_NR * sizeof(ShipSpecialBits_Def))*/))
+          goto bad_write;
+      if (!WriteUnknownChunks(pAuxDataFile))
+          goto bad_write;
+      return True;
+  }
+#endif
   if (!WriteBaseNativeInfo(pAuxDataFile))
     goto bad_write;
   if (!WriteAllianceInfo(pAuxDataFile))
@@ -1287,7 +1566,7 @@ bad_write:
   return False;
 }
 
-static const char *AUXDATA_FILE = "auxdata.hst"; /* PHOST-specific */
+static const char AUXDATA_FILE[] = "auxdata.hst"; /* PHOST-specific */
 
 IO_Def
 Read_AuxData_File(void)
@@ -1295,17 +1574,13 @@ Read_AuxData_File(void)
   FILE *lAuxDataFile;
   IO_Def lError = IO_SUCCESS;
 
-  if ((lAuxDataFile =
-              OpenInputFile(AUXDATA_FILE,
-            GAME_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+  if ((lAuxDataFile = OpenInputFile(AUXDATA_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
     if (!ReadAuxData(lAuxDataFile)) {
       lError = IO_FAILURE;
-    }
-    else
+    } else
       gReadAuxData = True;
     fclose(lAuxDataFile);
-  }
-  else {
+  } else {
     if (gNonPHOSTWarnings)
       Warning("Can't find file '%s'", AUXDATA_FILE);
     HandleMissingAuxdata();
@@ -1328,8 +1603,7 @@ Write_AuxData_File(void)
       lError = IO_FAILURE;
     }
     fclose(lAuxDataFile);
-  }
-  else
+  } else
     lError = IO_FAILURE;
   return (lError);
 }

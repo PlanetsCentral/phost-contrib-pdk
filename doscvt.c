@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "phostpdk.h"
 #include "private.h"
+#include "version.h"
 
 /* This routine reads a single 16-bit DOS-formatted quantity */
 Uns16
@@ -138,8 +139,6 @@ DOSWrite32(const Uns32 * pData, Uns16 pNum, FILE * pOutFile)
 #endif
   return True;
 }
-
-#pragma warn -par
 
 void
 EndianSwap32(void *pData, Uns16 pNumber)
@@ -463,8 +462,6 @@ DOSStructSize(const DOSConvertElement *pStruct, Uns16 pNumElem)
   return lSize;
 }
 
-#pragma warn .par
-
 /*
  *        S T R U C T U R E    C O N V E R S I O N    D E F I N I T I O N S
  */
@@ -696,7 +693,11 @@ const DOSConvertElement BaseOrderStruct_Convert[] = {
   DOSCVTUns16(mOrder.mNumBeams),
   DOSCVTUns16(mOrder.mTubeType),
   DOSCVTUns16(mOrder.mNumTubes),
+#ifndef PDK_PHOST4_SUPPORT
   DOSCVTenum(mByCloning),
+#else
+  DOSCVTUns16(mClonedShipId),
+#endif
   DOSCVTenum(mShipOwner),
   DOSCVTUns32(mPriority),
   DOSCVTchar(mReserved, 4)

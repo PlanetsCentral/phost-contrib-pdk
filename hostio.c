@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "phostpdk.h"
 #include "private.h"
 
-static const char *NEXTTURN_FILE = "nextturn.hst";
-static const char *LASTTURN_FILE = "lastturn.hst";
+static const char NEXTTURN_FILE[] = "nextturn.hst";
+static const char LASTTURN_FILE[] = "lastturn.hst";
 
 /* True static data (i.e., takes up space in DATA segment) */
 static Turntime_Struct gTurntime;
@@ -31,32 +31,42 @@ static Turntime_Struct gTurntime;
 IO_Def
 Read_Turntime_File(void)
 {
-  FILE *lTurntimeFile;
-  IO_Def lError = IO_SUCCESS;
+    FILE *lTurntimeFile;
+    IO_Def lError = IO_SUCCESS;
 
-  if ((lTurntimeFile =
-              OpenInputFile(NEXTTURN_FILE,
-           GAME_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
-#ifdef __MSDOS__
-    if (1 NEQ fread(&gTurntime, sizeof(gTurntime), 1, lTurntimeFile)) {
-#else
-    if (!DOSReadStruct(TurntimeStruct_Convert, NumTurntimeStruct_Convert,
-                &gTurntime, lTurntimeFile)) {
-#endif
-      /* If nextturn.hst exists but is 0 length, then this is a newly
-         MASTER-ed game */
-      gNewlyMastered = True;
+    /* THost, PHost 4.0: nextturn.hst is new timestamp (in RSTs)
+                         lastturn.hst is old timestamp (in TRNs)
+       PHost 1.x .. 3.x: both files contain new timestamp
+
+       Unfortunately, only NEXTTURN_FILE contains the turn number. */
+    Uns16 lMajor, lMinor;
+    const char* lFile;
+    GameFilesVersion(&lMajor, &lMinor);
+
+    if ((lTurntimeFile = OpenInputFile(NEXTTURN_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+        if (!DOSReadStruct(TurntimeStruct_Convert, NumTurntimeStruct_Convert,
+                           &gTurntime, lTurntimeFile)) {
+            /* If nextturn.hst exists but is 0 length, then this is a newly
+               MASTER-ed game */
+            gNewlyMastered = True;
+        }
+        fclose(lTurntimeFile);
+    } else
+        gNewlyMastered = True;
+
+    if (gNewlyMastered) {
+        memset(&gTurntime, 0, sizeof(gTurntime));
+    } else if (gUsingTHost || lMajor >= 4) {
+        /* Get real timestamp. Should we do something interesting
+           when an error occurs? */
+        lTurntimeFile = OpenInputFile(LASTTURN_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR);
+        if (lTurntimeFile) {
+            fread(&gTurntime.HostTime, sizeof gTurntime.HostTime, 1, lTurntimeFile);
+            fclose(lTurntimeFile);
+        }
     }
-    fclose(lTurntimeFile);
-  }
-  else
-    gNewlyMastered = True;
 
-  if (gNewlyMastered) {
-    memset(&gTurntime, 0, sizeof(gTurntime));
-  }
-
-  return (lError);
+    return (lError);
 }
 
 char *

@@ -36,10 +36,12 @@ static void DoDefaultAssignments(void);
 static Boolean DoAssignment(const char *name, char *val,
                             const char *pInputLine);
 static const char *languageName(Language_Def pLanguage);
+static int MatchLanguage(const char* pLanguage);
 
 Boolean gUsingTHost = False;    /*!< True if we are running in THost mode.
                                      This is the case when we loaded the
                                      HCONFIG file instead of PCONFIG.SRC. */
+Boolean gConfigWarnings = False;
 
 /* ---------------------------------------------------------------------- */
 
@@ -191,6 +193,12 @@ ConfigFileReaderEx(FILE * pInFile, const char *pFileName, const char *pSection,
   return IO_SUCCESS;
 }
 
+static void
+Ignore(const char *pStr, ...)
+{
+    /* intentionally left blank */
+}
+
 /** Read host configuration. Reads the pconfig.src file.
     \return IO_SUCCESS on success, IO_FAILURE on error. */
 IO_Def
@@ -206,7 +214,7 @@ Read_HConfig_File(void)
 
   ClearConfig();
   ConfigFileReaderEx(lConfigFile, CONFIG_FILE, "phost", True,
-                     DoAssignment, Warning, True);
+                     DoAssignment, gConfigWarnings ? Warning : Ignore, True);
   DoDefaultAssignments();
 
   fclose(lConfigFile);
@@ -307,7 +315,8 @@ enum {
 
 enum {
     CFOPT_Arrayized = 1,
-    CFOPT_Obsolete  = 2
+    CFOPT_Obsolete  = 2,
+    CFOPT_Optional  = 4
 };
 
 enum {
@@ -317,6 +326,7 @@ enum {
 static const ConfigItem_Struct sConfigDef[CF_NumItems] = {
 #define ARRAYIZED CFOPT_Arrayized
 #define OBSOLETE  CFOPT_Obsolete
+#define OPTIONAL  CFOPT_Optional
 #define RACEARRAY 0     /* PHost does not need this (yet?) */
 #define IFYES(x)  (2 * CF_ ## x + 2)
 #define IFNO(x)   (2 * CF_ ## x + 3)
@@ -343,6 +353,8 @@ lookupOptionByName(const char* pName)
     for (i = 0; i < CF_NumItems; ++i)
         if (stricmp(pName, sConfigDef[i].mName) == 0)
             return i;
+#define CFAlias(old,new) if (stricmp(pName, #old) == 0) return CF_##new;
+#include "config.hi4"
     return -1;
 }
 
@@ -389,8 +401,8 @@ static Boolean Tokenize(const struct ConfigItem_Struct* pItem,
         pValue += lLength+1;
 
         if (lIndex >= pItem->mCount) {
-            Warning("%s: too many values in assignment to '%s'",
-                    gCurrentConfigFile, pItem->mName);
+            Error("%s: too many values in assignment to '%s'",
+                  CONFIG_FILE, pItem->mName);
             return False;
         }
         if (! pFunc(pItem, lStr, lIndex, pData))
@@ -410,7 +422,7 @@ static Boolean Tokenize(const struct ConfigItem_Struct* pItem,
                 ++lIndex;
             }
         } else {
-            Warning("%s: too few values in assignment to '%s'", gCurrentConfigFile, pItem->mName);
+            Error("%s: too few values in assignment to '%s'", CONFIG_FILE, pItem->mName);
             return False;
         }
     }
@@ -428,13 +440,17 @@ parseInteger(const ConfigItem_Struct* pItem,
 
     i = strtol(pValue, &p, 10);
     if (*pValue == 0 || *p != 0) {
-        Warning("%s: invalid value '%s' in assignment to '%s'", gCurrentConfigFile,
-                pValue, pItem->mName);
+        Error("%s: invalid value '%s' in assignment to '%s'", CONFIG_FILE,
+              pValue, pItem->mName);
         return False;
     }
     if (i < pItem->mMin || i > pItem->mMax) {
-        Warning("%s: value %ld outside allowed range [%d, %d] in assignment to '%s'",
-                gCurrentConfigFile, i, pItem->mMin, pItem->mMax, pItem->mName);
+        /* brute force error exit on parameter error. This is needed
+           to guarantee correct operation when for example users run a
+           non-999 enabled program on a game directory with
+           NumShips = 999 */
+        ErrorExit("%s: value %ld outside allowed range [%d, %d] in assignment to '%s'",
+                  CONFIG_FILE, i, pItem->mMin, pItem->mMax, pItem->mName);
         return False;
     }
 
@@ -449,7 +465,7 @@ parseBoolean(const ConfigItem_Struct* pItem,
 {
     int match = ListMatch(pValue, "False True No Yes"); /* order is important */
     if (match < 0) {
-        Warning("%s: invalid boolean value for option '%s'", gCurrentConfigFile, pItem->mName);
+        Error("%s: invalid boolean value for option '%s'", CONFIG_FILE, pItem->mName);
         return False;
     } else {
         if (match >=2 )
@@ -466,7 +482,7 @@ parseTristate(const ConfigItem_Struct* pItem,
 {
     int match = ListMatch(pValue, "False True Allies No Yes"); /* order is important */
     if (match < 0) {
-        Warning("%s: invalid tristate value for option '%s'", gCurrentConfigFile, pItem->mName);
+        Error("%s: invalid tristate value for option '%s'", CONFIG_FILE, pItem->mName);
         return False;
     } else {
         if (match >= 3)
@@ -483,11 +499,9 @@ parseLanguage(const ConfigItem_Struct* pItem,
 {
     /* The order of languages in the following list is important and
        must match the order of definitions in strlang.h */
-    int match = ListMatch(pValue,
-                          "ENglish German French Spanish Italian Dutch "
-                          "Russian EStonian");
+    int match = MatchLanguage(pValue);
     if (match < 0) {
-        Warning("%s: invalid language '%s'", gCurrentConfigFile, pValue);
+        Error("%s: invalid language '%s'", CONFIG_FILE, pValue);
         return False;
     } else {
         ((Language_Def*) pData)[pIndex] = match;
@@ -503,7 +517,7 @@ parseScoreMethod(const ConfigItem_Struct* pItem,
 {
     int match = ListMatch(pValue, "None Compatible");
     if (match < 0) {
-        Warning("%s: invalid scoring method '%s'", gCurrentConfigFile, pValue);
+        Error("%s: invalid scoring method '%s'", CONFIG_FILE, pValue);
         return False;
     } else {
         ((ScoreMethod_Def*) pData)[pIndex] = match;
@@ -519,7 +533,7 @@ parseBuildQueue(const ConfigItem_Struct* pItem,
 {
     int match = ListMatch(pValue, "PALs Fifo PBPs");
     if (match < 0) {
-        Warning("%s: invalid build queue mode '%s'", gCurrentConfigFile, pValue);
+        Error("%s: invalid build queue mode '%s'", CONFIG_FILE, pValue);
         return False;
     } else {
         ((BuildQueue_Def*) pData)[pIndex] = match;
@@ -536,7 +550,7 @@ readString(const struct ConfigItem_Struct* pItem, char* pValue)
     Uns16  n = pItem->mCount - 1;
     size_t l = strlen(pValue);
     if (l > n) {
-        Warning("%s: assignment to '%s' exceeds string length", gCurrentConfigFile, pItem->mName);
+        Warning("%s: assignment to '%s' exceeds string length", CONFIG_FILE, pItem->mName);
         l = n;
     }
 
@@ -587,7 +601,6 @@ readInt16(const struct ConfigItem_Struct* pItem, char* pValue)
     return True;
 }
 
-/* FIXME: this one's the same as above */
 static const char *
 languageName(Language_Def pLanguage)
 {
@@ -599,14 +612,27 @@ languageName(Language_Def pLanguage)
         "Italian",
         "Dutch",
         "Russian",
-        "Estonian"
+        "Estonian",
+        "NewEnglish",
+        "Polish"
     };
     return lLang[pLanguage];
 }
 
+static int
+MatchLanguage(const char* pLanguage)
+{
+    return ListMatch(pLanguage,
+          "ENglish German French Spanish Italian Dutch Russian EStonian"
+          " NEWENglish Polish"
+          );
+}
+
+static void DoDefaultAssignment(int pOpt);
+
 /** Assign one option. */
 static Boolean
-DoAssignOption(int pOptInd, char* pValue)
+DoAssignOption(int pOptInd, char* pValue, Boolean pDefault)
 {
     static const char SEPARATORS[] = " \t\r\032";
     const ConfigItem_Struct* lItem = &sConfigDef[pOptInd];
@@ -623,29 +649,39 @@ DoAssignOption(int pOptInd, char* pValue)
             ++lEnd;
         p = lEnd + strspn(lEnd, SEPARATORS);
         if (*p && *p != '#') {
-            Warning("%s: syntax error in reference for option '%s'",
-                  gCurrentConfigFile, lItem->mName);
+            Error("%s: syntax error in reference for option '%s'",
+                  CONFIG_FILE, lItem->mName);
             return False;
         }
         *lEnd = 0;
         lRefIndex = lookupOptionByName(pValue);
         if (lRefIndex < 0) {
-            Warning("%s: unknown option name '%s'", gCurrentConfigFile, pValue);
+            Error("%s: unknown option name '%s'", CONFIG_FILE, pValue);
             return False;
         }
         lRef = &sConfigDef[lRefIndex];
         if (lRef->mType != lItem->mType
-            || lRef->mCount != lItem->mCount
+            || lRef->mCount < lItem->mCount
             || lRef->mMin < lItem->mMin
             || lRef->mMax > lItem->mMax)
         {
-            Warning("%s: option '%s' and '%s' have incompatible types",
-                    gCurrentConfigFile, lItem->mName, pValue);
+            Error("%s: option '%s' and '%s' have incompatible types",
+                  CONFIG_FILE, lItem->mName, pValue);
+            Error("%s:   %s : %s x %d", CONFIG_FILE, lItem->mName,
+                  sConfigItemNames[lItem->mType], lItem->mCount);
+            Error("%s:   %s : %s x %d", CONFIG_FILE, lRef->mName,
+                  sConfigItemNames[lRef->mType], lRef->mCount);
             return False;
         }
         if (!sOptionSet[lRefIndex]) {
-            Warning("%s: option '%s' was not yet set", gCurrentConfigFile, pValue);
-            return False;
+            if (pDefault) {
+                /* we are assigning defaults, and the "target option" was
+                   not set. */
+                DoDefaultAssignment(lRefIndex);
+            } else {
+                Error("%s: option '%s' was not yet set", CONFIG_FILE, pValue);
+                return False;
+            }
         }
         memcpy((char*) gConfigInfo + lItem->mOffset,
                (char*) gConfigInfo + lRef->mOffset,
@@ -683,31 +719,50 @@ DoAssignOption(int pOptInd, char* pValue)
     return False;
 }
 
+static void
+DoDefaultAssignment(int pOpt)
+{
+    int j;
+    char defstr[1024];
+
+    strcpy(defstr, sConfigDef[pOpt].mDefault);
+    DoAssignOption(pOpt, defstr, True);
+    sOptionSet[pOpt] = 1;
+
+    if (sConfigDef[pOpt].mFlags & CFOPT_Obsolete)
+        return;
+    if (gConfigInfo->ConfigLevel == 0 && (sConfigDef[pOpt].mFlags & CFOPT_Optional))
+        return;
+    if (!gConfigWarnings)
+        return;
+
+    if ((j = sConfigDef[pOpt].mDepend) != 0) {
+        /* omit warning for some cases */
+        int lDepOpt = j / 2;
+        if (lDepOpt == 0) {
+            /* should no longer happen */
+            if (gConfigInfo->ConfigLevel == 0)
+                return;
+        } else {
+            if (gConfigInfo->ConfigLevel <= 1
+                && sOptionSet[lDepOpt-1]
+                && *(Boolean*)((char*)gConfigInfo + sConfigDef[lDepOpt-1].mOffset) == (j & 1))
+                return;
+        }
+    }
+    Warning("%s: default value used: '%s = %s'",
+            CONFIG_FILE, sConfigDef[pOpt].mName, sConfigDef[pOpt].mDefault);
+}
+
 /** Assign default values to all config options that were not assigned
     by the user. */
 static void
 DoDefaultAssignments(void)
 {
-    int i, j;
-    char defstr[1024];
+    int i;
     for (i = 0; i < CF_NumItems; ++i) {
-        if (sOptionSet[i])
-            continue;
-        strcpy(defstr, sConfigDef[i].mDefault);
-        DoAssignOption(i, defstr);
-
-        if (sConfigDef[i].mFlags & CFOPT_Obsolete)
-            continue;
-        if ((j = sConfigDef[i].mDepend) != 0) {
-            /* omit warning for some cases */
-            int lDepOpt = j / 2;
-            if (lDepOpt == 0)
-                continue;
-            if (*(Boolean*)((char*)gConfigInfo + sConfigDef[lDepOpt-1].mOffset) == (j & 1))
-                continue;
-        }
-        Warning("%s: A default value will be used for '%s'",
-                gCurrentConfigFile, sConfigDef[i].mName);
+        if (! sOptionSet[i])
+            DoDefaultAssignment(i);
     }
 }
 
@@ -729,7 +784,7 @@ DoAssignment(const char *name, char *val, const char *pInputLine)
     if (sOptionSet[lOptInd])
         return False;           /* option being assigned twice */
 
-    if (!DoAssignOption(lOptInd, val))
+    if (!DoAssignOption(lOptInd, val, False))
         return False;
     sOptionSet[lOptInd] = 1;
     return True;
@@ -819,7 +874,7 @@ Read_THost_HConfig_File(void)
     }
 
     /* lPtr now is a complete assignment string. */
-    if (!DoAssignOption(lItem->mPIndex, lValue)) {
+    if (!DoAssignOption(lItem->mPIndex, lValue, False)) {
       Warning("HCONFIG.HST value for `%s' not accepted",
               sConfigDef[lItem->mPIndex].mName);
       lRes = IO_FAILURE;

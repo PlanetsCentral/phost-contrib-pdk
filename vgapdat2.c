@@ -115,6 +115,7 @@ ShipLocationY(Uns16 pID)
   return (GetShip(pID)->Location[1]);
 }
 
+#if 0
 static Uns16
 ShipWaypoint(Uns16 pID, XYComponent_Def pIndex)
 {
@@ -123,6 +124,7 @@ ShipWaypoint(Uns16 pID, XYComponent_Def pIndex)
   /* NEW */
   return (GetShip(pID)->Waypoint[pIndex] + (Int16) ShipLocation(pID, pIndex));
 }
+#endif
 
 Uns16
 ShipWaypointX(Uns16 pID)
@@ -405,6 +407,7 @@ PutShipSpeed(Uns16 pID, Uns16 pSpeed)
   GetShip(pID)->Speed = pSpeed;
 }
 
+#if 0
 static void
 PutShipWaypoint(Uns16 pID, XYComponent_Def pIndex, Uns16 pWaypoint)
 {
@@ -414,6 +417,7 @@ PutShipWaypoint(Uns16 pID, XYComponent_Def pIndex, Uns16 pWaypoint)
   GetShip(pID)->Waypoint[pIndex] =
         (Int16) pWaypoint - (Int16) ShipLocation(pID, pIndex);
 }
+#endif
 
 void
 PutShipWaypointX(Uns16 pID, Uns16 pWaypoint)
@@ -689,7 +693,7 @@ CreateShip(RaceType_Def pOwner)
   Uns16 lShip;
   Ship_Struct *lShipPtr;
 
-  for (lShip = 1; lShip <= SHIP_NR; lShip++) {
+  for (lShip = 1; lShip <= gPconfigInfo->NumShips; lShip++) {
     if (IsShipExist(lShip))
       continue;
 
@@ -698,6 +702,14 @@ CreateShip(RaceType_Def pOwner)
 
     lShipPtr->Id = lShip;
     lShipPtr->Owner = pOwner;
+
+    /* Ensure that no remote control is left over from a previous incarnation */
+    ResetShipRemoteControl(lShip);
+
+    /* Set the ship to be allowed/forbidden from remote control depending
+       upon the default value. */
+    AssignDefaultForbidState(lShip);
+    
     return lShip;
   }
   return 0;
@@ -729,14 +741,24 @@ Read_Ships_File(Int16 * pControl)
       if (!DOSReadStruct(ShipStruct_Convert, NumShipStruct_Convert, &lShip,
                   lShipFile)) {
 #endif
-        Error("Can't read file '%s'", SHIP_FILE);
-        lError = IO_FAILURE;    /* i/o error */
-        break;
+          /* when we read 500 ships, assume everything is fine. */
+          if (i > 500)
+              break;
+          Error("Can't read file '%s'", SHIP_FILE);
+          lError = IO_FAILURE;    /* i/o error */
+          break;
       }
       else {
         if (lShip.Owner NEQ 0)
           PutShip(i, &lShip);
       }
+    }
+    if (gUsingTHost) {
+        /* invent a ship limit for THost */
+        if (i > 500+1)
+            gPconfigInfo->NumShips = SHIP_NR;
+        else
+            gPconfigInfo->NumShips = 500;
     }
 
     fclose(lShipFile);
@@ -767,7 +789,7 @@ Write_Ships_File(Int16 pControl)
 
     memset(&lShip, 0, sizeof(lShip));
 
-    for (i = 1; i <= SHIP_NR; i++) {
+    for (i = 1; i <= gPconfigInfo->NumShips; i++) {
       lShip.Id = i;
 #ifdef __MSDOS__
       if (1 NEQ fwrite((IsShipExist(i) ? GetShip(i) : &lShip),

@@ -645,7 +645,7 @@ GenerateScoreMessage(char *pBuffer)
       lShipNr++;
 
   sprintf(lTmpLines[17], "ship slots : %u used, %u empty", lShipNr,
-        SHIP_NR - lShipNr);
+          gPconfigInfo->NumShips - lShipNr);
 
 #endif
 
@@ -771,6 +771,7 @@ WriteScoreMessages(void)
         printf(".");
         WriteMessageToRST(lRace, lNumMessages, lMessages);
       }
+    puts("");
   }
 }
 

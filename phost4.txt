@@ -1,0 +1,96 @@
+The PDK and PHost 4
+===================
+
+Version Selection
+-----------------
+
+  You can configure the PDK to suit your needs optimally. By default, it
+  comes in a "one-size-fits-all" flavor. The configuration variables are
+  in "version.h" which is now part of the API. To change them, edit
+  version.h and recompile your PDK.
+
+  #define PDK_PHOST4_SUPPORT
+  - if set, the PDK will support PHost 3.x as well as PHost 4.x. New
+    files created with this PDK version (i.e. "Master"-type programs)
+    will default to version 4. This option is on by default. When it
+    is not set, the PDK will only support version 3.x.
+
+  #define PDK_HOST999_SUPPORT
+  - if set, the PDK will support 999 ships (Host999, PHost 4). When this
+    variable is not set, the PDK will only support 500 ships (even in
+    PHost 4 mode). `LoadGameData' will ErrorExit when it sees a PHost
+    game with more ships. The reason for this switch is that when you run
+    500-ship games only you can compile "smaller" add-ons (less memory,
+    faster) that only support these.
+
+  When PHost 4 support is enabled, the PDK will remember the game files
+  version, and write the appropriate format. When new files are created
+  (InitializeXXXX), it has to decide which version to write. I chose the
+  following approach:
+  - a program can select the version number using `SetNewMajorVersion'.
+    This function accepts an integer that is 3 or 4. It has no effect
+    when there is already an auxdata file, or when called too late.
+  - when you do not use that function, users can use the environment
+    variable `PHOST_VERSION' to select the version number (only the major
+    version number is evaluated).
+  - when InitAuxData is called (indirectly by an access to a function that
+    needs it), the data structures are generated in the desired format.
+  The bottom line is that existing, well-behaved programs need not be
+  changed (well, almost) to take advantage of the new features. They just
+  need to be recompiled.
+
+  Reality check: "ptscore" runs out-of-the-box. The only change I had
+  to make to make it "fully compatible" was a cosmetical one: I
+  changed one occurence of "SHIP_NR" by "gPconfigInfo->NumShips" (so
+  it reports the correct number of free ship slots).
+
+  It is expected that add-ons compiled with this PDK version will run
+  with all future PHost 4.x versions.
+
+
+Incompatible Changes
+--------------------
+
+  When PDK_PHOST4_SUPPORT is not defined, the PDK will be 100% compatible
+  to previous releases. However, it will then not support PHost 4.
+
+  Some things had to be changed incompatibly:
+
+  - the mByCloning field of the BaseOrder_Struct is now called mClonedShipId
+    and has a slightly different meaning. Instead of being 0 or 1 to
+    determine clone yes/no, it is now the Id number of the ship being cloned
+    (zero for regular builds). Code that directly accesses that field
+    must be changed.
+
+    For PHost 3, the new behaviour is emulated. However, there is a very
+    rare case where the ship-to-be-cloned does not exist, still the build
+    order is present (and will be executed by PHost). In this case, the
+    mClonedShipId is 0xFFFF. This also happens when PHost 4 takes over
+    a PHost 3 game and the ShipBuildOrders stage was not yet run.
+
+    Code that uses the accessor functions (BuildQueueIsCloning) is not
+    affected.
+
+
+Other Changes
+-------------
+
+  Some PConfig options were dropped in PHost 4. They still appear in the
+  config structure. Essentially, the PDK config structure contains all
+  options from PHost 3.x, PHost 4.x, and Tim's host.
+
+
+PHost 4.x Features Supported as of 03/Dec/2002
+----------------------------------------------
+
+  + new AUXDATA format:         YES
+  + 999 ships:                  YES
+  + new PConfig keys:           YES
+  + changed NEXTTURN handling:  YES
+  + new ship abilities:         NO
+  + per-ship abilities:         NO
+  + combat modifications:       NO
+
+
+
+         --Stefan

@@ -1,3 +1,26 @@
+Tue Dec  3 22:05:51 2002  Stefan  <Streu@gmx.de>
+
+	* ptscore.c: cosmetical fixes
+
+	* vgapdat2.c (CreateShip): don't create ships >500 if not
+ 	configured to; initialize RC flags
+
+	* pdk.texi: changed section headings so that Emacs'
+	texinfo-update-node (C-c C-u C-n) works.
+
+	* auxdata.c: fixed silly thinko
+	(AssignDefaultForbidState): new function
+
+Thu Nov 21 23:24:14 2002  Stefan  <Streu@gmx.de>
+
+	* hostio.c: support PHost 4.0 / THost handling of nextturn.hst
+
+	* pconfig.c: merged in changes from PHost 3.4c / 4.0
+
+	* auxdata.c: PHost 4.x auxdata format
+
+	* vgapdat2.c: 999 ship support, sort of
+
 Wed May  1 14:56:25 2002  Stefan  <Streu@gmx.de>
 
 	* commands.c: new
