@@ -20,20 +20,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *****************************************************************************/
 
 /******************************************************************
- *                  *
+ *                                                                *
  *   Module:      Wormhole Module                                 *
- *  Project:   Portable Host           *
+ *  Project:   Portable Host                                      *
  *   File Name:   worm.c                                          *
- *  Programmer:  Andrew Sterian          *
- *  Create Date:              *
+ *  Programmer:  Andrew Sterian                                   *
+ *  Create Date:                                                  *
  *   Description: This module handles wormhole processing. All    *
  *                functions, from reading the wormhole file to    *
  *                doing the actual scanning and movement are      *
  *                handled here.                                   *
- *  Functions:               *
- *  Change Record:              *
- *                  *
- *                  *
+ *  Functions:                                                    *
+ *  Change Record:                                                *
+ *                                                                *
+ *                                                                *
  ******************************************************************/
 
 #include "phostpdk.h"
