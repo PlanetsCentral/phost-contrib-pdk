@@ -191,7 +191,7 @@ Read_Mines_File(void)
     /* read first 500 mines */
 #ifdef __MSDOS__
     if (500 NEQ fread(gMinesPtr + 1, sizeof(MineField_Struct), 500,
-                lMineFile)) {
+                      lMineFile)) {
       Error("Can't read file '%s'", MINE_FILE);
       lError = IO_FAILURE;
     }
@@ -226,7 +226,7 @@ Read_Mines_File(void)
 
     /* read extra mines */
 #ifdef __MSDOS__
-    if ((MINE_NR - 500) NEQ fread(gMinesPtr + 1, sizeof(MineField_Struct),
+    if ((MINE_NR - 500) NEQ fread(gMinesPtr + 501, sizeof(MineField_Struct),
                 (MINE_NR - 500), lMineFile)) {
       Error("Can't read file '%s'", MINE_EXT_FILE);
       lError = IO_FAILURE;
@@ -234,7 +234,7 @@ Read_Mines_File(void)
 #else
     for (lMine = 501; lMine <= (MINE_NR - 500); lMine++) {
       if (!DOSReadStruct(MineStruct_Convert, NumMineStruct_Convert,
-                  gMinesPtr + lMine, lMineFile)) {
+                         gMinesPtr + lMine, lMineFile)) {
         Error("Can't read file '%s'", MINE_EXT_FILE);
         lError = IO_FAILURE;
         break;
@@ -258,8 +258,8 @@ Write_Mines_File(void)
 
   if ((lMineFile = OpenOutputFile(MINE_FILE, GAME_DIR_ONLY)) NEQ NULL) {
 #ifdef __MSDOS__
-    if (MINE_NR NEQ fwrite(gMinesPtr + 1, sizeof(MineField_Struct), 500,
-                lMineFile)) {
+    if (500 NEQ fwrite(gMinesPtr + 1, sizeof(MineField_Struct), 500,
+                       lMineFile)) {
       Error("Can't write file '%s'", MINE_FILE);
       lError = IO_FAILURE;
     }
@@ -283,8 +283,8 @@ Write_Mines_File(void)
   /* write extra minefields */
   if ((lMineFile = OpenOutputFile(MINE_EXT_FILE, GAME_DIR_ONLY)) NEQ NULL) {
 #ifdef __MSDOS__
-    if (MINE_NR NEQ fwrite(gMinesPtr + 501, sizeof(MineField_Struct),
-                MINE_NR - 500, lMineFile)) {
+    if ((MINE_NR-500) NEQ fwrite(gMinesPtr + 501, sizeof(MineField_Struct),
+                                 MINE_NR - 500, lMineFile)) {
       Error("Can't write file '%s'", MINE_EXT_FILE);
       lError = IO_FAILURE;
     }
