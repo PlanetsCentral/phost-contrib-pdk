@@ -46,6 +46,8 @@ static void InitTorp(void)
     InitTorp();
 
     passert((pTorpNr>=1) AND (pTorpNr<=TORP_NR));
+
+    if (lPtr EQ NULL) lPtr = lName;
     memcpy(lPtr, gTorpspecPtr[pTorpNr].Name, 20);
     lPtr[20] = 0;
     return lPtr;

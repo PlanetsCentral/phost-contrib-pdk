@@ -46,6 +46,8 @@ static void InitBeam(void)
     InitBeam();
 
     passert((pBeamNr>=1) AND (pBeamNr<=BEAM_NR));
+
+    if (lPtr EQ NULL) lPtr = lName;
     memcpy(lPtr, gBeamspecPtr[pBeamNr].Name, 20);
     lPtr[20] = 0;
     return lPtr;
