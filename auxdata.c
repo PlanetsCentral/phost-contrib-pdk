@@ -226,7 +226,7 @@ BuildQueuePeek(BaseOrder_Struct * pOrder)
   return gBaseOrder[0].mBase;
 }
 
-static const BaseOrder_Struct *
+BaseOrder_Struct *
 BuildQueueAccess(Uns16 pMember)
 {
   InitAuxData();

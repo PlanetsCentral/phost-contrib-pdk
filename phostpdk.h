@@ -720,6 +720,7 @@ Pconfig_Struct;
   extern void BuildQueueInvalidate(Uns16 pBase);
   extern Uns16 ShipsInBuildQueue(void);
   extern void SortBuildQueue(void);
+  extern BaseOrder_Struct *BuildQueueAccess(Uns16 pMember);
 
 /*
  *       Activity Level

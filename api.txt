@@ -1685,6 +1685,10 @@ routines should not be called unless an AUXDATA.HST file was read (unless
 only additions to the queue are performed). These routines have no effect
 on games using HOST.
 
+           BaseOrder_Struct *BuildQueueAccess(Uns16 pMember)
+This routine returns a pointer to a `BaseOrder_Struct' structure containing
+the components of an entry in PHOST's build queue.
+
            Uns16 BuildQueuePeek(BaseOrder_Struct *pOrder)
 This routine allows a look at the first build order in the build queue,
 without actually modifying the build queue. The return value is the base ID
