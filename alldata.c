@@ -1,3 +1,4 @@
+
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -18,13 +19,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *****************************************************************************/
 
-
 #include "phostpdk.h"
 #include "private.h"
 
-static Int16              gPlanetControl;
-static Int16              gShipControl;
-static Int16              gBaseControl1, gBaseControl2;
+static Int16 gPlanetControl;
+static Int16 gShipControl;
+static Int16 gBaseControl1,
+  gBaseControl2;
 
 /*--------------------------------------------------------------------------
 Name      : ReadGlobalData()
@@ -34,22 +35,31 @@ Purpose   : initializes the host data structures by reading data files
             etc.
 --------------------------------------------------------------------------*/
 
-IO_Def ReadGlobalData(void)
+IO_Def
+ReadGlobalData(void)
 {
-    if (Read_Beamspec_File() NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Torpspec_File() NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Racenames_File() NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Hullspec_File() NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Engspec_File() NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Truehull_File() NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Xyplan_File() NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Planetname_File() NEQ IO_SUCCESS) goto read_fail;
+  if (Read_Beamspec_File()NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Torpspec_File()NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Racenames_File()NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Hullspec_File()NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Engspec_File()NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Truehull_File()NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Xyplan_File()NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Planetname_File()NEQ IO_SUCCESS)
+    goto read_fail;
 
-    return IO_SUCCESS;
+  return IO_SUCCESS;
 
 read_fail:
-    Error("Unable to read global game data");
-    return IO_FAILURE;
+  Error("Unable to read global game data");
+  return IO_FAILURE;
 }
 
 /*--------------------------------------------------------------------------
@@ -58,39 +68,49 @@ Purpose   : initializes the host data structures by reading data files
             These data files change for each different hosted game.
 --------------------------------------------------------------------------*/
 
-IO_Def ReadHostData(void)
+IO_Def
+ReadHostData(void)
 {
-    /* Must read config file first so we have Language[] initialized for
-       StringRetrieve. In fact, we may need lots of things from our
-       config structure. */
-    if (Read_HConfig_File() NEQ IO_SUCCESS) goto read_fail;
+  /* Must read config file first so we have Language[] initialized for
+     StringRetrieve. In fact, we may need lots of things from our config
+     structure. */
+  if (Read_HConfig_File()NEQ IO_SUCCESS)
+    goto read_fail;
 
-    /* Read the NEXTTURN.HST file first to see if this is a newly
-       mastered game */
-    if (Read_Turntime_File() NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Planets_File(&gPlanetControl) NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Ships_File(&gShipControl) NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Bases_File(&gBaseControl1, &gBaseControl2) NEQ IO_SUCCESS) goto read_fail;
-    if (Read_Mines_File() NEQ IO_SUCCESS) goto read_fail;
-    if (Read_HostGen_File() NEQ IO_SUCCESS) goto read_fail;
+  /* Read the NEXTTURN.HST file first to see if this is a newly mastered game 
+   */
+  if (Read_Turntime_File()NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Planets_File(&gPlanetControl) NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Ships_File(&gShipControl) NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Bases_File(&gBaseControl1, &gBaseControl2) NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_Mines_File()NEQ IO_SUCCESS)
+    goto read_fail;
+  if (Read_HostGen_File()NEQ IO_SUCCESS)
+    goto read_fail;
 #ifndef MICROSQUISH
-    if (! ReadWormholeFile()) goto read_fail;
+  if (!ReadWormholeFile())
+    goto read_fail;
 #endif
 
-    /* No auxdata file if this is a newly mastered game */
-    if (! gNewlyMastered)
-        if (Read_AuxData_File() NEQ IO_SUCCESS) goto read_fail;
+  /* No auxdata file if this is a newly mastered game */
+  if (!gNewlyMastered)
+    if (Read_AuxData_File()NEQ IO_SUCCESS)
+      goto read_fail;
 
-    /* read the CLOAKC.HST file after auxdata. This may get the correct cloak
-       status even if HOST is used */
-    ReadCLOAKCFile();
-    ReadHullfunc();
+  /* read the CLOAKC.HST file after auxdata. This may get the correct cloak
+     status even if HOST is used */
+  ReadCLOAKCFile();
+  ReadHullfunc();
 
-    return IO_SUCCESS;
+  return IO_SUCCESS;
 
 read_fail:
-    Error("Unable to read game data files");
-    return IO_FAILURE;
+  Error("Unable to read game data files");
+  return IO_FAILURE;
 }
 
 /*--------------------------------------------------------------------------
@@ -98,27 +118,35 @@ Name      : WriteHostData()
 Purpose   : writes out updated host data to files
 --------------------------------------------------------------------------*/
 
-IO_Def WriteHostData(void)
+IO_Def
+WriteHostData(void)
 {
-    if (Write_Planets_File(gPlanetControl) NEQ IO_SUCCESS) goto write_fail;
-    if (Write_Ships_File(gShipControl) NEQ IO_SUCCESS) goto write_fail;
-    if (Write_Bases_File(gBaseControl1, gBaseControl2) NEQ IO_SUCCESS) goto write_fail;
-    if (Write_Mines_File() NEQ IO_SUCCESS) goto write_fail;
-    if (Write_AuxData_File() NEQ IO_SUCCESS) goto write_fail;
-    if (Write_HostGen_File() NEQ IO_SUCCESS) goto write_fail;
-    if (WriteCLOAKCFile() NEQ IO_SUCCESS) goto write_fail;
+  if (Write_Planets_File(gPlanetControl) NEQ IO_SUCCESS)
+    goto write_fail;
+  if (Write_Ships_File(gShipControl) NEQ IO_SUCCESS)
+    goto write_fail;
+  if (Write_Bases_File(gBaseControl1, gBaseControl2) NEQ IO_SUCCESS)
+    goto write_fail;
+  if (Write_Mines_File()NEQ IO_SUCCESS)
+    goto write_fail;
+  if (Write_AuxData_File()NEQ IO_SUCCESS)
+    goto write_fail;
+  if (Write_HostGen_File()NEQ IO_SUCCESS)
+    goto write_fail;
+  if (WriteCLOAKCFile()NEQ IO_SUCCESS)
+    goto write_fail;
 
 #ifndef MICROSQUISH
-    if (! WriteWormholeFile()) goto write_fail;
+  if (!WriteWormholeFile())
+    goto write_fail;
 #endif
-    return IO_SUCCESS;
+  return IO_SUCCESS;
 
 write_fail:
-    Error("Unable to successfully write game data files");
-    return IO_FAILURE;
+  Error("Unable to successfully write game data files");
+  return IO_FAILURE;
 }
 
 /*******************************************************************************
 $History: . $
 *******************************************************************************/
-

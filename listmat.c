@@ -1,3 +1,4 @@
+
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -28,29 +29,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 int
 ListMatch(const char *token, const char *list)
 {
-    const char *tptr;
-    int match;
+  const char *tptr;
+  int match;
 
-    match=0;
+  match = 0;
 
-    while (*list)  {
-        int required = 1;
+  while (*list) {
+    int required = 1;
 
-        for (tptr=token; *token && *list && !isspace(*list); tptr++, list++)  {
-            if (required && islower(*list)) required = 0;
+    for (tptr = token; *token && *list && !isspace(*list); tptr++, list++) {
+      if (required && islower(*list))
+        required = 0;
 
-            if (toupper(*tptr) NEQ toupper(*list))  break;   /* Not this one */
-        }
-        if (*tptr == 0)  {
-            if (*list && islower(*list)) required = 0;
-            if (!required || isspace(*list) || *list==0) return match;
-        }
-        while (*list && !isspace(*list)) list++;
-        if (*list) list++;
-        match++;
+      if (toupper(*tptr) NEQ toupper(*list))
+        break;                  /* Not this one */
     }
+    if (*tptr == 0) {
+      if (*list && islower(*list))
+        required = 0;
+      if (!required || isspace(*list) || *list == 0)
+        return match;
+    }
+    while (*list && !isspace(*list))
+      list++;
+    if (*list)
+      list++;
+    match++;
+  }
 
-    return -1;
+  return -1;
 }
 
 /*************************************************************

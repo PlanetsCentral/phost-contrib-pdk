@@ -5,11 +5,9 @@
 extern "C" {
 #endif
 
-extern int ListMatch(const char *token, const char *list);
+  extern int ListMatch(const char *token, const char *list);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* _LISTMAT_H_ */
-
+#endif                          /* _LISTMAT_H_ */

@@ -1,5 +1,6 @@
 #ifdef MICROSQUISH
 extern FILE __near __cdecl _iob[];
+
 #undef stdin
 #undef stdout
 #undef stderr

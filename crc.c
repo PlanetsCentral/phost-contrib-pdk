@@ -1,3 +1,4 @@
+
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -23,62 +24,63 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static CRCType CRCTable[256];
 
-#define CCITT 67601UL       /* == 0x10811 which is the 16-12-5-1 polynomial */
+#define CCITT 67601UL           /* == 0x10811 which is the 16-12-5-1
+                                   polynomial */
 
 static int initialized = 0;
 
 void
 InitCRC(void)
 {
-    unsigned int i;
+  unsigned int i;
 
-    if (initialized) return;
+  if (initialized)
+    return;
 
-    for (i=0; i<256; i++) {
-        int j;
-        unsigned long k=i;
-        for (j=0; j<8; j++) {
-            if (k & 1) k ^= CCITT;
-            k >>= 1;
-        }
-        CRCTable[i] = (CRCType)k;
+  for (i = 0; i < 256; i++) {
+    int j;
+    unsigned long k = i;
+
+    for (j = 0; j < 8; j++) {
+      if (k & 1)
+        k ^= CCITT;
+      k >>= 1;
     }
+    CRCTable[i] = (CRCType) k;
+  }
 
-    initialized = 1;
+  initialized = 1;
 }
 
-CRCType
-GenerateCRC(void *base, Uns32 size)
+CRCType GenerateCRC(void *base, Uns32 size)
 {
-    CRCType crc = 0;
-    unsigned char HUGE *ptr = (unsigned char HUGE *)base;
+  CRCType crc = 0;
+  unsigned char HUGE *ptr = (unsigned char HUGE *) base;
 
-    InitCRC();
+  InitCRC();
 
-    while (size--) {
-        crc = CRCTable[(crc & 0xFFU) ^ *ptr++] ^ (crc >> 8);
-    }
+  while (size--) {
+    crc = CRCTable[(crc & 0xFFU) ^ *ptr++] ^ (crc >> 8);
+  }
 
-    return crc;
+  return crc;
 }
 
 #if 0
-CRCType
-IncrementalCRC(unsigned char byte, CRCType crc)
+CRCType IncrementalCRC(unsigned char byte, CRCType crc)
 {
-    return CRCTable[(crc & 0xFFU) ^ byte] ^ (crc >> 8);
+  return CRCTable[(crc & 0xFFU) ^ byte] ^ (crc >> 8);
 }
 
-CRCType
-GenerateCRCContinue(void *pData, Uns32 pSize, CRCType pCrc)
+CRCType GenerateCRCContinue(void *pData, Uns32 pSize, CRCType pCrc)
 {
-    unsigned char *pPtr = (unsigned char *)pData;
+  unsigned char *pPtr = (unsigned char *) pData;
 
-    while (pSize--) {
-        pCrc = IncrementalCRC(*pPtr, pCrc);
-        pPtr++;
-    }
-    return pCrc;
+  while (pSize--) {
+    pCrc = IncrementalCRC(*pPtr, pCrc);
+    pPtr++;
+  }
+  return pCrc;
 }
 #endif
 
@@ -86,22 +88,23 @@ GenerateCRCContinue(void *pData, Uns32 pSize, CRCType pCrc)
 void
 main(int argc, char *argv[])
 {
-    CRCType crc = 0;
-    int i;
+  CRCType crc = 0;
+  int i;
 
-    InitCRC();
-    for (i=1; i<argc; i++) {
-        unsigned long val;
+  InitCRC();
+  for (i = 1; i < argc; i++) {
+    unsigned long val;
 
-        val = strtoul(argv[i], 0, 0);
-        crc = IncrementalCRC((unsigned char)(val & 0xFFU), crc);
-    }
-    printf("%04X\n",crc);
+    val = strtoul(argv[i], 0, 0);
+    crc = IncrementalCRC((unsigned char) (val & 0xFFU), crc);
+  }
+  printf("%04X\n", crc);
 }
 
-void *MemAlloc(size_t bytes)
+void *
+MemAlloc(size_t bytes)
 {
-    return malloc(bytes);
+  return malloc(bytes);
 }
 #endif
 

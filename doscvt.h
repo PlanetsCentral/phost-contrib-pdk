@@ -1,21 +1,20 @@
 #ifndef _DOSCVT_H_
 #define _DOSCVT_H_
 
-
 typedef enum {
-    DOSCVT_char=0,        /* 1 byte */
-    DOSCVT_Uns16=1,       /* 2 bytes, little endian */
-    DOSCVT_Int16=1,       /* 2 bytes, little endian */
-    DOSCVT_Uns32=2,       /* 4 bytes, little endian */
-    DOSCVT_Int32=2,       /* 4 bytes, little endian */
-    DOSCVT_enum=3,        /* enumeration, 2 bytes, little endian */
-    DOSCVT_Boolean=3      /* same as an enum */
+  DOSCVT_char = 0,              /* 1 byte */
+  DOSCVT_Uns16 = 1,             /* 2 bytes, little endian */
+  DOSCVT_Int16 = 1,             /* 2 bytes, little endian */
+  DOSCVT_Uns32 = 2,             /* 4 bytes, little endian */
+  DOSCVT_Int32 = 2,             /* 4 bytes, little endian */
+  DOSCVT_enum = 3,              /* enumeration, 2 bytes, little endian */
+  DOSCVT_Boolean = 3            /* same as an enum */
 } DOSCVT_Def;
 
 typedef struct {
-    size_t  mOffset;
-    Uns16   mSize;      /* for char arguments */
-    DOSCVT_Def mType;
+  size_t mOffset;
+  Uns16 mSize;                  /* for char arguments */
+  DOSCVT_Def mType;
 } DOSConvertElement;
 
 #define DOSCVT(type,item,num) { offsetof(DOSCVT_NAME, item), num, DOSCVT_##type }
@@ -29,10 +28,10 @@ typedef struct {
 #define DOSCVTARRAYBoolean(item, elem) DOSCVT(Boolean, item[elem], 1)
 #define DOSCVTARRAYchar(item, elem, size) DOSCVT(char, item[elem], size)
 
-extern Boolean DOSWriteStruct(const DOSConvertElement *pStruct, Uns16 pNumElements,
-                            const void *pData, FILE *pOutFile);
-extern Boolean DOSReadStruct(const DOSConvertElement *pStruct, Uns16 pNumElements,
-                            void *pData, FILE *pInFile);
+extern Boolean DOSWriteStruct(const DOSConvertElement * pStruct,
+      Uns16 pNumElements, const void *pData, FILE * pOutFile);
+extern Boolean DOSReadStruct(const DOSConvertElement * pStruct,
+      Uns16 pNumElements, void *pData, FILE * pInFile);
 
 /* Some structure definitions */
 extern const DOSConvertElement ShipStruct_Convert[];
@@ -90,4 +89,3 @@ extern const Uns16 NumTonsStruct_Convert;
 #define EndianSwap32 WordSwapLong
 
 #endif /* _DOSCVT_H_ */
-

@@ -1,3 +1,4 @@
+
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -19,21 +20,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *****************************************************************************/
 
 /******************************************************************
- *																  *
- *	 Module:	  PHOST Main Module 							  *
- *	 Project:	  Portable Host 								  *
- *	 File Name:   main.c										  *
- *	 Programmer:  Andrew Sterian								  *
- *	 Create Date: October 18, 1994								  *
- *	 Description: This module is the mainline of the application. *
- *				  The command line is parsed and the appropriate  *
- *				  global switches are set. Host data files are	  *
- *				  read in and turn processing occurs. The mission *
- *				  order is determined in this module.			  *
- *	 Functions: 												  *
- *	 Change Record: 											  *
- *																  *
- *																  *
+ *                  *
+ *  Module:   PHOST Main Module          *
+ *  Project:   Portable Host           *
+ *  File Name:   main.c            *
+ *  Programmer:  Andrew Sterian          *
+ *  Create Date: October 18, 1994          *
+ *  Description: This module is the mainline of the application. *
+ *      The command line is parsed and the appropriate  *
+ *      global switches are set. Host data files are   *
+ *      read in and turn processing occurs. The mission *
+ *      order is determined in this module.     *
+ *  Functions:               *
+ *  Change Record:              *
+ *                  *
+ *                  *
  ******************************************************************/
 
 #include "phostpdk.h"
@@ -58,72 +59,76 @@ FILE *gLogFile = 0;
 /* We put this here because lots of modules access this and we don't want
    to link in pconfig.c unnecessarily */
 
-Hconfig_Struct    *gConfigInfo  = 0;
+Hconfig_Struct *gConfigInfo = 0;
 
 /* This holds the list of functions we are to call for cleanup */
 #define MAX_CLEANUP_FUNCS 32
-static CleanupFunction_T *gCleanupFuncs=0;
+static CleanupFunction_T *gCleanupFuncs = 0;
 static int NumCleanupFuncs;
 
-void RegisterCleanupFunction(CleanupFunction_T pFunc)
+void
+RegisterCleanupFunction(CleanupFunction_T pFunc)
 {
-    passert(NumCleanupFuncs < MAX_CLEANUP_FUNCS);
-    passert(gCleanupFuncs);
-    gCleanupFuncs[NumCleanupFuncs++] = pFunc;
+  passert(NumCleanupFuncs < MAX_CLEANUP_FUNCS);
+  passert(gCleanupFuncs);
+  gCleanupFuncs[NumCleanupFuncs++] = pFunc;
 }
 
-void InitPHOSTLib(void)
+void
+InitPHOSTLib(void)
 {
-    static Boolean firstTime = True;
+  static Boolean firstTime = True;
 
-    if (gCleanupFuncs) {
+  if (gCleanupFuncs) {
 #ifdef PDK_DEBUG
-        Warning("InitPHOSTLib called without FreePHOSTLib");
+    Warning("InitPHOSTLib called without FreePHOSTLib");
 #endif
-        FreePHOSTLib();
-    }
-    gCleanupFuncs = MemCalloc(MAX_CLEANUP_FUNCS, sizeof(CleanupFunction_T));
-    NumCleanupFuncs = 0;
+    FreePHOSTLib();
+  }
+  gCleanupFuncs = MemCalloc(MAX_CLEANUP_FUNCS, sizeof(CleanupFunction_T));
+  NumCleanupFuncs = 0;
 
-    if (firstTime) {
-        firstTime = False;
-        fprintf(stdout,"PHOST Development Kit Version %u.%u.%u.%u\n",
-                            HOST_VERSION_MAJOR,
-                            HOST_VERSION_MINOR,
-                            PHOST_VERSION_MAJOR,
-                            PHOST_VERSION_MINOR);
-        fprintf(stdout,"Copyright (C) 1995-1998 Portable Host Project\n\n");
-    }
+  if (firstTime) {
+    firstTime = False;
+    fprintf(stdout, "PHOST Development Kit Version %u.%u.%u.%u\n",
+          HOST_VERSION_MAJOR, HOST_VERSION_MINOR, PHOST_VERSION_MAJOR,
+          PHOST_VERSION_MINOR);
+    fprintf(stdout, "Copyright (C) 1995-1998 Portable Host Project\n\n");
+  }
 
-    /* We DO need to create a gConfigInfo structure else InitWraparounds()
-       will fail. */
-    passert(gConfigInfo EQ 0);
-    gConfigInfo = (Hconfig_Struct *)MemCalloc(sizeof(Hconfig_Struct), 1);
+  /* We DO need to create a gConfigInfo structure else InitWraparounds() will 
+     fail. */
+  passert(gConfigInfo EQ 0);
+  gConfigInfo = (Hconfig_Struct *) MemCalloc(sizeof(Hconfig_Struct), 1);
 }
 
-void FreePHOSTLib(void)
+void
+FreePHOSTLib(void)
 {
-    if (! gCleanupFuncs) {
+  if (!gCleanupFuncs) {
 #ifdef PDK_DEBUG
-        Warning("FreePHOSTLib called without InitPHOSTLib");
+    Warning("FreePHOSTLib called without InitPHOSTLib");
 #endif
-        return;
-    }
-    while (NumCleanupFuncs--) (*(gCleanupFuncs[NumCleanupFuncs]))();
+    return;
+  }
+  while (NumCleanupFuncs--)
+    (*(gCleanupFuncs[NumCleanupFuncs])) ();
 
-    MemFree(gCleanupFuncs);
-    gCleanupFuncs=0;
-    NumCleanupFuncs=0;
+  MemFree(gCleanupFuncs);
+  gCleanupFuncs = 0;
+  NumCleanupFuncs = 0;
 
-    passert(gConfigInfo);
-    MemFree(gConfigInfo); gConfigInfo=0;
+  passert(gConfigInfo);
+  MemFree(gConfigInfo);
+  gConfigInfo = 0;
 }
 
-Uns16 EffRace(Uns16 pPlayer)
+Uns16
+EffRace(Uns16 pPlayer)
 {
-    return (pPlayer >= 1 AND pPlayer <= OLD_RACE_NR)
-                ? gConfigInfo->PlayerRace[pPlayer]
-                : 0;
+  return (pPlayer >= 1 AND pPlayer <= OLD_RACE_NR)
+        ? gConfigInfo->PlayerRace[pPlayer]
+        : 0;
 }
 
 /*************************************************************

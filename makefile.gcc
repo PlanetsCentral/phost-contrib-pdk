@@ -6,7 +6,13 @@ SRCS=auxdata.c pconfig.c crc.c enum.c hostio.c main.c portable.c \
 	 vgapdat2.c vgapdat3.c vgapdat4.c vgapdat5.c msgtmp.c \
 	 rstmsg.c pgetopt.c alldata.c vgapdat6.c vgapdat7.c vgapdat8.c vgapdat9.c \
 	 vgapdatb.c vgapdatc.c battle.c hullfunc.c listmat.c
+HDRS=battle.h doscvt.h listmat.h phostpdk.h ptscore.h squishio.h version.h \
+	 conf.h includes.h pgetopt.h private.h shrouds.h stdtyp.h
 OBJS=$(SRCS:.c=.o)
+INDC:=$(SRCS:.c=.c~)
+INDH:=$(HDRS:.h=.h~)
+
+#.SUFFIXES: .o
 
 CC=gcc -Wall -O3
 
@@ -46,3 +52,32 @@ distrib:
 clean:
 	-rm -f *.o libpdk.a gconfig defcfg.hi crack sendmess ptscore killrace pmaster *.log Makefile
 
+%.o: %.c
+	mv -f $< $<~
+	perl -ne "s/\t/ /g; print;" $<~ | indent -o $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+indent: $(HDRS:.h=.h~)
+
+%.h~: %.h
+	mv -f $< $<~
+	perl -ne "s#\t# #g; print;" $<~ | indent | perl -ne "s#/\* !#/*!#; s#// !#//!#; print;" > $<
+	touch $<~
+
+#indent: $(SRCS) $(HDRS)
+#
+#$(SRCS): $(INDC)
+#	mv -f $(@:.c~=.c) $@
+#	perl -ne "s/\t/ /g; print;" $@ | indent -o $(@:.c~=.c)
+#
+#$(HRDS): $(INDH)
+#	mv -f $(@:.h~=.h) $@
+#	perl -ne "s/\t/ /g; print;" $@ | indent -o $(@:.h~=.h)
+#
+#$(INDC):
+#	mv -f $(@:.c~=.c) $@
+#	perl -ne "s/\t/ /g; print;" $@ | indent -o $(@:.c~=.c)
+#
+#$(INDH):
+#	mv -f $(@:.h~=.h) $@
+#	perl -ne "s/\t/ /g; print;" $@ | indent -o $(@:.h~=.h)

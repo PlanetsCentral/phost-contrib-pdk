@@ -21,4 +21,3 @@
 #define PHOST_VERSION_MINOR 2
 
 #endif /* _VERSION_H_ */
-

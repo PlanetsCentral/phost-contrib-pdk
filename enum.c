@@ -1,3 +1,4 @@
+
 /****************************************************************************
 All files in this distribution are Copyright (C) 1995-2000 by the program
 authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
@@ -32,19 +33,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    the end of the list. */
 Uns16 *enumPointer = 0;
 
-static void FreeEnumerations(void)
+static void
+FreeEnumerations(void)
 {
-    MemFree(enumPointer); enumPointer = 0;
+  MemFree(enumPointer);
+  enumPointer = 0;
 }
 
-static void InitEnumerations(void)
+static void
+InitEnumerations(void)
 {
-    if (enumPointer EQ 0) {
-        /* Add an extra element so we can insert a 0 to indicate end-of-list */
-        enumPointer = (Uns16 *)MemCalloc(SHIP_NR+1, sizeof(Uns16));
+  if (enumPointer EQ 0) {
+    /* Add an extra element so we can insert a 0 to indicate end-of-list */
+    enumPointer = (Uns16 *) MemCalloc(SHIP_NR + 1, sizeof(Uns16));
 
-        RegisterCleanupFunction(FreeEnumerations);
-    }
+    RegisterCleanupFunction(FreeEnumerations);
+  }
 }
 
 /* Right now, all enumeration functions use drop-dead stupid algorithms
@@ -75,31 +79,36 @@ static void InitEnumerations(void)
 */
 
 #ifndef MICROSQUISH
-Uns16 *EnumerateShipsWithinRadius(Int16 pX, Int16 pY, double pRadius)
+Uns16 *
+EnumerateShipsWithinRadius(Int16 pX, Int16 pY, double pRadius)
 {
-    Uns16 lShip;
-    Uns16 lRadius = (Uns16)(pRadius + 0.5);
-    Uns16 lIndex = 0;       /* Index into enumeration list */
-    Int16 lDistX, lDistY;
+  Uns16 lShip;
+  Uns16 lRadius = (Uns16) (pRadius + 0.5);
+  Uns16 lIndex = 0;             /* Index into enumeration list */
+  Int16 lDistX,
+    lDistY;
 
-    InitEnumerations();
+  InitEnumerations();
 
-    for (lShip = 1; lShip <= SHIP_NR; lShip++) {
-        if (!IsShipExist(lShip)) continue;
+  for (lShip = 1; lShip <= SHIP_NR; lShip++) {
+    if (!IsShipExist(lShip))
+      continue;
 
-        lDistX = abs(WrapDistX(ShipLocationX(lShip) - pX));
-        if (lDistX > lRadius) continue;
+    lDistX = abs(WrapDistX(ShipLocationX(lShip) - pX));
+    if (lDistX > lRadius)
+      continue;
 
-        lDistY = abs(WrapDistY(ShipLocationY(lShip) - pY));
-        if (lDistY > lRadius) continue;
+    lDistY = abs(WrapDistY(ShipLocationY(lShip) - pY));
+    if (lDistY > lRadius)
+      continue;
 
-        if (((Int32)lDistX*lDistX + (Int32)lDistY*lDistY)
-                        <= ((Uns32)lRadius*lRadius)) {
-            enumPointer[lIndex++] = lShip;
-        }
+    if (((Int32) lDistX * lDistX + (Int32) lDistY * lDistY)
+          <= ((Uns32) lRadius * lRadius)) {
+      enumPointer[lIndex++] = lShip;
     }
-    enumPointer[lIndex] = 0;
-    return enumPointer;
+  }
+  enumPointer[lIndex] = 0;
+  return enumPointer;
 }
 
 #endif /* MICROSQUISH */
@@ -122,23 +131,25 @@ Uns16 *EnumerateShipsWithinRadius(Int16 pX, Int16 pY, double pRadius)
        region [1500,1500]-[2500,2500].
 */
 
-Uns16 *EnumerateShipsAt(Uns16 pX, Uns16 pY)
+Uns16 *
+EnumerateShipsAt(Uns16 pX, Uns16 pY)
 {
-    Uns16 lShip;
-    Uns16 lIndex = 0;   /* Index into enumeration list */
+  Uns16 lShip;
+  Uns16 lIndex = 0;             /* Index into enumeration list */
 
-    InitEnumerations();
+  InitEnumerations();
 
-    for (lShip = 1; lShip <= SHIP_NR; lShip++) {
-        if (! IsShipExist(lShip)) continue;
+  for (lShip = 1; lShip <= SHIP_NR; lShip++) {
+    if (!IsShipExist(lShip))
+      continue;
 
-        if ( (ShipLocationX(lShip) EQ pX)
-              AND (ShipLocationY(lShip) EQ pY) ) {
-            enumPointer[lIndex++] = lShip;
-        }
+    if ((ShipLocationX(lShip) EQ pX)
+          AND(ShipLocationY(lShip) EQ pY)) {
+      enumPointer[lIndex++] = lShip;
     }
-    enumPointer[lIndex] = 0;
-    return enumPointer;
+  }
+  enumPointer[lIndex] = 0;
+  return enumPointer;
 }
 
 /* This routine is called by (either directly or through
@@ -162,33 +173,38 @@ Uns16 *EnumerateShipsAt(Uns16 pX, Uns16 pY)
 */
 
 #ifndef MICROSQUISH
-Uns16 *EnumerateMinesWithinRadius(Int16 pX, Int16 pY, Uns16 pRadius)
+Uns16 *
+EnumerateMinesWithinRadius(Int16 pX, Int16 pY, Uns16 pRadius)
 {
-    Uns16 lMine;
-    Uns16 lIndex = 0;
-    Uns16 lRadius;
-    Int16 lDistX, lDistY;
+  Uns16 lMine;
+  Uns16 lIndex = 0;
+  Uns16 lRadius;
+  Int16 lDistX,
+    lDistY;
 
-    InitEnumerations();
+  InitEnumerations();
 
-    for (lMine = 1; lMine <= GetNumMinefields(); lMine++) {
-        if (MinefieldUnits(lMine) EQ 0) continue;
+  for (lMine = 1; lMine <= GetNumMinefields(); lMine++) {
+    if (MinefieldUnits(lMine) EQ 0)
+      continue;
 
-        lRadius = MinefieldRadius(lMine) + pRadius;
+    lRadius = MinefieldRadius(lMine) + pRadius;
 
-        lDistX = abs(WrapDistX(MinefieldPositionX(lMine) - pX));
-        if (lDistX > lRadius) continue;
+    lDistX = abs(WrapDistX(MinefieldPositionX(lMine) - pX));
+    if (lDistX > lRadius)
+      continue;
 
-        lDistY = abs(WrapDistY(MinefieldPositionY(lMine) - pY));
-        if (lDistY > lRadius) continue;
+    lDistY = abs(WrapDistY(MinefieldPositionY(lMine) - pY));
+    if (lDistY > lRadius)
+      continue;
 
-        if (((Int32)lDistX*lDistX + (Int32)lDistY*lDistY)
-                        <= ((Uns32)lRadius*lRadius)) {
-            enumPointer[lIndex++] = lMine;
-        }
+    if (((Int32) lDistX * lDistX + (Int32) lDistY * lDistY)
+          <= ((Uns32) lRadius * lRadius)) {
+      enumPointer[lIndex++] = lMine;
     }
-    enumPointer[lIndex] = 0;
-    return enumPointer;
+  }
+  enumPointer[lIndex] = 0;
+  return enumPointer;
 }
 
 #endif /* ! MICROSQUISH */
@@ -210,23 +226,25 @@ Uns16 *EnumerateMinesWithinRadius(Int16 pX, Int16 pY, Uns16 pRadius)
         a 486/66, with or without a coprocessor.
 */
 
-Uns16 FindPlanetAtShip(Uns16 pShip)
+Uns16
+FindPlanetAtShip(Uns16 pShip)
 {
-    Uns16 lPlanet;
-    Uns16 pX = ShipLocationX(pShip);
-    Uns16 pY = ShipLocationY(pShip);
+  Uns16 lPlanet;
+  Uns16 pX = ShipLocationX(pShip);
+  Uns16 pY = ShipLocationY(pShip);
 
-    InitEnumerations();
+  InitEnumerations();
 
-    for (lPlanet = 1; lPlanet <= PLANET_NR; lPlanet++) {
-        if (! IsPlanetExist(lPlanet)) continue;
+  for (lPlanet = 1; lPlanet <= PLANET_NR; lPlanet++) {
+    if (!IsPlanetExist(lPlanet))
+      continue;
 
-        if ( (PlanetLocationX(lPlanet) EQ pX)
-              AND
-             (PlanetLocationY(lPlanet) EQ pY)
-           ) return lPlanet;
-    }
-    return 0;
+    if ((PlanetLocationX(lPlanet) EQ pX)
+          AND(PlanetLocationY(lPlanet) EQ pY)
+          )
+      return lPlanet;
+  }
+  return 0;
 }
 
 /* This routine is called by:
@@ -244,32 +262,37 @@ Uns16 FindPlanetAtShip(Uns16 pShip)
         a 486/66 with or without a coprocessor.
 */
 
-Uns16 FindGravityPlanet(Int16 pX, Int16 pY)
+Uns16
+FindGravityPlanet(Int16 pX, Int16 pY)
 {
-    Uns16 lPlanet;
-    Int16 lDistX, lDistY;
-    Int16 lRange = gConfigInfo->GravityWellRange;
+  Uns16 lPlanet;
+  Int16 lDistX,
+    lDistY;
+  Int16 lRange = gConfigInfo->GravityWellRange;
 
-    InitEnumerations();
+  InitEnumerations();
 
-    for (lPlanet = PLANET_NR; lPlanet >= 1; lPlanet--) {
-        if (! IsPlanetExist(lPlanet)) continue;
+  for (lPlanet = PLANET_NR; lPlanet >= 1; lPlanet--) {
+    if (!IsPlanetExist(lPlanet))
+      continue;
 
-        lDistX = abs(WrapDistX(PlanetLocationX(lPlanet) - pX));
-        if (lDistX > lRange) continue;
+    lDistX = abs(WrapDistX(PlanetLocationX(lPlanet) - pX));
+    if (lDistX > lRange)
+      continue;
 
-        lDistY = abs(WrapDistY(PlanetLocationY(lPlanet) - pY));
-        if (lDistY > lRange) continue;
+    lDistY = abs(WrapDistY(PlanetLocationY(lPlanet) - pY));
+    if (lDistY > lRange)
+      continue;
 
-        if (   (! gConfigInfo->RoundWarpWells)
-            OR (((Int32)lDistX*lDistX + (Int32)lDistY*lDistY)
-                    <= ((Uns32)lRange*lRange))
-           ) {
-            return lPlanet;
-        }
+    if ((!gConfigInfo->RoundWarpWells)
+          OR(((Int32) lDistX * lDistX + (Int32) lDistY * lDistY)
+                <= ((Uns32) lRange * lRange))
+          ) {
+      return lPlanet;
     }
+  }
 
-    return 0;
+  return 0;
 }
 
 /* This routine is called by:
@@ -289,50 +312,57 @@ Uns16 FindGravityPlanet(Int16 pX, Int16 pY)
 
 */
 
-Uns16 *EnumeratePlanetsWithin(Int16 pX, Int16 pY, Uns16 pRadius)
+Uns16 *
+EnumeratePlanetsWithin(Int16 pX, Int16 pY, Uns16 pRadius)
 {
-    Uns16 lPlanet;
-    Uns16 lIndex = 0;
-    Int16 lDistX, lDistY;
+  Uns16 lPlanet;
+  Uns16 lIndex = 0;
+  Int16 lDistX,
+    lDistY;
 
-    InitEnumerations();
+  InitEnumerations();
 
-    for (lPlanet = 1; lPlanet <= PLANET_NR; lPlanet++) {
-        if (! IsPlanetExist(lPlanet)) continue;
+  for (lPlanet = 1; lPlanet <= PLANET_NR; lPlanet++) {
+    if (!IsPlanetExist(lPlanet))
+      continue;
 
-        lDistX = abs(WrapDistX(PlanetLocationX(lPlanet) - pX));
-        if (lDistX > pRadius) continue;
+    lDistX = abs(WrapDistX(PlanetLocationX(lPlanet) - pX));
+    if (lDistX > pRadius)
+      continue;
 
-        lDistY = abs(WrapDistY(PlanetLocationY(lPlanet) - pY));
-        if (lDistY > pRadius) continue;
+    lDistY = abs(WrapDistY(PlanetLocationY(lPlanet) - pY));
+    if (lDistY > pRadius)
+      continue;
 
-        if (((Int32)lDistX*lDistX + (Int32)lDistY*lDistY)
-                            <= ((Uns32)pRadius*pRadius)) {
-            enumPointer[lIndex++] = lPlanet;
-        }
+    if (((Int32) lDistX * lDistX + (Int32) lDistY * lDistY)
+          <= ((Uns32) pRadius * pRadius)) {
+      enumPointer[lIndex++] = lPlanet;
     }
-    enumPointer[lIndex++] = 0;
-    return enumPointer;
+  }
+  enumPointer[lIndex++] = 0;
+  return enumPointer;
 }
 
-Uns16 *EnumerateShipsAtPlanet(Uns16 pPlanet)
+Uns16 *
+EnumerateShipsAtPlanet(Uns16 pPlanet)
 {
-    return EnumerateShipsAt(PlanetLocationX(pPlanet), PlanetLocationY(pPlanet));
+  return EnumerateShipsAt(PlanetLocationX(pPlanet), PlanetLocationY(pPlanet));
 }
 
 #ifndef MICROSQUISH
-Uns16 *EnumerateMinesCovering(Int16 pX, Int16 pY)
+Uns16 *
+EnumerateMinesCovering(Int16 pX, Int16 pY)
 {
-    return EnumerateMinesWithinRadius(pX, pY, 0);
+  return EnumerateMinesWithinRadius(pX, pY, 0);
 }
 #endif
 
 #ifndef MICROSQUISH
-Uns16 *EnumerateOverlappingMines(Uns16 pMinefield)
+Uns16 *
+EnumerateOverlappingMines(Uns16 pMinefield)
 {
-    return EnumerateMinesWithinRadius(MinefieldPositionX(pMinefield),
-                                      MinefieldPositionY(pMinefield),
-                                      MinefieldRadius(pMinefield));
+  return EnumerateMinesWithinRadius(MinefieldPositionX(pMinefield),
+        MinefieldPositionY(pMinefield), MinefieldRadius(pMinefield));
 }
 #endif
 
@@ -341,186 +371,210 @@ Uns16 *EnumerateOverlappingMines(Uns16 pMinefield)
  */
 
  /* LEAVE THESE as Int16's! */
-static Int16 gWrapMaxX;     /* Maximum allowable x-value */
-static Int16 gWrapMinX;     /* Minimum allowable x-value */
-static Int16 gWrapMaxY;     /* Maximum allowable y-value */
-static Int16 gWrapMinY;     /* Minimum allowable y-value */
-static Int16 gWrapDimX;     /* X-Dimension wraparound size */
-static Int16 gWrapDimY;     /* Y-Dimension wraparound size */
-static Int16 gWrapDimX_2;   /* X-size divided by 2 */
-static Int16 gWrapDimY_2;   /* Y-size divided by 2 */
-static Boolean gWrap;       /* Just a mirror of gConfigInfo->AllowWraparoundMap */
+static Int16 gWrapMaxX;         /* Maximum allowable x-value */
+static Int16 gWrapMinX;         /* Minimum allowable x-value */
+static Int16 gWrapMaxY;         /* Maximum allowable y-value */
+static Int16 gWrapMinY;         /* Minimum allowable y-value */
+static Int16 gWrapDimX;         /* X-Dimension wraparound size */
+static Int16 gWrapDimY;         /* Y-Dimension wraparound size */
+static Int16 gWrapDimX_2;       /* X-size divided by 2 */
+static Int16 gWrapDimY_2;       /* Y-size divided by 2 */
+static Boolean gWrap;           /* Just a mirror of
+
+                                   gConfigInfo->AllowWraparoundMap */
 
 static Boolean gWraparoundInitialized = False;
 
-static void ShutdownWraparound(void)
+static void
+ShutdownWraparound(void)
 {
-    /* Just so we re-init from a possibly-changed config file */
-    gWraparoundInitialized = False;
+  /* Just so we re-init from a possibly-changed config file */
+  gWraparoundInitialized = False;
 }
 
-static void InitWraparound(void)
+static void
+InitWraparound(void)
 {
-    Uns16 lVert[4];
-    Uns16 lTemp;
-    int i;
+  Uns16 lVert[4];
+  Uns16 lTemp;
+  int i;
 
-    if (gWraparoundInitialized) return;
+  if (gWraparoundInitialized)
+    return;
 
-    gWraparoundInitialized = True;
-    RegisterCleanupFunction(ShutdownWraparound);
+  gWraparoundInitialized = True;
+  RegisterCleanupFunction(ShutdownWraparound);
 
-    passert(gConfigInfo);
+  passert(gConfigInfo);
 
-    gWrap = gConfigInfo->AllowWraparoundMap;
+  gWrap = gConfigInfo->AllowWraparoundMap;
 
-    memcpy(lVert, gConfigInfo->WraparoundRectangle, sizeof(lVert));
+  memcpy(lVert, gConfigInfo->WraparoundRectangle, sizeof(lVert));
 
-    /* Ensure that left is to the left of right, and bottom is below top */
-    for (i = 0; i < 2; i++) {
-        if (lVert[i] > lVert[i+2]) {
-            lTemp = lVert[i];
-            lVert[i] = lVert[i+2];
-            lVert[i+2] = lTemp;
-        }
+  /* Ensure that left is to the left of right, and bottom is below top */
+  for (i = 0; i < 2; i++) {
+    if (lVert[i] > lVert[i + 2]) {
+      lTemp = lVert[i];
+      lVert[i] = lVert[i + 2];
+      lVert[i + 2] = lTemp;
+    }
+  }
+
+  gWrapMinX = lVert[0];
+  gWrapMinY = lVert[1];
+  gWrapMaxX = lVert[2];
+  gWrapMaxY = lVert[3];
+
+  gWrapDimX = gWrapMaxX - gWrapMinX;
+  gWrapDimY = gWrapMaxY - gWrapMinY;
+
+  gWrapDimX_2 = gWrapDimX / 2;
+  gWrapDimY_2 = gWrapDimY / 2;
+}
+
+void
+RewrapShipsAndMines(void)
+{
+  Uns16 lShip;
+  Uns16 lMine;
+
+  InitWraparound();
+
+  /* Now go through and ensure that each ship position, minefield position,
+     etc. is within the wrap boundaries. We need to do this, not only to
+     check ourselves, but to enforce wraps in case external add-ons screw
+     around with positions. */
+  if (gWrap) {
+    for (lShip = 1; lShip <= SHIP_NR; lShip++) {
+      if (!IsShipExist(lShip))
+        continue;
+
+      WrapShipLocation(lShip);
     }
 
-    gWrapMinX = lVert[0];
-    gWrapMinY = lVert[1];
-    gWrapMaxX = lVert[2];
-    gWrapMaxY = lVert[3];
+    for (lMine = 1; lMine <= GetNumMinefields(); lMine++) {
+      if (!IsMinefieldExist(lMine))
+        continue;
 
-    gWrapDimX = gWrapMaxX - gWrapMinX;
-    gWrapDimY = gWrapMaxY - gWrapMinY;
-
-    gWrapDimX_2 = gWrapDimX/2;
-    gWrapDimY_2 = gWrapDimY/2;
-}
-
-void RewrapShipsAndMines(void)
-{
-    Uns16 lShip;
-    Uns16 lMine;
-
-    InitWraparound();
-
-    /* Now go through and ensure that each ship position, minefield position,
-       etc. is within the wrap boundaries. We need to do this, not only
-       to check ourselves, but to enforce wraps in case external add-ons
-       screw around with positions. */
-    if (gWrap) {
-        for (lShip=1; lShip <= SHIP_NR; lShip++) {
-            if (! IsShipExist(lShip)) continue;
-
-            WrapShipLocation(lShip);
-        }
-
-        for (lMine=1; lMine <= GetNumMinefields(); lMine++) {
-            if (! IsMinefieldExist(lMine)) continue;
-
-            WrapMineLocation(lMine);
-        }
+      WrapMineLocation(lMine);
     }
+  }
 }
 
-Int16 WrapMapX(Int16 pX)
+Int16
+WrapMapX(Int16 pX)
 {
-    InitWraparound();
+  InitWraparound();
 
-    if (gWrap) {
-        while (pX > gWrapMaxX) pX -= gWrapDimX;
-        while (pX < gWrapMinX) pX += gWrapDimX;
-    }
+  if (gWrap) {
+    while (pX > gWrapMaxX)
+      pX -= gWrapDimX;
+    while (pX < gWrapMinX)
+      pX += gWrapDimX;
+  }
 
-    return pX;
+  return pX;
 }
 
-Int16 WrapMapY(Int16 pY)
+Int16
+WrapMapY(Int16 pY)
 {
-    InitWraparound();
+  InitWraparound();
 
-    if (gWrap) {
-        while (pY > gWrapMaxY) pY -= gWrapDimY;
-        while (pY < gWrapMinY) pY += gWrapDimY;
-    }
+  if (gWrap) {
+    while (pY > gWrapMaxY)
+      pY -= gWrapDimY;
+    while (pY < gWrapMinY)
+      pY += gWrapDimY;
+  }
 
-    return pY;
+  return pY;
 }
 
-Int16 WrapDistX(Int16 pX)
+Int16
+WrapDistX(Int16 pX)
 {
-    InitWraparound();
+  InitWraparound();
 
-    if (gWrap) {
-        while (pX > gWrapDimX_2) pX -= gWrapDimX;
-        while (pX < -gWrapDimX_2) pX += gWrapDimX;
-    }
+  if (gWrap) {
+    while (pX > gWrapDimX_2)
+      pX -= gWrapDimX;
+    while (pX < -gWrapDimX_2)
+      pX += gWrapDimX;
+  }
 
-    return pX;
+  return pX;
 }
 
-Int16 WrapDistY(Int16 pY)
+Int16
+WrapDistY(Int16 pY)
 {
-    InitWraparound();
+  InitWraparound();
 
-    if (gWrap) {
-        while (pY > gWrapDimY_2) pY -= gWrapDimY;
-        while (pY < -gWrapDimY_2) pY += gWrapDimY;
-    }
+  if (gWrap) {
+    while (pY > gWrapDimY_2)
+      pY -= gWrapDimY;
+    while (pY < -gWrapDimY_2)
+      pY += gWrapDimY;
+  }
 
-    return pY;
+  return pY;
 }
 
-Boolean IsPointOnWrapMap(Int16 pX, Int16 pY)
+Boolean
+IsPointOnWrapMap(Int16 pX, Int16 pY)
 {
-    InitWraparound();
+  InitWraparound();
 
-    if (gWrap) {
-        return (Boolean) (pX >= gWrapMinX)
-                     AND (pX <= gWrapMaxX)
-                     AND (pY >= gWrapMinY)
-                     AND (pY <= gWrapMaxY)
-                     ;
-    } else return True;
+  if (gWrap) {
+    return (Boolean) (pX >= gWrapMinX)
+          AND(pX <= gWrapMaxX)
+          AND(pY >= gWrapMinY)
+          AND(pY <= gWrapMaxY);
+  }
+  else
+    return True;
 }
 
-Int32 DistanceSquared(Int16 pX1, Int16 pY1, Int16 pX2, Int16 pY2)
+Int32
+DistanceSquared(Int16 pX1, Int16 pY1, Int16 pX2, Int16 pY2)
 {
-    Int16 lDX;
-    Int16 lDY;
+  Int16 lDX;
+  Int16 lDY;
 
-    InitWraparound();
+  InitWraparound();
 
-    /* Ensure we are within wraparound region and that we find
-       the closest distance in both X and Y directions. */
-    if (gWrap) {
-        lDX = WrapDistX(pX1 - pX2);
-        lDY = WrapDistY(pY1 - pY2);
-    } else {
-        lDX = pX1 - pX2;
-        lDY = pY1 - pY2;
-    }
+  /* Ensure we are within wraparound region and that we find the closest
+     distance in both X and Y directions. */
+  if (gWrap) {
+    lDX = WrapDistX(pX1 - pX2);
+    lDY = WrapDistY(pY1 - pY2);
+  }
+  else {
+    lDX = pX1 - pX2;
+    lDY = pY1 - pY2;
+  }
 
-    return (Int32)lDX*lDX + (Int32)lDY*lDY;
+  return (Int32) lDX *lDX + (Int32) lDY *lDY;
 }
 
 #ifndef MICROSQUISH
-double Distance(Int16 pX1, Int16 pY1, Int16 pX2, Int16 pY2)
+double
+Distance(Int16 pX1, Int16 pY1, Int16 pX2, Int16 pY2)
 {
-    return sqrt((double) DistanceSquared(pX1, pY1, pX2, pY2));
+  return sqrt((double) DistanceSquared(pX1, pY1, pX2, pY2));
 }
 #endif
 
 /* This routine checks whether the distance between two points is less than
    or equal to a reference radius. No floating point math is used. */
 
-Boolean IsDistanceLTRadius(Int16 pX1, Int16 pY1, Int16 pX2, Int16 pY2,
-                                                                Uns32 pRadius)
+Boolean
+IsDistanceLTRadius(Int16 pX1, Int16 pY1, Int16 pX2, Int16 pY2, Uns32 pRadius)
 {
-    return (Boolean)
-        (DistanceSquared(pX1, pY1, pX2, pY2) <= (pRadius*pRadius));
+  return (Boolean)
+        (DistanceSquared(pX1, pY1, pX2, pY2) <= (pRadius * pRadius));
 }
-
 
 /*************************************************************
   $HISTORY:$
