@@ -1,3 +1,8 @@
+2004-08-25  Maurits van Rees <maurits@vanrees.org>
+
+	* Added .cvsignore file to ignore auto generated files: crack
+	killrace pally pdk-api.txt pdk.inf pmaster ptscore sendmess
+
 2004-08-23  Maurits van Rees <maurits@vanrees.org>
 
 	* Added {Ship|Hull}{Heats|Cools} functions.
