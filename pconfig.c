@@ -27,8 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define PDK                     /* config.hi wants this */
 
-static const char *CONFIG_FILE  = "pconfig.src";
-static const char *HCONFIG_FILE = "hconfig.hst";
+extern const char SHIPLIST_FILE[];
+static const char CONFIG_FILE[]  = "pconfig.src";
+static const char HCONFIG_FILE[] = "hconfig.hst";
 static const char* gCurrentConfigFile;
 
 static void ClearConfig();
@@ -215,11 +216,34 @@ Read_HConfig_File(void)
   ClearConfig();
   ConfigFileReaderEx(lConfigFile, CONFIG_FILE, "phost", True,
                      DoAssignment, gConfigWarnings ? Warning : Ignore, True);
+  fclose(lConfigFile);
+  lConfigFile = OpenInputFile(SHIPLIST_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR);
+  if (lConfigFile) {
+      ConfigFileReaderEx(lConfigFile, SHIPLIST_FILE, "phost", False,
+                         DoAssignment, gConfigWarnings ? Warning : Ignore, True);
+      fclose(lConfigFile);
+  }
   DoDefaultAssignments();
 
   fclose(lConfigFile);
 
+  ReinitWraparound();
+  
   return IO_SUCCESS;
+}
+
+/** Initialize blank configuration. */
+void
+InitConfig(void)
+{
+    Boolean save = gConfigWarnings;
+    gConfigWarnings = False;
+    
+    ClearConfig();
+    DoDefaultAssignments();
+    ReinitWraparound();
+
+    gConfigWarnings = save;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -241,6 +265,7 @@ typedef enum {
     CFType_String,
     CFType_BuildQueue_Def,
     CFType_Tristate,
+    CFType_TristateX,
     CFType_MAX
 } CFType;
 
@@ -253,7 +278,8 @@ static const int sConfigItemSize[CFType_MAX] = {
     sizeof(ScoreMethod_Def),
     sizeof(char),
     sizeof(BuildQueue_Def),
-    sizeof(Tristate)
+    sizeof(Tristate),
+    sizeof(TristateX)
 };
 
 static const char* const sConfigItemNames[CFType_MAX] = {
@@ -265,6 +291,7 @@ static const char* const sConfigItemNames[CFType_MAX] = {
     "scoring method",
     "string",
     "build queue",
+    "tristate",
     "tristate"
 };
 
@@ -464,6 +491,8 @@ parseBoolean(const ConfigItem_Struct* pItem,
              char* pValue, int pIndex, void* pData)
 {
     int match = ListMatch(pValue, "False True No Yes"); /* order is important */
+    if (match < 0 && ListMatch(pValue, "Allies External") >= 0)
+        match = 1;
     if (match < 0) {
         Error("%s: invalid boolean value for option '%s'", CONFIG_FILE, pItem->mName);
         return False;
@@ -475,7 +504,7 @@ parseBoolean(const ConfigItem_Struct* pItem,
     }
 }
 
-/** Parse tristate, into a trisate array. For use with Tokenize. */
+/** Parse tristate, into a tristate array. For use with Tokenize. */
 static Boolean
 parseTristate(const ConfigItem_Struct* pItem,
              char* pValue, int pIndex, void* pData)
@@ -488,6 +517,23 @@ parseTristate(const ConfigItem_Struct* pItem,
         if (match >= 3)
             match -= 3;
         ((Tristate*) pData)[pIndex] = match;
+        return True;
+    }
+}
+
+/** Parse tristate, into a tristate array. For use with Tokenize. */
+static Boolean
+parseTristateX(const ConfigItem_Struct* pItem,
+               char* pValue, int pIndex, void* pData)
+{
+    int match = ListMatch(pValue, "False True External No Yes"); /* order is important */
+    if (match < 0) {
+        Error("%s: invalid tristate value for option '%s'", CONFIG_FILE, pItem->mName);
+        return False;
+    } else {
+        if (match >= 3)
+            match -= 3;
+        ((TristateX*) pData)[pIndex] = match;
         return True;
     }
 }
@@ -712,6 +758,9 @@ DoAssignOption(int pOptInd, char* pValue, Boolean pDefault)
                         (char*) gConfigInfo + lItem->mOffset);
      case CFType_Tristate:
         return Tokenize(lItem, pValue, parseTristate,
+                        (char*) gConfigInfo + lItem->mOffset);
+     case CFType_TristateX:
+        return Tokenize(lItem, pValue, parseTristateX,
                         (char*) gConfigInfo + lItem->mOffset);
      case CFType_MAX:
         return False;

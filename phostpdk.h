@@ -50,9 +50,9 @@ extern "C" {
 #define MAX_BASE_FIGHTERS  60   /*!< Max fighters for a base */
 #define MAX_TECH    10          /*!< Max tech level */
 #define MAX_DENSITY   100       /*!< Max mineral density in a planet */
-#define MAX_HAPPY   100         /*!< Max happiness for colonists and natives 
+#define MAX_HAPPY   100         /*!< Max happiness for colonists and natives
                                  */
-#define MIN_HAPPY   (-300)      /*!< Min happiness for colonists and natives 
+#define MIN_HAPPY   (-300)      /*!< Min happiness for colonists and natives
                                  */
 #define MAX_COORDINATE   10000  /*!< coordinate limits given by planets.exe */
 #define MIN_COORDINATE    0
@@ -235,7 +235,7 @@ extern "C" {
                                    output files */
     TEXT_MODE = 0x40,           /*!< open the file in text mode instead of
                                    binary */
-    NO_MISSING_ERROR = 0x80     /*!< don't complain if input file is missing 
+    NO_MISSING_ERROR = 0x80     /*!< don't complain if input file is missing
                                  */
   } FileLocation_Def;
 
@@ -275,7 +275,13 @@ extern "C" {
     TS_Yes,                     /* Feature is on */
     TS_Allies                   /* Feature is available to allies only */
   } Tristate;
-    
+
+  typedef enum {
+    TSX_No,                     /* Feature is off */
+    TSX_Yes,                    /* Feature is on */
+    TSX_External                /* Feature is externalized */
+  } TristateX;
+
   typedef enum {
     UTIL_Ext,
     UTIL_Dat,
@@ -307,7 +313,7 @@ extern "C" {
 
 
 #define GAME_NAME_SIZE  32  /* Maximum size of game names */
-    
+
 /** Host configuration. This structure contains all host configuration
     options (from the %PCONFIG section in pconfig.src). This structure
     is shared between PHost and PDK.
@@ -350,6 +356,7 @@ typedef struct
              WebDecay,              /*!< web decay rate percentage */
              MineDecay[12],         /*!< mines decay rate percentage */
              MaxMineRadius[12],     /*!< maximum minefield radius */
+             MaximumWebMinefieldRadius,  /*!< maximum size of a web */
              TransuraniumRate,      /*!< new mineral formation rate */
              StructureDecay[12];    /*!< structure decay rate (0'th is StructureDecayOnUnowned) */
     Boolean  EatSupplies,           /*!< overpopulated planets eat supplies */
@@ -422,15 +429,13 @@ typedef struct
     Boolean  TowedShipsBreakFree;   /*!< allow towed ships to break free */
     Uns16    NativeClimateDeathRate;/*!< climate death rate for natives */
     Boolean  AllowMoreThan50Targets[12]; /*!< allow target.dat part of .RST file to have >50 targets */
-#if defined(PDK) || !defined(PHOST4)
     Boolean  CrystalSinTempBehavior; /*!< growth and max pop for Crystals is sinusoidal */
-#endif
     Boolean  RGANeedsBeams;                  /*!< Need beam weapons to do RGA */
     Boolean  AllowRGAOnUnowned;              /*!< allow RGA on unowned planets */
     Boolean  CPEnableLanguage;               /*!< Enable 'language' command processor command */
     Boolean  CPEnableBigTargets;             /*!< Enable 'bigtargets' command */
     Boolean  CPEnableRaceName;               /*!< Enable 'racename' command */
-    Boolean  CPEnableAllies;                 /*!< Enable 'allies' command */
+    TristateX CPEnableAllies;                /*!< Enable 'allies' command */
     Boolean  CPEnableMessage;                /*!< Enable 'message' command (obsolete) */
     Boolean  CPEnableRumor;                  /*!< Enable 'rumor' command */
     Boolean  DelayAllianceCommands;          /*!< Alliance management only after combat */
@@ -450,7 +455,7 @@ typedef struct
     Uns16    WrmTravelWarpSpeed;             /*!< speed at which ships must travel thru wormholes */
     Boolean  WrmTravelCloaked;               /*!< allow ships to remain cloaked thru wormholes */
     Uns16    WrmEntryPowerX100;              /*!< entry radius power of wormhole mass */
-    Boolean  CPEnableGive;                   /*!< allow the 'give' CP command */
+    TristateX CPEnableGive;                  /*!< allow the 'give' CP command */
     Boolean  AllowTowCloakedShips;           /*!< allow cloaked ships to be towed */
     Uns16    RobCloakedChance;               /*!< percent chance that rob cloaked succeeds */
     Uns16    PlanetaryTorpsPerTube;          /*!< number of free torps to give per tube */
@@ -488,7 +493,7 @@ typedef struct
     Uns16    WraparoundRectangle[4];         /*!< Vertices of wraparound rectangle */
     Uns16    Dummy1;                         /*!< Old colonial fighter sweep rate */
     Uns16    Dummy2;                         /*!< Old colonial fighter sweep range */
-    Boolean  CPEnableRemote;                 /*!< Allow the CP 'remote' command */
+    TristateX CPEnableRemote;                /*!< Allow the CP 'remote' command */
     Boolean  AllowAlliedChunneling;          /*!< allow chunnel to +s allies */
     Uns16    ColTaxRate[12],                 /*!< tax rate for colonists */
              NatTaxRate[12];                 /*!< tax rate for natives */
@@ -558,6 +563,44 @@ typedef struct
     Uns32    NewNativesPopulationRange[2];
     Uns16    NewNativesRaceRate[9];
     Uns16    NewNativesGovernmentRate[9];
+    Uns16    PlayerSpecialMission[12];       /*!< Player-to-special-mission map */
+
+    Uns16    NumExperienceLevels;
+    char     ExperienceLevelNames[255];
+    Uns32    ExperienceLevels[10];
+    Uns16    EPRecrewScaling[12];
+    Uns16    EPShipAging;
+    Uns16    EPPlanetAging;
+    Uns16    EPShipMovement100LY;
+    Uns16    EPShipHyperjump;
+    Uns16    EPShipChunnel;
+    Uns16    EPCombatKillScaling;
+    Uns16    EPCombatDamageScaling;
+    Uns16    EPShipAlchemy100KT;
+
+    Int16    EModBayRechargeRate[10];
+    Int16    EModBayRechargeBonus[10];
+    Int16    EModBeamRechargeRate[10];
+    Int16    EModBeamRechargeBonus[10];
+    Int16    EModTubeRechargeRate[10];
+    Int16    EModBeamHitFighterCharge[10];
+    Int16    EModTorpHitOdds[10];
+    Int16    EModBeamHitOdds[10];
+    Int16    EModBeamHitBonus[10];
+    Int16    EModStrikesPerFighter[10];
+    Int16    EModFighterBeamExplosive[10];
+    Int16    EModFighterBeamKill[10];
+    Int16    EModFighterMovementSpeed[10];
+    Int16    EModMaxFightersLaunched[10];
+    Int16    EModTorpHitBonus[10];
+    Int16    EModTubeRechargeBonus[10];
+    Int16    EModExtraFighterBays[10];
+    Int16    EModEngineShieldBonusRate[10];
+    Int16    EModShieldDamageScaling[10];
+    Int16    EModShieldKillScaling[10];
+    Int16    EModHullDamageScaling[10];
+    Int16    EModCrewKillScaling[10];
+    Int16    EModMineHitOddsBonus[10];
 #endif
 
     /* Combat-related Options -- always leave these at the end */
@@ -609,7 +652,7 @@ Pconfig_Struct;
 /* Historically, the names of the Pconfig_Struct members differed
    from the ones used in pconfig.src. The following #defines
    make it possible to use the pconfig.src name everywhere (recommended!). */
-    
+
 /*      new name (valid in pconfig.src) old name (valid in PDK)  */
 #define AllowAlchemy                    Alchemy
 #define AllowAlternativeCombat          AlternativeCombat
@@ -772,8 +815,8 @@ Pconfig_Struct;
   extern Boolean Write_Beamspec_File(void);
   extern Boolean Write_Planetname_File(void);
   extern Boolean Write_Xyplan_File(void);
-  
-  
+
+
 /*
  *  Initializing dynamic files (optional routines in place of reading from disk)
  */
@@ -880,7 +923,7 @@ Pconfig_Struct;
     Uns16 NumTubes;             /*!< number of torp launchers */
     Uns16 NumBays;              /*!< number of fighter bays */
 
-    /*! The following fields WILL be changed by Combat(). Initial values for 
+    /*! The following fields WILL be changed by Combat(). Initial values for
        these fields must be filled in before calling Combat(). */
 
     Uns16 Crew;                 /*!< Number of crew members (irrelevant for
@@ -1001,7 +1044,7 @@ Pconfig_Struct;
   typedef Boolean (*configAssignment_Func) (const char *lhs, char *rhs,
         const char *lInputLine);
   typedef void (*configError_Func) (const char*, ...);
-    
+
   extern IO_Def ConfigFileReader(FILE * pInFile, const char *pFileName,
         const char *pSection, Boolean pUseDefaultSection,
         configAssignment_Func pAssignFunc);
@@ -1490,7 +1533,7 @@ Pconfig_Struct;
   extern Uns32 RaceBasesNumber( RaceType_Def Race);
   extern Uns32 RaceFightersNumber(RaceType_Def Race);
   extern Uns32 RaceTorpedosNumber(RaceType_Def Race, Uns16 TorpType);
-  extern Uns32 RaceBeamsNumber(RaceType_Def Race, Uns16 BeamType);  
+  extern Uns32 RaceBeamsNumber(RaceType_Def Race, Uns16 BeamType);
   extern Uns32 RaceFactoriesNumber(RaceType_Def Race);
   extern Uns32 RaceMineralMinesNumber(RaceType_Def Race);
   extern Uns32 RaceDefencePostsNumber(RaceType_Def Race);
@@ -1525,7 +1568,7 @@ Pconfig_Struct;
   extern Uns32 RaceMineralsForPlanets( RaceType_Def Race, PointsType_Def CountType, CargoType_Def CargoType);
   extern Uns32 RaceMineralsForBases( RaceType_Def Race, PointsType_Def CountType, CargoType_Def CargoType);
   extern Uns32 RaceMineralsForMinefields( RaceType_Def Race, PointsType_Def CountType, Boolean RaceModify, CargoType_Def CargoType);
-  
+
 
   /* friendly codes */
   extern void InitFCodes(void);

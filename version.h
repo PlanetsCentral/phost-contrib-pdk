@@ -16,7 +16,7 @@
    data files). Thus, version 2.15 will be data-file compatible with 2.XX
    but not with 1.XX nor 3.XX. */
 
-#ifdef PDK_PHOST4_SUPPORT
+#ifndef PDK_PHOST4_SUPPORT
 /* A change in PHOST_VERSION_MAJOR invalidates all previous data file
    formats. */
 #  define PHOST_VERSION_MAJOR 3

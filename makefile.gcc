@@ -56,7 +56,7 @@ distrib:
 clean:
 	-rm -f *.o libpdk.a gconfig defcfg.hi crack sendmess ptscore killrace pmaster *.log Makefile
 
-%.o: %.c
+%.o: %.c *.h
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
 ############################ The Small Library ############################

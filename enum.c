@@ -410,15 +410,22 @@ ShutdownWraparound(void)
 static void
 InitWraparound(void)
 {
-  Uns16 lVert[4];
-  Uns16 lTemp;
-  int i;
-
   if (gWraparoundInitialized)
     return;
 
   gWraparoundInitialized = True;
   RegisterCleanupFunction(ShutdownWraparound);
+
+  ReinitWraparound();
+}
+
+/** Reload cached values from configuration. */
+void
+ReinitWraparound(void)
+{
+  Uns16 lVert[4];
+  Uns16 lTemp;
+  int i;
 
   passert(gConfigInfo);
 

@@ -99,6 +99,7 @@ InitPHOSTLib(void)
      fail. */
   passert(gConfigInfo EQ 0);
   gConfigInfo = (Hconfig_Struct *) MemCalloc(sizeof(Hconfig_Struct), 1);
+  InitConfig();
 }
 
 void

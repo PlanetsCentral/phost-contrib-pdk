@@ -610,15 +610,12 @@ AssertFail(const char *pExpr, const char *pFile, int pLine)
 
 static Uns16 RandRawSeed = 0x1211; /* why not -- it gets changed anyways */
 
-#pragma warn -sig
 static Uns16
 RandRaw(void)
 {
   RandRawSeed = (RandRawSeed * 65277U + 13489U) & 0xFFFFU;
   return RandRawSeed;
 }
-
-#pragma warn .sig
 
 /* This routine replaces srand() */
 void
@@ -642,8 +639,6 @@ SetRandomSeed(Uns16 seed)
  *
  * The return value is uniformly distributed in the range [0,pRange).
  */
-#pragma warn -ccc               /* Condition is always true OFF */
-#pragma warn -sig               /* Significant digit loss OFF */
 RandType_Def
 RandomRange(RandType_Def pRange)
 {
@@ -658,9 +653,6 @@ RandomRange(RandType_Def pRange)
 
   return lResult;
 }
-
-#pragma warn .ccc
-#pragma warn .sig
 
 /* This routine returns a floating point random number
    uniformly distributed over [0,1). */

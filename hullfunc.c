@@ -27,7 +27,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "private.h"
 #include "listmat.h"
 
-static const char *HULLFUNC_FILE = "hullfunc.txt";
+static const char HULLFUNC_FILE[] = "hullfunc.txt";
+const char SHIPLIST_FILE[] = "shiplist.txt";
 
 /* Here we define the specials that we currently recognize */
 typedef enum {
@@ -184,6 +185,11 @@ InitHullfunc(void)
 static void
 setSpecialRaces(Uns16 pHull, Special_Def pSpecial, Uns16 pRaceMask)
 {
+  /* pSpecial == NumSpecials means we got a special we don't know. 
+     Simply ignore it. */
+  if (pSpecial == NumSpecials)
+      return;
+    
   passert(pHull >= 1 AND pHull <= HULL_NR);
   passert(pSpecial >= 0 AND pSpecial < NumSpecials);
   passert(gHullfunc);
@@ -368,98 +374,44 @@ ShipHasHEGloryDevice(Uns16 pShip)
 
 /* ----------------------------------------------------------------------- */
 
+static Uns16 gHull = 0;
+static Special_Def gSpecial = SPC_NO_SPECIAL;
+
 static Boolean doAssignment(const char *pName, char *pValue);
+
+static Boolean
+HullfuncAssign(const char* name, char* value, const char* line)
+{
+    (void) line;
+    if (name && value)
+        return doAssignment(name, value);
+    else
+        return True;
+}
 
 void
 ReadHullfunc(void)
 {
-  FILE *lFile =
+    FILE* lFile;
 
-        OpenInputFile(HULLFUNC_FILE,
-        GAME_OR_ROOT_DIR | TEXT_MODE | NO_MISSING_ERROR);
-  int line = 0;
-  char *inbuf;
-  Boolean lInSection = True;
-  const char *lErrorStr = "Malformed assignment in HULLFUNC.TXT line %u";
+    gHull = 0;
+    gSpecial = SPC_NO_SPECIAL;
 
-  InitHullfunc();
-
-  if (lFile EQ 0) {
+    InitHullfunc();
+    lFile = OpenInputFile(SHIPLIST_FILE, GAME_OR_ROOT_DIR | TEXT_MODE | NO_MISSING_ERROR);
+    if (lFile) {
+        ConfigFileReader(lFile, SHIPLIST_FILE, "hullfunc", False, HullfuncAssign);
+        fclose(lFile);
+        return;
+    }
+    lFile = OpenInputFile(HULLFUNC_FILE, GAME_OR_ROOT_DIR | TEXT_MODE | NO_MISSING_ERROR);
+    if (lFile) {
+        ConfigFileReader(lFile, HULLFUNC_FILE, "hullfunc", True, HullfuncAssign);
+        fclose(lFile);
+        return;
+    }
     addDefaultSpecials();
-
-    return;
-  }
-
-  inbuf = (char *) MemCalloc(256, 1);
-
-  while (!feof(lFile)) {
-    char *p,
-     *ep;
-
-    line++;
-    if (0 EQ fgets(inbuf, 255, lFile)) {
-      if (!feof(lFile)) {
-        Error("Can't read from %s", HULLFUNC_FILE);
-      }
-      break;
-    }
-
-    p = SkipWS(inbuf);
-    if (p EQ 0)
-      continue;
-
-    if (*p EQ '#')
-      continue;
-
-    if (*p EQ '%') {
-      char *lSection;
-
-      lSection = strtok(p + 1, " \t\n\r");
-      if (lSection EQ 0)
-        continue;
-
-      if (stricmp(lSection, "hullfunc") EQ 0) {
-        /* We're starting our target section */
-        lInSection = True;
-      }
-      else {
-        /* Some other section */
-        lInSection = False;
-      }
-      continue;
-    }
-
-    if (!lInSection)
-      continue;
-
-    /* We have a name on the LHS */
-    ep = strchr(p, '=');
-    if (ep EQ 0) {
-      ErrorExit(lErrorStr, line);
-    }
-
-    *ep++ = 0;
-    ep = SkipWS(ep);
-    if (ep EQ 0) {
-      ErrorExit(lErrorStr, line);
-    }
-    TrimTrailingWS(ep);
-
-    TrimTrailingWS(p);
-    if (*p EQ 0) {
-      ErrorExit(lErrorStr, line);
-    }
-
-    if (!doAssignment(p, ep)) {
-      ErrorExit(lErrorStr, line);
-    }
-  }
-
-  MemFree(inbuf);
 }
-
-static Uns16 gHull = 0;
-static Special_Def gSpecial = SPC_NO_SPECIAL;
 
 static Boolean
 doHullAssignment(char *pName)
@@ -497,8 +449,12 @@ doFuncAssignment(char *pName)
   /* pName can be either a special number or special name */
   if (isdigit(*pName)) {
     lVal = atoi(pName);
-    if (lVal < 0 OR lVal >= NumSpecials)
-      return False;
+    if (lVal < 0 OR lVal >= NumSpecials) {
+        /* for forward compatibility, just ignore specials we can't
+           handle. */
+        gSpecial = NumSpecials;
+        return True;
+    }
 
     gSpecial = (Special_Def) lVal;
     return True;
@@ -515,7 +471,9 @@ doFuncAssignment(char *pName)
     }
   }
 
-  return False;
+  /* for forward compatibility, just ignore specials we can't handle. */
+  gSpecial = NumSpecialNames;
+  return True;
 }
 
 static Boolean
@@ -608,7 +566,7 @@ doAssignment(const char *pName, char *pValue)
 
   ix =
         ListMatch(pName,
-        "Hull Function RacesAllowed PlayersAllowed Initialize");
+        "Hull Function RacesAllowed PlayersAllowed Initialize AssignTo");
   switch (ix) {
   case 0:                      /* Hull */
     return doHullAssignment(pValue);
@@ -618,6 +576,14 @@ doAssignment(const char *pName, char *pValue)
 
   case 2:                      /* RacesAllowed */
   case 3:                      /* PlayersAllowed */
+    if (gHull == 0) {
+        Error("No 'Hull' assignment seen yet");
+        return False;
+    }
+    if (gSpecial == SPC_NO_SPECIAL) {
+        Error("No 'Function' assignment seen yet");
+        return False;
+    }
     lEffRaceMap = (ix EQ 2) ? True : False;
     if (!getPlayerMask(pValue, lEffRaceMap, &lRaceMask))
       return False;
@@ -640,6 +606,9 @@ doAssignment(const char *pName, char *pValue)
     default:
       return False;
     }
+    return True;
+  case 5:                       /* AssignTo */
+    /* FIXME? */
     return True;
 
   default:

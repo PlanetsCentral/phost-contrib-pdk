@@ -773,6 +773,7 @@ Write_Ships_File(Int16 pControl)
 {
   FILE *lShipFile;
   Int16 i;
+  Int16 lCount;
   IO_Def lError = IO_SUCCESS;
   Ship_Struct lShip;
 
@@ -789,7 +790,22 @@ Write_Ships_File(Int16 pControl)
 
     memset(&lShip, 0, sizeof(lShip));
 
-    for (i = 1; i <= gPconfigInfo->NumShips; i++) {
+    /* Figure out number of ships to write */
+#if defined(PDK_PHOST4_SUPPORT) || defined(PDK_HOST999_SUPPORT)
+    lCount = gPconfigInfo->NumShips;
+    if (lCount < 500)           /* never write less than 500 */
+        lCount = 500;
+    for (i = lCount + 1; i <= SHIP_NR; ++i) {
+        if (IsShipExist(i)) {   /* when there is a high-Id ship, write 999 ships */
+            lCount = SHIP_NR;
+            break;
+        }
+    }
+#else
+    lCount = SHIP_NR;
+#endif
+
+    for (i = 1; i <= lCount; i++) {
       lShip.Id = i;
 #ifdef __MSDOS__
       if (1 NEQ fwrite((IsShipExist(i) ? GetShip(i) : &lShip),

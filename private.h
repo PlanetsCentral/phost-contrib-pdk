@@ -433,6 +433,9 @@ extern "C" {
 
   extern void WrapShipLocation(Uns16 pShip);
   extern void WrapMineLocation(Uns16 pMine);
+  extern void ReinitWraparound(void);
+
+  extern void InitConfig(void);
 
   extern int RND(double value);
 

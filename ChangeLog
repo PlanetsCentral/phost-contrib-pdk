@@ -1,3 +1,25 @@
+Sun Mar 16 17:16:03 2003  Stefan  <Streu@gmx.de>
+
+	* vgaputil.c: removed Borland #pragmas
+
+	* auxdata.c, hostio.c: timestamp handling: finally got it right
+
+	* config.hi4: added newest version from PHost
+
+	* enum.c (ReinitWraparound): new; call this after loading
+	configuration, for more robustness
+
+	* hullfunc.c: forward compatibility mode added; don't bomb out
+	on invalid files; read shiplist.txt.
+
+	* pconfig.c: read shiplist.txt; accept tristatex options;
+	accept "External" or "Allies" for boolean options
+
+	* version.h: fixed typo (#ifdef instead of #ifndef, d'ooh!)
+
+	* vgapdat2.c: use more robust method to determine size of
+	ship.hst-to-be
+
 Wed Mar 12 09:14:19 2003  Stefan  <Streu@gmx.de>
 
 	* main.c (InitPHOSTLib): changed banner
@@ -72,13 +94,13 @@ Sun Apr 21 16:16:44 2002  Stefan  <Streu@gmx.de>
 	makefile.gcc, makefile.nxt, makefile.os2, makefile.ult, pconf.pl,
 	pdk.texi, phostpdk.h, private.h, shrouds.h, utildata.c, vgapdat1.c,
 	vgapdat2.c: * fcode.c (IsFCodeSpecial et al): new
-	
+
 	* phostpdk.h (PutShipFC, ShipFC): added alternate names
 	PutShipFCode, ShipFCode, PutPlanetFCode
-	
+
 	* vgapdat2.c (IsShipFCSpecial): removed in favour of new version *
 	vgapdat1.c (IsPlanetFCSpecial): likewise
-	
+
 	* pdk.texi: updated
 
 2002-01-22 16:27  hschlen
@@ -262,8 +284,8 @@ Sun Apr 21 16:16:44 2002  Stefan  <Streu@gmx.de>
 	* ChangeLog, alldata.c, api.doc, api.txt, changes.doc, changes.txt,
 	config.hi, doscvt.c, doscvt.h, faq.doc, makefile.gcc, pconfig.c,
 	pdk.doc, phostpdk.h, shrouds.h, tconfig.hi: added ability to read
-	hconfig.hst files.  updated with newest phost config options. 
-	removed `.doc' files that are just plain copies of the `.txt'. 
+	hconfig.hst files.  updated with newest phost config options.
+	removed `.doc' files that are just plain copies of the `.txt'.
 	updated api.txt (utildata API, new config reader).
 
 2001-06-25 15:36  streu
@@ -279,30 +301,30 @@ Sun Apr 21 16:16:44 2002  Stefan  <Streu@gmx.de>
 2001-02-26 16:54  streu
 
 	* conf.h, crack.c, doscvt.c, doscvt.h, ex7.c, ex7.sh, makefile.gcc,
-	phostpdk.h, utildata.c, vgaputil.c: Fri Feb 23 21:25:43 2001 
+	phostpdk.h, utildata.c, vgaputil.c: Fri Feb 23 21:25:43 2001
 	Stefan	<Streu@gmx.de>
-	
+
 		* ex7.c, ex7.sh: new example for PutUtilFileTransfer API
-	
+
 		* phostpdk.h: prototypes for utildata stuff
-	
+
 		* utildata.c: new file (approx. the same as before, but
 	with
 		other doscvt functions).
-	
+
 		* doscvt.c (DOS16Convert, DOS32Convert, DOSStructConvert,
 		UnixConvertStruct, DOSStructSize): copied from PHost source
 	and
 		reindented
-	
+
 		* crack.c (main): ReadGlobalData, else it will fail parsing
 		hullfunc files.
-	
+
 		* vgaputil.c (MemRealloc): if pPtr is NULL, behave like
 		MemAlloc. This is what ANSI C does for malloc/realloc, and
 	I think
 		it's very convenient.
-	
+
 		* conf.h (#ifdef __DJGPP__): #undef __MSDOS__. IMHO this is
 	better
 		done here than in the makefile. Simply because I don't have
@@ -310,11 +332,11 @@ Sun Apr 21 16:16:44 2002  Stefan  <Streu@gmx.de>
 		`make' which understands `makefile.dj' on my DOS partition
 	;-)
 		(#ifndef SYSTEM_ID): #error
-	
+
 	NOTES:	* The doscvt stuff should be added to the API, so users can
 	write	    portable files. I think it's best to simply ship the
 	`doscvt.h'	   header as an extra entry point to the PDK.
-	
+
 		* The Makefile mess should be cleaned. At least, extract
 	the
 		source file name list and include it into the others.

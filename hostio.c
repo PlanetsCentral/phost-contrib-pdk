@@ -67,8 +67,10 @@ Read_Turntime_File(void)
         if (lTurntimeFile) {
             fread(&gTurntime.HostTime, sizeof gTurntime.HostTime, 1, lTurntimeFile);
             fclose(lTurntimeFile);
-            gAuxTime = gTurntime;
-            gAuxTime.TurnNumber--;
+            if (memcmp(gAuxTime.HostTime, gTurntime.HostTime, sizeof gTurntime.HostTime) != 0) {
+                gAuxTime = gTurntime;
+                gAuxTime.TurnNumber--;
+            }
         }
     }
 
