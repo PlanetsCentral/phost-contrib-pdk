@@ -1,6 +1,6 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                 Application Programming Interface Reference
-                             Version 3.2.4.2
+                             Version 3.2.4.3
 
 This document outlines the usage of the PDK for writing programs. A good
 understanding of the ANSI C language is assumed. The entire API is declared
@@ -395,6 +395,35 @@ main directory so that the master name file is never overwritten.
 This routine writes the WORMHOLE.TXT file to the game directory with the
 current wormhole information.
 
+           Boolean Write_Truehull_File(void)
+This routine writes the TRUEHULL.DAT file to the root directory. Any changes
+of race-assigned hulls made by calling PutTrueHull procedure are saved to this file. 
+
+           Boolean Write_Hullspec_File(void)
+This routine writes the HULLSPEC.DAT file to the root directory. Any changes
+made to hulls specification are saved to this file.            
+
+           Boolean Write_Engspec_File(void)
+This routine writes the ENGSPEC.DAT file to the root directory. Any changes
+made to engines specification are saved to this file. 
+
+           Boolean Write_Beamspec_File(void)
+This routine writes the BEAMSPEC.DAT file to the root directory. Any changes
+made to beams specification are saved to this file. 
+
+           Boolean Write_Torpspec_File(void)
+This routine writes the TORPSPEC.DAT file to the root directory. Any changes
+made to torpedos specification are saved to this file. 
+
+           Boolean Write_Planetname_File(void)
+This routine writes the PLANET.NM file to the root directory. Any changes
+to planet names made by calling PutPlanetName procedure are saved to this file. 
+
+           Boolean Write_Xyplan_File(void)
+This routine writes the XYPLAN.DAT file to the root directory. Any changes
+to planet coordinates made by calling PutPlanetLocationX or PutPlanetLocationY
+procedures are saved to this file. 
+
            Boolean WriteHostData(void)
 This routine is a short-cut way of calling all of the individual
 data-writing routines. That is, calling this function is equivalent to
@@ -691,6 +720,29 @@ an active ship). The new ship has no attributes set other than its ID and
 its owner, which is specified in 'pOwner'. The hull type, weapons, engines,
 etc. must all be set separately.
 
+           Uns16 ShipTotalMass(Uns16 sID)
+This routine returns total ship mass including hull, equipment, cargo, 
+ammunition and fuel masses.
+           
+           Uns16 ShipTravelMass(Uns16 sID)
+This routine returns total ship mass and total ship mass of ship beeing
+tow by this ship, if ship sID is towing.           
+           
+           Uns16 ShipCargoMass(Uns16 sID)
+This routine returns given ship cargo mass, summing cargo tritanium, duranium,
+molybdenum, supplies, clans and ship ammunition (torpedos or fighters).
+
+           char *ShipMissionName(Uns16 sID, char *pBuffer)
+This routine returns given ship mission as string. If the 'pBuffer' parameter
+is 0, then the name is stored in a temporary area which is overwritten with
+each call to this routine. Otherwise, the name is stored in the area
+pointed to by 'pBuffer', which must be at least 21 characters long. The
+return value of this routine points to either 'pBuffer' if it is non-zero or
+to the temporary area containing the ship's name.
+           
+           Boolean IsShipFCSpecial(Uns16 sID)
+This routine returns True if given ship Friendly Code is special.
+
            void PutShipCargo(Uns16 pID, CargoType_Def pType, Uns16 pCargo)
 This routine sets the specified cargo on the given ship to a new amount.
 
@@ -892,6 +944,68 @@ This function returns True if the given planet has natives. This function
 is just a short-cut for checking both PlanetNativePopulation() and
 PlanetNatType().
 
+           Boolean IsPlanetFCSpecial(Uns16 pID)
+This routine returns True if given planet Friendly Code is special.           
+           
+           char *PlanetNatString(Uns16 pID, char *pBuffer)
+This function returns given planet natives name as string. If the 'pName' parameter
+is 0, then the name is stored in a temporary area which is overwritten with
+each call to this routine. Otherwise, the name is stored in the area
+pointed to by 'pName', which must be at least 21 characters long. The
+return value of this routine points to either 'pName' if it is non-zero or
+to the temporary area containing the ship's name.           
+           
+           char *PlanetNatGovmString(int pID, char *pBuffer)
+This function returns given planet natives goverment type name as string. 
+If the 'pName' parameter is 0, then the name is stored in a temporary 
+area which is overwritten with each call to this routine. Otherwise, 
+the name is stored in the area pointed to by 'pName', which must be at 
+least 21 characters long. The return value of this routine points to either 
+'pName' if it is non-zero or to the temporary area containing the ship's name.              
+           
+           Uns16 PlanetMaxFactories(Uns16 pID)
+This function returns given planet maximal number of factories allowed
+to build due to colonist population.
+           
+           Uns16 PlanetMaxDefense(Uns16 pID)
+This function returns given planet maximal number of defence outposts 
+allowed to build due to colonist population.
+           
+           Uns16 PlanetMaxMines(Uns16 pID)
+This function returns given planet maximal number of mineral mines allowed
+to build due to colonist population.
+           
+           Uns16 PlanetMining(Uns16 pID, Uns16 Mineral)
+This function returns given planet mining production of given material 
+from mineral mines.
+           
+           Uns16 PlanetGovTaxRate(Uns16 pID)
+This function returns given planet natives tax modyficastor due to nativies
+goverment type. If Anarchy type native goverment is present on planet this 
+function will return 20, for participatory goverment this will be 160.
+           
+           Uns16 NumberOfShipsHissingPlanet(Uns16 pID)
+This function returns number of ships hissing given planet. Ship owner should be
+Gorn, ship mission must be set to Hiss, ship must have fuel and beams to be counted.
+           
+           int PlanetNatHappyChange(Uns16 pID)
+This function returns given planet natives happines change next turn due
+to taxes and hissing.           
+           
+           int PlanetColHappyChange(Uns16 pID)
+This function returns given planet colonist happines change next turn due 
+to taxes and hissing.           
+           
+           Uns16 PlanetColIncome(Uns16 pID)
+This function returns given planet income from colonist.
+           
+           Uns16 PlanetNatIncome(Uns16 pID)
+This function returns given planet income from natives.           
+           
+           Uns16 PlanetSuppIncome(Uns16 pID)
+This function returns given planet total supplies production including factories
+and Bovinoid natives.
+
            const char *PlanetName(Uns16 pID, char *pBuffer)
 This function returns the given planet's name as a null-terminated string.
 If the 'pBuffer' parameter is 0, then the planet's name is stored in a
@@ -909,6 +1023,20 @@ must point to an area that is at least 4 characters in length.
            const char *PlanetTempString(Uns16 pPlanet)
 This function returns a string that describes the planet's climate (e.g.,
 "Arctic World", "Temperate - cool", etc.)
+
+           void PutPlanetLocationX(Uns16 pID, Uns16 pX)
+This function sets the X component of the given planet's location.
+To save changes use Write_Xyplan_File() function.
+
+           void PutPlanetLocationY(Uns16 pID, Uns16 pY)
+This function sets the Y component of the given planet's location.
+To save changes use Write_Xyplan_File() function.
+
+           void PutPlanetName(Uns16 pID, char *pName)
+This routine sets the given planet's name to a new value. The 'pName'
+parameter must point to a null-terminated string. Only the first 
+PLANETNAME_SIZE characters will be used. To save changes use 
+Write_Planetname_File() function.
 
            void PutPlanetOwner(Uns16 pID, RaceType_Def pOwner)
 This function sets the given planet's owner to the specified race. Note
@@ -1071,6 +1199,14 @@ This routine returns True if the given base has a pending build order,
 otherwise it returns False. If there is a pending build order, then the
 build order is stored in the 'pOrder' structure (which must already have
 been allocated).
+
+           char *BaseOrderString(int bID, char *pBuffer)
+This function returns base mission as string. If the 'pName' parameter
+is 0, then the name is stored in a temporary area which is overwritten with
+each call to this routine. Otherwise, the name is stored in the area
+pointed to by 'pName', which must be at least 31 characters long. The
+return value of this routine points to either 'pName' if it is non-zero or
+to the temporary area containing the ship's name.
 
            void PutBaseOwner(Uns16 pID, RaceType_Def pOwner)
 This routine sets the new owner of a starbase. A starbase must always be
@@ -1370,6 +1506,66 @@ bytes. The hull name is then stored in this area and the routine returns
 temporary area which is overwritten with each call to this routine. The
 return value is then a pointer to this temporary area.
 
+           void PutHullPicnumber(Uns16 pHullNr, Uns16 pHullPic)
+This routine sets the bitmap number in the RESOURCE.PLN file
+corresponding to the given hull number.
+
+           void PutHullTritCost(Uns16 pHullNr, Uns16 pTritCost)
+This routine sets the amount of Tritanium required to build the given
+hull to pTritCost.
+
+           void PutHullDurCost(Uns16 pHullNr, Uns16 pDurCost)
+This routine sets the amount of Duranium required to build the given
+hull to pDurCost.
+
+           void PutHullMolyCost(Uns16 pHullNr, Uns16 pMolyCost)
+This routine sets the amount of Molybdenum required to build the given
+hull to pMolyCost.
+
+           void PutHullFuelCapacity(Uns16 pHullNr, Uns16 pFuelCapacity)
+This routine sets the size of a given hull's fuel tank to pFuelCapacity.
+
+           void PutHullCrewComplement(Uns16 pHullNr, Uns16 pCrewComplement)
+This routine sets the maximum number of crew members that are allowed on
+a given hull type.
+
+           void PutHullEngineNumber(Uns16 pHullNr, Uns16 pEngineNumber)
+This routine sets the number of engines required on a given hull to pEngineNumber.
+
+           void PutHullMass(Uns16 pHullNr, Uns16 pMass)
+This routine sets the mass of a given hull to pMass.
+
+           void PutHullTechLevel(Uns16 pHullNr, Uns16 pTechLevel)
+This routine sets the tech level required to build a given hull to pTechLevel.
+
+           void PutHullCargoCapacity(Uns16 pHullNr, Uns16 pCargoCapacity)
+This routine sets the amount of cargo space available on a given hull to pCargoCapacity.
+
+           void PutHullBays(Uns16 pHullNr, Uns16 pBays)
+This routine sets the number of fighter bays on a given hull to pBays.
+
+           void PutHullTubeNumber(Uns16 pHullNr, Uns16 pTubeNumber)
+This routine sets the maximum number of torpedo tubes that can be
+mounted on the given hull to pTubeNumber.
+
+           void PutHullBeamNumber(Uns16 pHullNr, Uns16 pBeamNumber)
+This routine sets the maximum number of beam weapons that can be mounted
+on the given hull to pBeamNumber.
+
+           PutHullMoneyCost(Uns16 pHullNr, Uns16 pMoneyCost)
+This routine sets the number of megacredits required to build the given
+hull to pMoneyCost.
+
+           PutTrueHull(RaceType_Def pRace, Uns16 pHullIndex, Uns16 pHullNr)
+This routine sets a race-specific hull number pHullIndex from the range 
+1  through RACEHULLS to a true hull number pHullNr in the range 1 through HULL_NR. 
+Setting pHullNr to 0, make the given race hull index unused for that race.
+
+           PutHullName(Uns16 pHullNr, const char *pName)
+This routine sets the name of a given hull to pName. The 'pName'
+parameter must point to a null-terminated string. Only the first 30 characters 
+will be used.
+
 Engine Accessors
 ----------------
 
@@ -1409,6 +1605,36 @@ the given type.
            Uns32 EngFuelConsumption(Uns16 pEngNr, Uns16 pSpeed)
 This routine returns a quantity that indicates the amount of fuel consumed
 by an engine of the given type at the warp speed specified by 'pSpeed'.
+
+           void PutEngineName(Uns16 pEngNr, const char *pName)
+This routine sets the name of a given engine to pName. The 'pName'
+parameter must point to a null-terminated string. Only the first 20 characters 
+will be used.
+
+           void PutEngMoneyCost(Uns16 pEngNr, Uns16 pMoneyCost)
+This routine sets the number of megacredits required to build one engine
+of the given type to pMoneyCost.
+
+           void PutEngTritCost(Uns16 pEngNr, Uns16 pTritCost)
+This routine sets the amount of Tritanium required to build an engine of
+the given type.
+
+           void PutEngDurCost(Uns16 pEngNr, Uns16 pDurCost)
+This routine sets the amount of Duranium required to build an engine of
+the given type.
+
+           void PutEngMolyCost(Uns16 pEngNr, Uns16 pMolyCost)
+This routine sets the amount of Molybdenum required to build an engine
+of the given type.
+
+           void PutEngTechLevel(Uns16 pEngNr, Uns16 pTechLevel)
+This routine sets the minimum tech level required to build engines of
+the given type to pTechLevel.
+
+           void PutEngFuelConsumption(Uns16 pEngNr, Uns16 pSpeed, Uns32 pFuelConsumption)
+This routine sets a quantity pFuelConsumption that indicates the amount of fuel consumed
+by an engine of the given type at the warp speed specified by 'pSpeed'.
+
 
 Torpedo Accessors
 -----------------
@@ -1461,6 +1687,46 @@ torpedo type.
 This routine returns the amount of structure-destroying power of the given
 torpedo type.
 
+           void PutTorpName(Uns16 pTorpNr, char *pName)
+This routine sets the name of a given torpedo to pName. The 'pName'
+parameter must point to a null-terminated string. Only the first 20 characters 
+will be used.
+
+           void PutTorpTorpCost(Uns16 pTorpNr, Uns16 pTorpCost)
+This routine sets the number of megacredits required to build one
+torpedo of the given type.
+
+           void PutTorpTubeCost(Uns16 pTorpNr, Uns16 pTubeCost)
+This routien sets the number of megacredits required to build one
+torpedo launcher tube of the given type.
+
+           void PutTorpTritCost(Uns16 pTorpNr, Uns16 pTubeTritCost)
+This routine sets the amount of Tritanium required to build one tube of
+the given type to pTubeTritCost.
+
+           void PutTorpDurCost(Uns16 pTorpNr, Uns16 pTubeDurCost)
+This routine sets the amount of Duranium required to build one tube of
+the given type to pTubeDurCost.
+
+           void PutTorpMolyCost(Uns16 pTorpNr, Uns16 pTubeMolyCost)
+This routine sets the amount of Molybdenum required to build one tube of
+the given type to pTubeMolyCost.
+
+           void PutTorpTubeMass(Uns16 pTorpNr, Uns16 pTubeMass)
+This routine sets the mass of one tube of the given type to pTubeMass.
+
+           void PutTorpTechLevel(Uns16 pTorpNr, Uns16 pTechLevel)
+This routine sets the minimum tech level required to build torpedoes and
+tubes of the given type to pTechLevel.
+
+           void PutTorpKillPower(Uns16 pTorpNr, Uns16 pKillPower)
+This routine sets the amount of life-destroying power of the given
+torpedo type to pKillPower.
+
+           void PutTorpDestructivePower(Uns16 pTorpNr, Uns16 pDestructivePower)
+This routine sets the amount of structure-destroying power of the given
+torpedo type to pDestructivePower.
+
 Beam Weapon Accessors
 ---------------------
 
@@ -1505,6 +1771,42 @@ beam type.
            Uns16 BeamDestructivePower(Uns16 pBeamNr)
 This routine returns the amount of structure-destroying power of the given
 beam type.
+
+           void PutBeamName(Uns16 pBeamNr, char *pName)
+This routine sets the name of a given beam to pName. The 'pName'
+parameter must point to a null-terminated string. Only the first 20 characters 
+will be used.
+
+           void PutBeamMoneyCost(Uns16 pBeamNr, Uns16 pMoneyCost)
+This routine sets the amount of megacredits required to build a beam
+weapon of the given type to pMoneyCost.
+
+           void PutBeamTritCost(Uns16 pBeamNr, Uns16 pTritCost)
+This routine sets the amount of Tritanium required to build a beam
+weapon of the given type to pTritCost.
+
+           void PutBeamDurCost(Uns16 pBeamNr, Uns16 pDurCost)
+This routine sets the amount of Duranium required to build a beam weapon
+of the given type to pDurCost.
+
+           void PutBeamMolyCost(Uns16 pBeamNr, Uns16 pMolyCost)
+This routine sets the amount of Molybdenum required to build a beam
+weapon of the given type to pMolyCost.
+
+           void PutBeamMass(Uns16 pBeamNr, Uns16 pMass)
+This routine sets the mass of one beam weapon of the given type to pMass.
+
+           void PutBeamTechLevel(Uns16 pBeamNr, Uns16 pTechLevel)
+This routine sets the minimum tech level required to build a beam weapon
+of the given type to pTechLevel.
+
+           void PutBeamKillPower(Uns16 pBeamNr, Uns16 pKillPower)
+This routine sets the amount of life-destroying power of the given
+beam type to pKillPower.
+
+           void PutBeamDestructivePower(Uns16 pBeamNr, Uns16 pDestructivePower)
+This routine sets the amount of structure-destroying power of the given
+beam type to pDestructivePower.
 
 Race Name Accessors
 -------------------
@@ -1685,10 +1987,6 @@ routines should not be called unless an AUXDATA.HST file was read (unless
 only additions to the queue are performed). These routines have no effect
 on games using HOST.
 
-           BaseOrder_Struct *BuildQueueAccess(Uns16 pMember)
-This routine returns a pointer to a `BaseOrder_Struct' structure containing
-the components of an entry in PHOST's build queue.
-
            Uns16 BuildQueuePeek(BaseOrder_Struct *pOrder)
 This routine allows a look at the first build order in the build queue,
 without actually modifying the build queue. The return value is the base ID
@@ -1716,6 +2014,53 @@ This routine sorts all of the entries in the build queue in descending
 order of priority (in the same way that PHOST 3 does). Note that this
 routine does NOT take into account priority overrides via the PBn planetary
 friendly codes.
+
+       Uns16 BuildQueueBaseID(Uns16 pPosition)
+This function returns ID of base that placed build order for a given 
+position in build queue.
+
+       Uns32 BuildQueuePriority(Uns16 pPosition)
+This function returns priority of build order for a given position  
+in build queue.
+
+       Boolean BuildQueueIsCloning(Uns16 pPosition)
+This function returns True if build order for given position
+in build queue is a cloning. False if it is normal build order.
+
+       RaceType_Def BuildQueueShipOwner(Uns16 pPosition)
+This function returns ship owner of cloned ship for given position
+in build queue. 
+       
+       RaceType_Def BuildQueueOwner(Uns16 pPosition)
+This function returns owner of build order for given position 
+in build queue. 
+
+       Uns16 BuildQueueHullType(Uns16 pPosition)
+This function returns hull type number of build order for given position 
+in build queue. Returned hull number is in range 1 to HULL_NR.
+       
+       Uns16 BuildQueueEngineType(Uns16 pPosition)
+This function returns engine type number of build order for given position 
+in build queue. Returned hull number is in range 1 to ENGINE_NR.
+
+       Uns16 BuildQueueBeamType(Uns16 pPosition)
+This function returns beam type number of build order for given position 
+in build queue. Returned hull number is in range 1 to BEAM_NR.
+
+       Uns16 BuildQueueTorpType(Uns16 pPosition)
+This function returns torpedo type number of build order for given position 
+in build queue. Returned hull number is in range 1 to TORP_NR.
+
+       Uns16 BuildQueueBeamNumber(Uns16 pPosition)
+This function returns beam number mounted to hull of build order for 
+given position in build queue.
+       
+       Uns16 BuildQueueTorpNumber(Uns16 pPosition)
+This function returns torpedo lunchers number mounted to hull of 
+build order for given position in build queue.
+
+       void PutBuildQueuePriority(Uns16 pPosition, Uns32 pPriority)
+This function sets priority of build order for a given position in build queue.
 
 
 

@@ -22,6 +22,6 @@
 
 /* PDK Version */
 #define PDK_VERSION_MAJOR 4
-#define PDK_VERSION_MINOR 2
+#define PDK_VERSION_MINOR 3
 
 #endif /* _VERSION_H_ */
