@@ -61,6 +61,25 @@ PlanetName(Uns16 pID, char *pBuffer)
   return lPtr;
 }
 
+void
+PutPlanetName(Uns16 pID, char *pName)
+{
+  static char lName[PLANETNAME_SIZE + 1];
+  int i;
+
+  InitPlanetname();
+
+  passert(IsPlanetExist(pID));
+  passert(pName NEQ NULL);
+  
+  memcpy(lName, pName, PLANETNAME_SIZE);
+  lName[PLANETNAME_SIZE] = 0;
+  for (i = strlen(lName); i < PLANETNAME_SIZE; i++)
+    lName[i] = ' ';
+  
+  memcpy(gPlanetnamePtr[pID].Name, lName, PLANETNAME_SIZE);    
+}
+
 IO_Def
 Read_Planetname_File(void)
 {
@@ -75,6 +94,30 @@ Read_Planetname_File(void)
     if (PLANET_NR NEQ fread(gPlanetnamePtr + 1, sizeof(Planetname_Struct),
                 PLANET_NR, lPlanetnameFile)) {
       Error("Can't read file '%s'", PLANETNAME_FILE);
+      lError = IO_FAILURE;
+    }
+    fclose(lPlanetnameFile);
+  }
+  else
+    lError = IO_FAILURE;
+
+  return (lError);
+}
+
+IO_Def
+Write_Planetname_File(void)
+{
+  FILE *lPlanetnameFile;
+  IO_Def lError = IO_SUCCESS;;
+
+  InitPlanetname();
+
+  if ((lPlanetnameFile =
+              OpenOutputFile(PLANETNAME_FILE,
+         ROOT_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+    if (PLANET_NR NEQ fwrite(gPlanetnamePtr + 1, sizeof(Planetname_Struct),
+                PLANET_NR, lPlanetnameFile)) {
+      Error("Can't write file '%s'", PLANETNAME_FILE);
       lError = IO_FAILURE;
     }
     fclose(lPlanetnameFile);
