@@ -61,6 +61,24 @@ PlanetLocationY(Uns16 pID)
   return gXYPlanPtr[pID].Y;
 }
 
+void
+PutPlanetLocationX(Uns16 pID, Uns16 pX)
+{
+  InitXY();
+
+  passert((pID >= 1) AND(pID <= PLANET_NR));
+  gXYPlanPtr[pID].X = pX;
+}
+
+void
+PutPlanetLocationY(Uns16 pID, Uns16 pY)
+{
+  InitXY();
+
+  passert((pID >= 1) AND(pID <= PLANET_NR));
+  gXYPlanPtr[pID].Y = pY;
+}
+
 IO_Def
 Read_Xyplan_File(void)
 {
@@ -85,6 +103,42 @@ Read_Xyplan_File(void)
       if (!DOSReadStruct(XyplanStruct_Convert, NumXyplanStruct_Convert,
                   gXYPlanPtr + lPlanet, XYPlanFile)) {
         Error("Can't read file '%s'", XYPLAN_FILE);
+        lError = IO_FAILURE;
+        break;
+      }
+    }
+#endif
+    fclose(XYPlanFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return (lError);
+}
+
+IO_Def
+Write_Xyplan_File(void)
+{
+  FILE *XYPlanFile;
+  IO_Def lError = IO_SUCCESS;
+
+  InitXY();
+
+  if ((XYPlanFile =
+              OpenOutputFile(XYPLAN_FILE,
+              ROOT_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+#ifdef __MSDOS__
+    if (PLANET_NR NEQ fwrite(gXYPlanPtr + 1, sizeof(XYData_Struct), PLANET_NR,
+                XYPlanFile)) {
+      Error("Can't write file '%s'", XYPLAN_FILE);
+      lError = IO_FAILURE;
+    }
+#else
+    Uns16 lPlanet;
+
+    for (lPlanet = 1; lPlanet <= PLANET_NR; lPlanet++) {
+      if (!DOSWriteStruct(XyplanStruct_Convert, NumXyplanStruct_Convert,
+                  gXYPlanPtr + lPlanet, XYPlanFile)) {
+        Error("Can't write file '%s'", XYPLAN_FILE);
         lError = IO_FAILURE;
         break;
       }
