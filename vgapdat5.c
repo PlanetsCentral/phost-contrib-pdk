@@ -199,6 +199,160 @@ HullName(Uns16 pHullNr, char *pBuffer)
   return lPtr;
 }
 
+void
+PutHullPicnumber(Uns16 pHullNr, Uns16 pHullPic)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].Picnumber=pHullPic;
+}
+
+void
+PutHullTritCost(Uns16 pHullNr, Uns16 pTritCost)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].TritCost = pTritCost;
+}
+
+void
+PutHullDurCost(Uns16 pHullNr, Uns16 pDurCost)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].DurCost = pDurCost;
+}
+
+void
+PutHullMolyCost(Uns16 pHullNr, Uns16 pMolyCost)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].MolyCost = pMolyCost;
+}
+
+void
+PutHullFuelCapacity(Uns16 pHullNr, Uns16 pFuelCapacity)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].FuelCapacity = pFuelCapacity;
+}
+
+void
+PutHullCrewComplement(Uns16 pHullNr, Uns16 pCrewComplement)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].CrewComplement = pCrewComplement;
+}
+
+void
+PutHullEngineNumber(Uns16 pHullNr, Uns16 pEngineNumber)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].EngineNumber = pEngineNumber;
+}
+
+void
+PutHullMass(Uns16 pHullNr, Uns16 pMass)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].Mass = pMass;
+}
+
+void
+PutHullTechLevel(Uns16 pHullNr, Uns16 pTechLevel)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].TechLevel = pTechLevel;
+}
+
+void
+PutHullCargoCapacity(Uns16 pHullNr, Uns16 pCargoCapacity)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].CargoCapacity = pCargoCapacity;
+}
+
+void
+PutHullBays(Uns16 pHullNr, Uns16 pBays)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].Bays = pBays;
+}
+
+void
+PutHullTubeNumber(Uns16 pHullNr, Uns16 pTubeNumber)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].TubeNumber = pTubeNumber;
+}
+
+void
+PutHullBeamNumber(Uns16 pHullNr, Uns16 pBeamNumber)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].BeamNumber = pBeamNumber;
+}
+
+void
+PutHullMoneyCost(Uns16 pHullNr, Uns16 pMoneyCost)
+{
+  InitHull();
+
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  gHullspecPtr[pHullNr].MoneyCost = pMoneyCost;
+}
+
+void
+PutTrueHull(RaceType_Def pRace, Uns16 pHullIndex, Uns16 pHullNr)
+{
+  InitHull();
+
+  passert((pHullIndex >= 1) AND(pHullIndex <= RACEHULLS));
+  passert((pHullNr >= 0) AND(pHullNr <= HULL_NR));
+  gTruehull[pRace][pHullIndex] = pHullNr;
+}
+
+void
+PutHullName(Uns16 pHullNr, const char *pName)
+{
+  char lName[31];
+  int i;
+
+  InitHull();
+  passert((pHullNr >= 1) AND(pHullNr <= HULL_NR));
+  passert(pName NEQ NULL);
+  
+  memcpy(lName, pName, 30);
+  lName[30] = 0;
+  for (i = strlen(lName); i < 30; i++)
+    lName[i] = ' ';
+
+  memcpy(gHullspecPtr[pHullNr].Name, lName, 30); 
+}
+
 IO_Def
 Read_Hullspec_File(void)
 {
@@ -265,6 +419,75 @@ Read_Truehull_File(void)
     lError = IO_FAILURE;
   return (lError);
 }
+
+IO_Def
+Write_Hullspec_File(void)
+{
+  FILE *lHullFile;
+  IO_Def lError = IO_SUCCESS;
+
+  InitHull();
+
+  if ((lHullFile =
+              OpenOutputFile(HULLSPEC_FILE,
+               ROOT_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+    /* NEW */
+#ifdef __MSDOS__
+    if (HULL_NR NEQ fWrite(gHullspecPtr + 1, sizeof(Hullspec_Struct), HULL_NR,
+                lHullFile)) {
+      Error("Can't write file '%s'", HULLSPEC_FILE);
+      lError = IO_FAILURE;
+    }
+#else
+    Uns16 lHull;
+
+    for (lHull = 1; lHull <= HULL_NR; lHull++) {
+      if (!DOSWriteStruct(HullspecStruct_Convert, NumHullspecStruct_Convert,
+                  gHullspecPtr + lHull, lHullFile)) {
+        Error("Can't write file '%s'", HULLSPEC_FILE);
+        lError = IO_FAILURE;
+        break;
+      }
+    }
+#endif
+
+    fclose(lHullFile);
+  }
+  else
+    lError = IO_FAILURE;
+  return (lError);
+}
+
+IO_Def
+Write_Truehull_File(void)
+{
+  FILE *lTH_File;
+  IO_Def lError = IO_SUCCESS;
+  Uns16 i;
+
+  InitHull();
+
+  if ((lTH_File =
+              OpenOutputFile(TRUEHULL_FILE,
+                ROOT_DIR_ONLY | NO_MISSING_ERROR)) NEQ NULL) {
+    for (i = 1; i <= 11; i++) {
+      EndianSwap16(&gTruehull[i][1], RACEHULLS);    /* First swap */
+      if (1 NEQ fwrite(&gTruehull[i][1], RACEHULLS * sizeof(gTruehull[0][0]),
+                  1, lTH_File)) {
+        Error("Can't write file '%s'", TRUEHULL_FILE);
+        lError = IO_FAILURE;
+        break;
+      }
+      EndianSwap16(&gTruehull[i][1], RACEHULLS);    /* Second swap */
+    }
+
+    fclose(lTH_File);
+  }
+  else
+    lError = IO_FAILURE;
+  return (lError);
+}
+
 
 /*************************************************************
   $HISTORY:$
