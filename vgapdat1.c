@@ -383,7 +383,7 @@ int
 PlanetNatHappyChange(Uns16 pID)
 {
      double NHAPPY_change;
-     Uns16 hiss;
+//     Uns16 hiss;
 
      passert((pID >= 1) AND(pID <= PLANET_NR));
 
@@ -393,8 +393,8 @@ PlanetNatHappyChange(Uns16 pID)
      NHAPPY_change -= (PlanetMines(pID)+PlanetFactories(pID))/200.0;
      NHAPPY_change -= PlanetNatTax(pID)*0.85;
 
-     hiss = (int)min(NumberOfShipsHissingPlanet(pID),gPconfigInfo->MaxShipsHissing);
-     NHAPPY_change+= hiss*gPconfigInfo->HissEffectRate;
+//     hiss = (int)min(NumberOfShipsHissingPlanet(pID),gPconfigInfo->MaxShipsHissing);
+//     NHAPPY_change+= hiss*gPconfigInfo->HissEffectRate;
 
      if (PlanetNatType(pID)==Avian) NHAPPY_change = NHAPPY_change + 10;
 
@@ -405,7 +405,7 @@ int
 PlanetColHappyChange(Uns16 pID)
 {
      double CHAPPY_change;
-     Uns16 hiss;
+//     Uns16 hiss;
      Uns16 TargetTemp,TempDivisor;
 
      passert((pID >= 1) AND(pID <= PLANET_NR));
@@ -428,8 +428,8 @@ PlanetColHappyChange(Uns16 pID)
      CHAPPY_change -= (PlanetMines(pID)+PlanetFactories(pID))/300.0;
      CHAPPY_change -= PlanetColTax(pID)*0.8;
 
-     hiss = (int)min(NumberOfShipsHissingPlanet(pID),gPconfigInfo->MaxShipsHissing);
-     CHAPPY_change+= hiss*gPconfigInfo->HissEffectRate;
+//     hiss = (int)min(NumberOfShipsHissingPlanet(pID),gPconfigInfo->MaxShipsHissing);
+//     CHAPPY_change+= hiss*gPconfigInfo->HissEffectRate;
 
      return (int)CHAPPY_change;
 }
