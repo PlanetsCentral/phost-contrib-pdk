@@ -53,8 +53,6 @@ clean:
 	-rm -f *.o libpdk.a gconfig defcfg.hi crack sendmess ptscore killrace pmaster *.log Makefile
 
 %.o: %.c
-	#mv -f $< $<~
-	#perl -ne "s/\t/ /g; print;" $<~ | indent -o $<
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
 indent: $(HDRS:.h=.h~)

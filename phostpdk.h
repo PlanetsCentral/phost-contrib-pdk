@@ -76,6 +76,10 @@ extern "C" {
 #endif
 
   typedef enum { False, True } Boolean;
+  typedef Boolean IO_Def;
+#define IO_SUCCESS True
+#define IO_FAILURE False
+
   typedef Uns16 RandType_Def;
 
   typedef enum {
@@ -512,10 +516,12 @@ extern "C" {
     Boolean AllowBeamUpMultiple; /*!< Allow beam up multiple extmission */
 
     /*! Build queue */
+    Boolean AllowPriorityBuild; /*!< Whether `PBx' is allowed or not */
     Uns16 SBQBuildPALBoost[12]; /*!< Multiplier for existing build orders */
     Uns16 SBQNewBuildPALBoost[12]; /*!< Multiplier for new build orders */
     Uns32 SBQPointsForAging[12]; /*!< Constant offset for old build orders */
     Uns32 SBQBuildChangePenalty[12]; /*!< Constant offset for build changes */
+    Uns16 SBQBoostExp[12];      /*!< exponent for build order boosts X 100 */
     Uns16 PALDecayPerTurn[12];  /*!< Exponential decay term */
     Uns16 PALPlayerRate[12];    /*!< Player-dependent scaling */
     Uns16 PALCombatAggressor[12]; /*!< Points for being aggressor in combat */
@@ -865,11 +871,16 @@ extern "C" {
   extern int pgetopt(int argc, char *argv[], char *optstring);
 
 /*! Configuration file processing */
-  typedef Boolean(*configAssignment_Func) (const char *lhs, char *rhs,
+  typedef Boolean (*configAssignment_Func) (const char *lhs, char *rhs,
         const char *lInputLine);
-  extern Boolean ConfigFileReader(FILE * pInFile, const char *pFileName,
+  typedef void (*configError_Func) (const char*, ...);
+    
+  extern IO_Def ConfigFileReader(FILE * pInFile, const char *pFileName,
         const char *pSection, Boolean pUseDefaultSection,
         configAssignment_Func pAssignFunc);
+  extern IO_Def ConfigFileReaderEx(FILE * pInFile, const char *pFileName, const char *pSection,
+        Boolean pUseDefaultSection, configAssignment_Func pAssignFunc,
+        configError_Func pError, Boolean pContinue);
 
 /*! Wraparound Maps */
   extern Int32 DistanceSquared(Int16 pX1, Int16 pY1, Int16 pX2, Int16 pY2);

@@ -16,10 +16,6 @@ typedef unsigned char Byte;
 typedef unsigned char Uns8;
 typedef Uns16 CRCType;
 
-#define IO_Def Boolean
-#define IO_SUCCESS True
-#define IO_FAILURE False
-
 #define  AND   &&
 #define  OR    ||
 #define  EQ    ==
