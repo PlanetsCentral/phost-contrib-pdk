@@ -724,6 +724,21 @@ ZeroTrailingWS(char *pStr, Uns16 pLen)
   } while (pLen-- > 0 AND * pStr EQ ' ');
 }
 
+/*
+ *          M A T H    P R O C E D U R E
+ */
+ 
+int RND(double value)
+{
+   double base;
+   double fraction;
+
+    fraction=modf(value,&base);
+
+    if (fraction<0.5) return base;
+    else return base+1;
+}
+
 /*************************************************************
   $HISTORY:$
 **************************************************************/
