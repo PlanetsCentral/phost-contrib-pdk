@@ -216,6 +216,291 @@ PlanetHasNatives(Uns16 pPlanet)
         AND(PlanetNativePopulation(pPlanet) > 0));
 }
 
+Boolean
+IsPlanetFCSpecial(Uns16 pID)
+{
+   char fc[4];
+ 
+  passert((pID >= 1) AND(pID <= PLANET_NR));
+
+   PlanetFCode(pID,fc);
+   if (strcmp(fc,"NUK")==0) return True;
+   if (strcmp(fc,"ATT")==0) return True;
+   if (strcmp(fc,"dmp")==0) return True;
+   if (strcmp(fc,"bum")==0) return True;
+   if (strcmp(fc,"con")==0) return True;
+   if (strcmp(fc,"PB1")==0) return True;
+   if (strcmp(fc,"PB2")==0) return True;
+   if (strcmp(fc,"PB3")==0) return True;
+   if (strcmp(fc,"PB4")==0) return True;
+   if (strcmp(fc,"PB5")==0) return True;
+   if (strcmp(fc,"PB6")==0) return True;
+   if (strcmp(fc,"PB7")==0) return True;
+   if (strcmp(fc,"PB8")==0) return True;
+   if (strcmp(fc,"PB9")==0) return True;
+   return False;
+}
+
+char *
+PlanetNatString(Uns16 pID, char *pBuffer)
+{
+  static char NatString[21];
+  char *lPtr = pBuffer;
+  Uns16 NatType;
+   
+  passert((pID >= 1) AND(pID <= PLANET_NR));
+
+  if (lPtr EQ NULL)
+    lPtr = NatString;              
+   
+   strcpy(NatString,"");
+
+   NatType = PlanetNatType(pID);
+
+   if (NatType==NoNatives)  strcpy(lPtr,"none");
+   if (NatType==Humanoid)   strcpy(lPtr,"Humanoid");
+   if (NatType==Bovinoid)   strcpy(lPtr,"Bovinoid");
+   if (NatType==Reptilian)  strcpy(lPtr,"Reptilian");
+   if (NatType==Avian)      strcpy(lPtr,"Avian");
+   if (NatType==Amorphous)  strcpy(lPtr,"Amorphous");
+   if (NatType==Insectoid)  strcpy(lPtr,"Insectoid");
+   if (NatType==Amphibian)  strcpy(lPtr,"Amphibian");
+   if (NatType==Ghipsoldal) strcpy(lPtr,"Ghipsoldal");
+   if (NatType==Siliconoid) strcpy(lPtr,"Siliconoid");
+
+   return lPtr;
+}
+
+char *
+PlanetNatGovmString(int pID, char *pBuffer)
+{
+   Uns16 NatType;
+   static char NatString[21];
+   char *lPtr = pBuffer;
+ 
+   strcpy(NatString,"");
+ 
+   passert((pID >= 1) AND(pID <= PLANET_NR));
+
+   if (lPtr EQ NULL)
+    lPtr = NatString;              
+
+   NatType = PlanetNatGovm(pID);
+
+   if (NatType==NoGovm)          strcpy(lPtr,"NoGovm");
+   if (NatType==Anarchy)         strcpy(lPtr,"Anarchy");
+   if (NatType==PreTribal)       strcpy(lPtr,"PreTribal");
+   if (NatType==EarlyTribal)     strcpy(lPtr,"EarlyTribal");
+   if (NatType==Tribal)          strcpy(lPtr,"Tribal");
+   if (NatType==Feudal)          strcpy(lPtr,"Feudal");
+   if (NatType==Monarchy)        strcpy(lPtr,"Monarchy");
+   if (NatType==Representative)  strcpy(lPtr,"Representative");
+   if (NatType==Participatory)   strcpy(lPtr,"Participatory");
+   if (NatType==Unity)           strcpy(lPtr,"Unity");
+
+   return lPtr;
+}
+
+Uns16
+PlanetMaxFactories(Uns16 pID)
+{
+  Uns16 ColClans,Max;
+
+  passert((pID >= 1) AND(pID <= PLANET_NR));
+
+  ColClans = PlanetCargo(pID,COLONISTS)/100;
+  if (ColClans<100) Max=ColClans;
+  else              Max=RND(100.0+sqrt((double)ColClans-100.0));
+
+  return Max;
+}
+
+Uns16
+PlanetMaxDefense(Uns16 pID)
+{
+  Uns16 ColClans,Max;
+
+  passert((pID >= 1) AND(pID <= PLANET_NR));
+
+  ColClans = PlanetCargo(pID,COLONISTS)/100;
+  if (ColClans<50) Max=ColClans;
+  else             Max=RND(50.0+sqrt((double)ColClans-50.0));
+
+  return Max;
+}
+
+Uns16
+PlanetMaxMines(Uns16 pID)
+{
+  Uns16 ColClans,Max;
+
+  passert((pID >= 1) AND(pID <= PLANET_NR));
+
+  ColClans = PlanetCargo(pID,COLONISTS)/100;
+  if (ColClans<200) Max=ColClans;
+  else             Max=RND(200.0+sqrt((double)ColClans-200.0));
+
+  return Max;
+}
+
+Uns16
+PlanetMining(Uns16 pID, Uns16 Mineral)
+{
+     double MINING_RATE;
+     Uns16  m;
+
+     passert((pID >= 1) AND(pID <= PLANET_NR));
+     passert((Mineral >= 0) AND(Mineral <= 3));
+     
+     MINING_RATE = (gPconfigInfo->RaceMiningRate[PlanetOwner(pID)] * 
+                    PlanetDensity(pID,Mineral)) / 100.0;
+     if (PlanetNatType(pID)==Reptilian)
+        MINING_RATE = MINING_RATE * 2;
+
+     m=MINING_RATE * PlanetMines(pID) / 100;
+     return m;
+}
+
+Uns16
+PlanetGovTaxRate(Uns16 pID)
+{
+  Uns16 Gov;
+
+  passert((pID >= 1) AND(pID <= PLANET_NR));;
+
+  if (PlanetNatType(pID)==NoNatives) return 0;
+  Gov=PlanetNatGovm(pID);
+
+  if (Gov==NoGovm)         return 0;
+  if (Gov==Anarchy)        return 20;
+  if (Gov==PreTribal)      return 40;
+  if (Gov==EarlyTribal)    return 60;
+  if (Gov==Tribal)         return 80;
+  if (Gov==Feudal)         return 100;
+  if (Gov==Monarchy)       return 120;
+  if (Gov==Representative) return 140;
+  if (Gov==Participatory)  return 160;
+  if (Gov==Unity)          return 180;
+
+  return 0;
+}
+
+Uns16
+NumberOfShipsHissingPlanet(Uns16 pID)
+{
+     Uns16 hiss,i;
+
+     passert((pID >= 1) AND(pID <= PLANET_NR));
+
+     hiss=0;
+     if (gPconfigInfo->AllowHiss)
+      for (i=1;i<=SHIP_NR;i++)
+       if (IsShipExist(i))
+        if ((PlanetLocationX(pID)==ShipLocationX(i))AND(PlanetLocationY(pID)==ShipLocationY(i)))
+          if (gPconfigInfo->PlayerRace[ShipOwner(i)]==Gorn)
+            if ((ShipMission(i)==9) AND (ShipCargo(i,NEUTRONIUM)>0) AND
+                ( (ShipBeamNumber(i)>0) ))
+             hiss++;
+     return hiss;
+}
+
+int
+PlanetNatHappyChange(Uns16 pID)
+{
+     double NHAPPY_change;
+     Uns16 hiss;
+
+     passert((pID >= 1) AND(pID <= PLANET_NR));
+
+     NHAPPY_change  = 5.0;
+     NHAPPY_change += PlanetNatGovm(pID)/2.0;
+     NHAPPY_change -= sqrt(PlanetNativePopulation(pID)/1000000.0);
+     NHAPPY_change -= (PlanetMines(pID)+PlanetFactories(pID))/200.0;
+     NHAPPY_change -= PlanetNatTax(pID)*0.85;
+
+     hiss = (int)min(NumberOfShipsHissingPlanet(pID),gPconfigInfo->MaxShipsHissing);
+     NHAPPY_change+= hiss*gPconfigInfo->HissEffectRate;
+
+     if (PlanetNatType(pID)==Avian) NHAPPY_change = NHAPPY_change + 10;
+
+     return (int)NHAPPY_change;
+}
+
+int
+PlanetColHappyChange(Uns16 pID)
+{
+     double CHAPPY_change;
+     Uns16 hiss;
+     Uns16 TargetTemp,TempDivisor;
+
+     passert((pID >= 1) AND(pID <= PLANET_NR));
+
+     if ((gPconfigInfo->PlayerRace[PlanetOwner(pID)]==Crystals)&&
+          (gPconfigInfo->CrystalsPreferDeserts))
+         {
+          TargetTemp = 100;
+          TempDivisor = 66;
+         }
+     else
+         {
+          TargetTemp = 50;
+          TempDivisor =33;
+         }
+
+     CHAPPY_change = 10.0;
+     CHAPPY_change -= sqrt(PlanetCargo(pID,COLONISTS)/1000000.0);
+     CHAPPY_change -= fabs(PlanetTemp(pID)-TargetTemp)/TempDivisor;
+     CHAPPY_change -= (PlanetMines(pID)+PlanetFactories(pID))/300.0;
+     CHAPPY_change -= PlanetColTax(pID)*0.8;
+
+     hiss = (int)min(NumberOfShipsHissingPlanet(pID),gPconfigInfo->MaxShipsHissing);
+     CHAPPY_change+= hiss*gPconfigInfo->HissEffectRate;
+
+     return (int)CHAPPY_change;
+}
+
+Uns16
+PlanetColIncome(Uns16 pID)
+{
+     double MC;
+
+     passert((pID >= 1) AND(pID <= PLANET_NR));
+
+     if (PlanetColHappy(pID)<30) return 0;
+     MC= floor(((double)PlanetCargo(pID,COLONISTS)/100.0 * PlanetColTax(pID) * 5.0 + 2500.0) / 5000.0);
+     return floor((MC * gPconfigInfo->ColonistTaxRate[PlanetOwner(pID)] + 50.0) / 100.0);
+}
+
+Uns16
+PlanetNatIncome(Uns16 pID)
+{
+     double MC;
+
+     passert((pID >= 1) AND(pID <= PLANET_NR));
+     
+     if (PlanetNatHappy(pID)<30) return 0;
+     if (PlanetNatType(pID)==Amorphous) return 0;
+
+     MC  = min(floor(((double)PlanetNativePopulation(pID)/100.0 * PlanetNatGovm(pID) * PlanetNatTax(pID) + 2500.0) / 5000.0)
+               ,PlanetCargo(pID,COLONISTS)/100.0);
+     if (PlanetNatType(pID)==Insectoid) MC = MC * 2;
+
+    return floor((MC * gPconfigInfo->NativeTaxRate[PlanetOwner(pID)] + 50.0) / 100.0);
+}
+
+Uns16
+PlanetSuppIncome(Uns16 pID)
+{
+     Uns16 S;
+
+     passert((pID >= 1) AND(pID <= PLANET_NR));
+
+     S = PlanetFactories(pID);
+     if (PlanetNatType(pID)==Bovinoid) S+= (Uns16)min(PlanetNativePopulation(pID) / 10000.0, PlanetCargo(pID,COLONISTS)/100.0);
+
+     return floor(S * gPconfigInfo->ProductionRate[PlanetOwner(pID)] / 100.0);
+}
+
 void
 PutPlanetOwner(Uns16 pID, RaceType_Def pOwner)
 {
