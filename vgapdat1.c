@@ -216,31 +216,6 @@ PlanetHasNatives(Uns16 pPlanet)
         AND(PlanetNativePopulation(pPlanet) > 0));
 }
 
-Boolean
-IsPlanetFCSpecial(Uns16 pID)
-{
-   char fc[4];
- 
-  passert((pID >= 1) AND(pID <= PLANET_NR));
-
-   PlanetFCode(pID,fc);
-   if (strcmp(fc,"NUK")==0) return True;
-   if (strcmp(fc,"ATT")==0) return True;
-   if (strcmp(fc,"dmp")==0) return True;
-   if (strcmp(fc,"bum")==0) return True;
-   if (strcmp(fc,"con")==0) return True;
-   if (strcmp(fc,"PB1")==0) return True;
-   if (strcmp(fc,"PB2")==0) return True;
-   if (strcmp(fc,"PB3")==0) return True;
-   if (strcmp(fc,"PB4")==0) return True;
-   if (strcmp(fc,"PB5")==0) return True;
-   if (strcmp(fc,"PB6")==0) return True;
-   if (strcmp(fc,"PB7")==0) return True;
-   if (strcmp(fc,"PB8")==0) return True;
-   if (strcmp(fc,"PB9")==0) return True;
-   return False;
-}
-
 char *
 PlanetNatString(Uns16 pID, char *pBuffer)
 {

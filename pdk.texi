@@ -1,5 +1,7 @@
 \input texinfo  @c-*-texifo-*-
 @c %**start of header
+@c HINT: process this with `makeinfo --no-split' to produce a single
+@c file `pdk.inf' which can be read using an info browser of your choice.
 @setfilename pdk.inf
 @settitle Portable Host Development Kit API
 @finalout
@@ -12,7 +14,7 @@
 @subtitle PDK Library Version 3.2.4.3
 @sp 2
 @center TexInfo version
-@center Version 2001-12-23 13:09
+@center Version 2002-03-17
 @end titlepage
 
 @node Top,(dir),(dir),(dir)
@@ -370,6 +372,11 @@ described here according to logical groupings. The best method of
 discerning how these functions are to be used together is to study the
 example source code files that are provided with the PDK distribution.
 
+Note: of the friendly code-related functions, some are available both as
+@code{FooFC} and @code{FooFCode}. Traditionally, the PDK has used both
+endings inconsistently; the "canonical" name now is the one ending with
+@code{FCode}.
+
 @menu
 * PDK Initialization and Cleanup::
 * Data File Input/Output::
@@ -408,6 +415,7 @@ example source code files that are provided with the PDK distribution.
 * Wraparound Map Functions::
 * UTILx.DAT Functions:: (new - 4.2)
 * Score Functions:: (new - 4.3)
+* FCode Functions:: (new - 4.3)
 @end menu
 
 
@@ -995,7 +1003,6 @@ crash if this assumption isn't met.
 * ShipTravelMass::
 * ShipCargoMass::
 * ShipMissionName::
-* IsShipFCSpecial::
 * PutShipCargo::
 * PutShipName::
 * PutShipOwner::
@@ -1070,7 +1077,6 @@ Functions in this section:
 @item ShipTravelMass
 @item ShipCargoMass
 @item ShipMissionName
-@item IsShipFCSpecial
 @item PutShipCargo
 @item PutShipName
 @item PutShipOwner
@@ -1379,6 +1385,7 @@ to the temporary area containing the ship's name.
 
 @node ShipFC,ShipCargo,ShipName,Ship Accessors
 @findex ShipFC
+@findex ShipFCode
 @subheading const char* ShipFC(Uns16 pID, char* pFCode)
 
 This function returns the friendly code of the given ship. If the 'pFCode'
@@ -1388,6 +1395,8 @@ is stored in the area pointed to by 'pFCode', which must be at least 4
 characters long. The return value of this routine points to the
 null-terminated friendly code string, either in 'pFCode' or in the
 temporary area.
+
+This function is also available under the name @code{ShipFCode}.
 
 @node ShipCargo,CreateShip,ShipFC,Ship Accessors
 @findex ShipCargo
@@ -1427,7 +1436,7 @@ tow by this ship, if ship sID is towing.
 This routine returns given ship cargo mass, summing cargo tritanium, duranium,
 molybdenum, supplies, clans and ship ammunition (torpedos or fighters).
 
-@node ShipMissionName,IsShipFCSpecial,ShipCargoMass,Ship Accessors
+@node ShipMissionName,PutShipCargo,ShipCargoMass,Ship Accessors
 @findex ShipMissionName
 @subheading char *ShipMissionName(Uns16 sID, char *pBuffer)
 
@@ -1438,13 +1447,7 @@ pointed to by 'pBuffer', which must be at least 21 characters long. The
 return value of this routine points to either 'pBuffer' if it is non-zero or
 to the temporary area containing the ship's name.
            
-@node IsShipFCSpecial,PutShipCargo,ShipMissionName,Ship Accessors
-@findex IsShipFCSpecial
-@subheading Boolean IsShipFCSpecial(Uns16 sID)
-
-This routine returns True if given ship Friendly Code is special.
-
-@node PutShipCargo,PutShipName,IsShipFCSpecial,Ship Accessors
+@node PutShipCargo,PutShipName,ShipMissionName,Ship Accessors
 @findex PutShipCargo
 @subheading void PutShipCargo(Uns16 pID, CargoType_Def pType, Uns16 pCargo)
 
@@ -1466,11 +1469,14 @@ This routine sets the given ship's owner to the specified value.
 
 @node PutShipFC,PutShipSpeed,PutShipOwner,Ship Accessors
 @findex PutShipFC
+@findex PutShipFCode
 @subheading void PutShipFC(Uns16 pID, char* pFCode)
 
 This routine changes the given ship's friendly code to a new value. The
 'pFCode' parameter must point to a null-terminated string. Only the first 3
 characters are used.
+
+This function is also available under the name @code{PutShipFCode}.
 
 @node PutShipSpeed,PutShipWaypointX,PutShipFC,Ship Accessors
 @findex PutShipSpeed
@@ -1672,7 +1678,6 @@ functions. Your program will likely crash if this assumption isn't met.
 * PlanetTemp::
 * PlanetBuildBase::
 * PlanetHasNatives::
-* IsPlanetFCSpecial::
 * PlanetNatString::
 * PlanetNatGovmString::
 * PlanetMaxFactories::
@@ -1734,7 +1739,6 @@ Functions in this section:
 @item PlanetTemp
 @item PlanetBuildBase
 @item PlanetHasNatives
-@item IsPlanetFCSpecial
 @item PlanetNatString
 @item PlanetNatGovmString
 @item PlanetMaxFactories
@@ -1907,7 +1911,7 @@ This function returns the given planet's temperature in the range 0 through
 This function returns True if the given planet is constructing a starbase
 on this turn.
 
-@node PlanetHasNatives,IsPlanetFCSpecial,PlanetBuildBase,Planet Accessors
+@node PlanetHasNatives,PlanetNatString,PlanetBuildBase,Planet Accessors
 @findex PlanetHasNatives
 @subheading Boolean PlanetHasNatives(Uns16 pPlanet)
 
@@ -1915,13 +1919,7 @@ This function returns True if the given planet has natives. This function
 is just a short-cut for checking both PlanetNativePopulation() and
 PlanetNatType().
 
-@node IsPlanetFCSpecial,PlanetNatString,PlanetHasNatives,Planet Accessors
-@findex IsPlanetFCSpecial
-@subheading Boolean IsPlanetFCSpecial(Uns16 pID)
-
-This routine returns True if given planet Friendly Code is special.           
-           
-@node PlanetNatString,PlanetNatGovmString,IsPlanetFCSpecial,Planet Accessors
+@node PlanetNatString,PlanetNatGovmString,PlanetHasNatives,Planet Accessors
 @findex PlanetNatString
 @subheading char *PlanetNatString(Uns16 pID, char *pBuffer)
 
@@ -6105,6 +6103,13 @@ This mode is the default.
 runs after the host has completed. Basically, when you use
 WriteMessageToRST function, you should also use the UTIL_Dat mode,
 otherwise use UTIL_Ext.
+@item pDat = UTIL_Tmp: write to UTIL.TMP. This is to be used for add-ons
+that replace PCONTROL stages. For example, when you write an add-on
+that replaces the whole mine laying stage, the mine laying reports
+should come out at the same place where PHost would have put them,
+to not confuse clients. This is only supported with PHost 3.4 and
+later, for older hosts, it is automatically "downgraded" to UTIL_Ext.
+Please use this @emph{only} for the described scenario.
 @end itemize
 
 @node PutUtilRecordSimple,PutUtilRecordStruct,SetUtilMode,UTILx.DAT Functions
@@ -6152,7 +6157,7 @@ Note that this function will not attempt to open the file 'pName': this
 is just the name the client will see. You have to read the file and
 supply its data and size to this function.
 
-@node Score Functions,,UTILx.DAT Functions,Function Call Interface
+@node Score Functions, FCode Functions, UTILx.DAT Functions, Function Call Interface
 @section Score Functions (new - 4.3)
 
 The following functions allow programs to evaluate scores for
@@ -6540,6 +6545,107 @@ Cargo from planets and ships are counted.
 
 This function returns total number of layed minefields units for a given race. 
 No race specific correction are made.
+
+@node FCode Functions,  , Score Functions, Function Call Interface
+@section Friendly Code Functions (new - 4.3)
+
+Friendly code checking is completely based upon the XTRFCODE.TXT file.
+To check whether a friendly code is special, the PDK checks the file
+according to the usual rules. The "well-known" special codes (lfm,
+mkt, etc.) are automatically considered, when the PDK rewrites that
+file, it will include the well-known codes (like PHost 3.4 does).
+Special friendly codes are considered special everywhere, that is,
+"NUK" is special for ships, and "mkt" is special for planets, like in
+PHost.
+
+@menu
+* InitFCodes::
+* ShutdownFCodes::
+* DumpExtraFCodes::
+* DefineSpecialFCode::
+* IsFCodeSpecial::
+* IsShipFCodeSpecial::
+* IsPlanetFCodeSpecial::
+* IsFCodeMatch::
+@end menu
+
+@iftex
+@itemize @minus
+@item InitFCodes
+@item ShutdownFCodes
+@item DumpExtraFCodes
+@item DefineSpecialFCode
+@item IsFCodeSpecial
+@item IsShipFCodeSpecial
+@item IsPlanetFCodeSpecial
+@item IsFCodeMatch
+@end itemize
+@end iftex
+
+@node InitFCodes,ShutdownFCodes,,FCode Functions
+@findex InitFCodes
+@subheading void InitFCodes(void)
+
+Initialize the friendly code module. This loads XTRFCODE.TXT file.
+This function is called automatically when needed.
+
+@node ShutdownFCodes, DumpExtraFCodes, InitFCodes, FCode Functions
+@findex ShutdownFCodes
+@subheading void ShutdownFCodes(void)
+
+Shut down the friendly code module. This function is called automatically
+when needed. This will update (=rewrite) the XTRFCODE.TXT file. Currently,
+there is no way to prevent this from happening.
+
+@node DumpExtraFCodes, DefineSpecialFCode, ShutdownFCodes, FCode Functions
+@findex DumpExtraFCodes
+@subheading void DumpExtraFCodes(FILE *pFile)
+
+List all special friendly codes in file pFile, one entry per line.
+
+@node DefineSpecialFCode, IsFCodeSpecial, DumpExtraFCodes, FCode Functions
+@findex DefineSpecialFCode
+@subheading Boolean DefineSpecialFCode(const char* pCode)
+
+Declares a special friendly code. This adds the code to XTRFCODE.TXT.
+If your add-on has a special friendly code "foo", you can call
+`DefineSpecialFCode("foo")' to let everyone, including PHOST, know
+about it. Note that, currently, changes to XTRFCODE.TXT while PHost is
+running do not take effect immediately.
+
+@node IsFCodeSpecial, IsShipFCodeSpecial, DefineSpecialFCode, FCode Functions
+@findex IsFCodeSpecial
+@subheading Boolean IsFCodeSpecial(const char* pFCode)
+
+True iff the specified friendly code is special.
+
+@node IsShipFCodeSpecial, IsPlanetFCodeSpecial, IsFCodeSpecial, FCode Functions
+@findex IsShipFCodeSpecial
+@findex IsShipFCSpecial
+@subheading Boolean IsShipFCodeSpecial(Uns16 pShip)
+
+True iff the friendly code on ship pShip is special. This is just a
+small wrapper around @xref{IsFCodeSpecial, IsFCodeSpecial()}.
+
+This function is also available under the name @code{IsShipFCSpecial}.
+
+@node IsPlanetFCodeSpecial, IsFCodeMatch, IsShipFCodeSpecial, FCode Functions
+@findex IsPlanetFCodeSpecial
+@findex IsPlanetFCSpecial
+@subheading Boolean IsPlanetFCodeSpecial(Uns16 pPlanet)
+
+True iff the friendly code on planet pPlanet is special. This is just a
+small wrapper around @xref{IsFCodeSpecial, IsFCodeSpecial()}.
+
+This function is also available under the name @code{IsPlanetFCSpecial}.
+
+@node IsFCodeMatch, , IsPlanetFCodeSpecial, FCode Functions
+@findex IsFCodeMatch
+@subheading Boolean IsFCodeMatch(const char* p1, const char* p2)
+
+True iff the friendly codes p1 and p2 are to be considered matching.
+Two friendly codes match when they are the same (of course), but not
+special. That is, "moo" and "moo" match, but "NUK" and "NUK" don't.
 
 @node Variables Index,,,Top
 @unnumbered Variables Index

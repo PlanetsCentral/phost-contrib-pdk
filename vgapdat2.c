@@ -380,53 +380,6 @@ ShipMissionString(Uns16 sID, char *pBuffer)
   return lPtr;
 }
 
-Boolean 
-IsShipFCSpecial(Uns16 sID)
-{
-   char fc[4];
- 
-  passert((sID >= 1) AND(sID <= SHIP_NR));
-
-   ShipFC(sID,fc);
- 
-   if (strcmp(fc,"mkt")==0) return True;
-   if (strcmp(fc,"mdh")==0) return True;
-   if (strcmp(fc,"mdq")==0) return True;
-   if (strcmp(fc,"msc")==0) return True;
-   if (strcmp(fc,"alt")==0) return True;
-   if (strcmp(fc,"ald")==0) return True;
-   if (strcmp(fc,"alm")==0) return True;
-   if (strcmp(fc,"NAL")==0) return True;
-   if (strcmp(fc,"HYP")==0) return True;
-   if (strcmp(fc,"NTP")==0) return True;
-   if (strcmp(fc,"WRS")==0) return True;
-   if (strcmp(fc,"WRT")==0) return True;
-   if (strcmp(fc,"lfm")==0) return True;
-   if (strcmp(fc,"bdm")==0) return True;
-   if (strcmp(fc,"nat")==0) return True;
-   if (strcmp(fc,"nad")==0) return True;
-   if (strcmp(fc,"nam")==0) return True;
-   if (strcmp(fc,"cln")==0) return True;
-   if (strcmp(fc,"btt")==0) return True;
-   if (strcmp(fc,"btf")==0) return True;
-   if (strcmp(fc,"btm")==0) return True;
-   if (strcmp(fc,"pop")==0) return True;
-   if (strcmp(fc,"trg")==0) return True;
-   if (strcmp(fc,"nbr")==0) return True;
-   if (strcmp(fc,"gs1")==0) return True;
-   if (strcmp(fc,"gs2")==0) return True;
-   if (strcmp(fc,"gs3")==0) return True;
-   if (strcmp(fc,"gs4")==0) return True;
-   if (strcmp(fc,"gs5")==0) return True;
-   if (strcmp(fc,"gs6")==0) return True;
-   if (strcmp(fc,"gs7")==0) return True;
-   if (strcmp(fc,"gs8")==0) return True;
-   if (strcmp(fc,"gs9")==0) return True;
-   if (strcmp(fc,"gsa")==0) return True;
-   if (strcmp(fc,"gsb")==0) return True;
-   return False;
-}
-
 void
 PutShipOwner(Uns16 pID, RaceType_Def pOwner)
 {

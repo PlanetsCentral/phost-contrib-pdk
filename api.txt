@@ -12,6 +12,8 @@ This document is meant mainly as a reference guide, not as a tutorial on
 how to use the PDK. The best way to learn about PDK programming is to study
 the example source files that come with the PDK.
 
+This document is also available in GNU TexInfo format.
+
 This file is divided into several sections. The function call interface
 section is further subdivided into logical functional groups. The sections
 in this file are as follows:
@@ -56,6 +58,7 @@ in this file are as follows:
     - Wraparound Map Functions
     - UTILx.DAT Functions (new - 4.2)
     - Score Functions (new - 4.3)
+    - FCode Functions (new - 4.3)
 
 Manifest Constants
 ==================
@@ -256,6 +259,11 @@ The heart of the PDK API is the function call interface. Function calls are
 described here according to logical groupings. The best method of
 discerning how these functions are to be used together is to study the
 example source code files that are provided with the PDK distribution.
+
+Note: of the friendly code-related functions, some are available both
+as `FooFC' and `FooFCode'. Traditionally, the PDK has used both
+endings inconsistently; the "canonical" name now is the one ending
+with `FCode'.
 
 PDK Initialization and Cleanup
 ------------------------------
@@ -739,13 +747,14 @@ return value of this routine points to either 'pName' if it is non-zero or
 to the temporary area containing the ship's name.
 
            const char* ShipFC(Uns16 pID, char* pFCode)
+           const char* ShipFCode(Uns16 pID, char* pFCode)
 This function returns the friendly code of the given ship. If the 'pFCode'
 parameter is 0, then the friendly code is stored in a temporary area which
 is overwritten with each call to this routine. Otherwise, the friendly code
 is stored in the area pointed to by 'pFCode', which must be at least 4
 characters long. The return value of this routine points to the
 null-terminated friendly code string, either in 'pFCode' or in the
-temporary area.
+temporary area. These are two alternate names for the same function.
 
            Uns16 ShipCargo(Uns16 pID, CargoType_Def pType)
 This routine returns the amount of the specified cargo on the given ship.
@@ -779,7 +788,10 @@ return value of this routine points to either 'pBuffer' if it is non-zero or
 to the temporary area containing the ship's name.
 
            Boolean IsShipFCSpecial(Uns16 sID)
-This routine returns True if given ship Friendly Code is special.
+           Boolean IsShipFCodeSpecial(Uns16 sID)
+This routine returns True if given ship Friendly Code is special. See also
+below under "FCode functions". These are two alternate names for the same
+function.
 
            void PutShipCargo(Uns16 pID, CargoType_Def pType, Uns16 pCargo)
 This routine sets the specified cargo on the given ship to a new amount.
@@ -793,9 +805,10 @@ characters will be used.
 This routine sets the given ship's owner to the specified value.
 
            void PutShipFC(Uns16 pID, char* pFCode)
+           void PutShipFCode(Uns16 pID, char* pFCode)
 This routine changes the given ship's friendly code to a new value. The
 'pFCode' parameter must point to a null-terminated string. Only the first 3
-characters are used.
+characters are used. These are two alternate names for the same function.
 
            void PutShipSpeed(Uns16 pID, Uns16 pSpeed)
 This routine changes the given ship's speed to a new value. The 'pSpeed'
@@ -983,7 +996,10 @@ is just a short-cut for checking both PlanetNativePopulation() and
 PlanetNatType().
 
            Boolean IsPlanetFCSpecial(Uns16 pID)
-This routine returns True if given planet Friendly Code is special.
+           Boolean IsPlanetFCodeSpecial(Uns16 pID)
+This routine returns True if given planet Friendly Code is special. See also
+below under "FCode functions". These are two alternate names for the same
+function.
 
            char *PlanetNatString(Uns16 pID, char *pBuffer)
 This function returns given planet natives name as string. If the 'pName' parameter
@@ -1082,9 +1098,11 @@ that care must be exercised to take into account any starbase that may be
 present at this planet.
 
            void PutPlanetFC(Uns16 pID, char* pFCode)
+           void PutPlanetFCode(Uns16 pID, char* pFCode)
 This function sets the given planet's friendly code to the string pointed
 to by 'pFCode'. This parameter must point to a null-terminated string. Only
-the first 3 characters are used.
+the first 3 characters are used. These are two alternate names for the same
+function.
 
            void PutPlanetMines(Uns16 pID, Uns16 pMines)
 This function sets the number of mines on the given planet.
@@ -3187,6 +3205,13 @@ Defines the mode of operation for the following functions.
     runs after the host has completed. Basically, when you use
     WriteMessageToRST function, you should also use the UTIL_Dat mode,
     otherwise use UTIL_Ext.
+  - pDat = UTIL_Tmp: write to UTIL.TMP. This is to be used for add-ons
+    that replace PCONTROL stages. For example, when you write an add-on
+    that replaces the whole mine laying stage, the mine laying reports
+    should come out at the same place where PHost would have put them,
+    to not confuse clients. This is only supported with PHost 3.4 and
+    later, for older hosts, it is automatically "downgraded" to UTIL_Ext.
+    Please use this *only* for the described scenario.
 
            Boolean PutUtilRecordSimple(RaceType_Def pRace, Uns16 pRecordId,
                                        Uns16 pSize, void* pData);
@@ -3421,3 +3446,50 @@ given race. Cargo from planets and ships are counted.
 This function returns total number of layed minefields units for a
 given race. No race specific correction are made.
 
+
+FCode Functions (new - 4.3)
+---------------------------
+
+Friendly code checking is completely based upon the XTRFCODE.TXT file.
+To check whether a friendly code is special, the PDK checks the file
+according to the usual rules. The "well-known" special codes (lfm,
+mkt, etc.) are automatically considered, when the PDK rewrites that
+file, it will include the well-known codes (like PHost 3.4 does).
+Special friendly codes are considered special everywhere, that is,
+"NUK" is special for ships, and "mkt" is special for planets, like in
+PHost.
+
+        void InitFCodes(void)
+Initialize the friendly code module. This loads XTRFCODE.TXT file.
+This function is called automatically when needed.
+
+        void ShutdownFCodes(void)
+Shut down the friendly code module. This function is called automatically
+when needed. This will update (=rewrite) the XTRFCODE.TXT file. Currently,
+there is no way to prevent this from happening.
+
+        void DumpExtraFCodes(FILE *pFile)
+List all special friendly codes in file pFile, one entry per line.
+
+        Boolean DefineSpecialFCode(const char* pCode)
+Declares a special friendly code. This adds the code to XTRFCODE.TXT.
+If your add-on has a special friendly code "foo", you can call
+`DefineSpecialFCode("foo")' to let everyone, including PHOST, know
+about it. Note that, currently, changes to XTRFCODE.TXT while PHost is
+running do not take effect immediately.
+
+        Boolean IsFCodeSpecial(const char* pFCode)
+True iff the specified friendly code is special.
+
+        Boolean IsShipFCodeSpecial(Uns16 pShip)
+True iff the friendly code on ship pShip is special. This is just a
+small wrapper around IsFCodeSpecial().
+
+        Boolean IsPlanetFCodeSpecial(Uns16 pPlanet)
+True iff the friendly code on planet pPlanet is special. This is just a
+small wrapper around IsFCodeSpecial().
+
+        Boolean IsFCodeMatch(const char* p1, const char* p2)
+True iff the friendly codes p1 and p2 are to be considered matching.
+Two friendly codes match when they are the same (of course), but not
+special. That is, "moo" and "moo" match, but "NUK" and "NUK" don't.

@@ -95,14 +95,36 @@ PutUtilRecord(RaceType_Def pRace, Uns16 pRecordId, Uns16 pCount,
     passert(lHead.mSize >= pSizes[i]);  /* prevent overflow */
   }
 
-  sprintf(lName, "util%d.%s", pRace, gUtilMode==UTIL_Dat ? "dat" : "ext");
+  if (gUtilMode == UTIL_Tmp) {
+    Uns16 lMaj, lMin;
+    if (GameFilesVersion(&lMaj, &lMin) && ((lMaj < 3) || (lMaj == 3 && lMin < 4))) {
+      static char sMsg = 0;
+      if (!sMsg) {
+        sMsg = 1;
+        Warning("PHost versions <3.4 do not support writing to UTIL.TMP -- reverting to");
+        Warning("UTIL.EXT (records may come out in wrong order).");
+      }
+      gUtilMode = UTIL_Ext;
+    }
+  }
+
+  if (gUtilMode == UTIL_Tmp)
+    strcpy(lName, "util.tmp");
+  else
+    sprintf(lName, "util%d.%s", pRace, gUtilMode==UTIL_Dat ? "dat" : "ext");
   fp = OpenOutputFile(lName, GAME_DIR_ONLY | NO_MISSING_ERROR | APPEND_MODE);
   if(!fp)
     return False;
 
-  lRes = DOSWriteStruct(UtilHeaderStruct_Convert,
-                        NumUtilHeaderStruct_Convert,
-                        &lHead, fp);
+  if (gUtilMode == UTIL_Tmp) {
+    Uns16 lRace = pRace;
+    lRes = DOSWrite16(&lRace, 1, fp);
+  } else
+    lRes = True;
+      
+  lRes &= DOSWriteStruct(UtilHeaderStruct_Convert,
+                         NumUtilHeaderStruct_Convert,
+                         &lHead, fp);
   for(i = 0; i < pCount; ++i)
     fwrite(pData[i], pSizes[i], 1, fp);
   

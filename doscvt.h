@@ -43,6 +43,8 @@ extern void UnixConvertStruct(const DOSConvertElement *pStruct,
       Uns16 pNumElements, const void *pData, void *pDst);
 extern Uns16 ReadDOSUns16(const void *pVal);
 extern Uns32 ReadDOSUns32(const void *pVal);
+extern Boolean DOSWrite16(const Uns16 * pData, Uns16 pNum, FILE * pOutFile);
+extern Boolean DOSWrite32(const Uns32 * pData, Uns16 pNum, FILE * pOutFile);
 
 /* Some structure definitions */
 extern const DOSConvertElement ShipStruct_Convert[];

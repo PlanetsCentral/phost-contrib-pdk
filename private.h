@@ -397,8 +397,6 @@ extern "C" {
 
   extern void SquishError(const char *str);
 
-  extern Uns16 EffRace(Uns16 pPlayer);
-
   typedef void (*CleanupFunction_T) (void);
 
   extern void RegisterCleanupFunction(CleanupFunction_T pFunc);

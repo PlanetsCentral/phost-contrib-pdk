@@ -35,6 +35,5 @@
 #define gAllBases                   T_0042
 #define RawTurnTime                 T_0044
 #define RegisterCleanupFunction     T_0045
-#define EffRace                     T_0046
 
 #endif /* _SHROUDS_H_ */

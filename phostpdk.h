@@ -258,7 +258,8 @@ extern "C" {
 
   typedef enum {
     UTIL_Ext,
-    UTIL_Dat
+    UTIL_Dat,
+    UTIL_Tmp
   } UtilMode_Def;
 
   typedef enum {
@@ -749,6 +750,7 @@ Pconfig_Struct;
   extern void KillPlayer(RaceType_Def Race);
   extern void KillPlayerBases(RaceType_Def Race);
   extern void KillPlayerMinefields(RaceType_Def Race);
+  extern Uns16 EffRace(Uns16 pPlayer);
 
 /*
  *  Build Queue Interface
@@ -1039,17 +1041,20 @@ Pconfig_Struct;
   extern Uns16 ShipTransferShip(Uns16 pID);
   extern char *ShipName(Uns16 pID, char *pName);
   extern const char *ShipFC(Uns16 pID, char *pFCode);
+#define ShipFCode ShipFC
   extern Uns16 ShipCargo(Uns16 pID, CargoType_Def pType);
   extern Uns16 CreateShip(RaceType_Def pOwner);
   extern Uns16 ShipTotalMass(Uns16 sID);
   extern Uns16 ShipTravelMass(Uns16 sID);
   extern Uns16 ShipCargoMass(Uns16 sID);
   extern char *ShipMissionString(Uns16 sID, char *pBuffer);
-  extern Boolean IsShipFCSpecial(Uns16 sID);
+  /* extern Boolean IsShipFCSpecial(Uns16 sID); */
+#define IsShipFCSpecial IsShipFCodeSpecial
   extern void PutShipCargo(Uns16 pID, CargoType_Def pType, Uns16 pCargo);
   extern void PutShipName(Uns16 pID, const char *pName);
   extern void PutShipOwner(Uns16 pID, RaceType_Def pOwner);
   extern void PutShipFC(Uns16 pID, char *pFCode);
+#define PutShipFCode PutShipFC
   extern void PutShipSpeed(Uns16 pID, Uns16 pSpeed);
   extern void PutShipWaypointX(Uns16 pID, Uns16 pWaypoint);
   extern void PutShipWaypointY(Uns16 pID, Uns16 pWaypoint);
@@ -1104,7 +1109,8 @@ Pconfig_Struct;
   extern Uns16 PlanetTemp(Uns16 pID);
   extern Boolean PlanetBuildBase(Uns16 pID);
   extern Boolean PlanetHasNatives(Uns16 pPlanet);
-  extern Boolean IsPlanetFCSpecial(Uns16 pID);
+  /* extern Boolean IsPlanetFCSpecial(Uns16 pID); */
+#define IsPlanetFCSpecial IsPlanetFCodeSpecial
   extern char *PlanetNatString(Uns16 pID, char *pBuffer);
   extern char *PlanetNatGovmString(int pID, char *pBuffer);
   extern Uns16 PlanetMaxFactories(Uns16 pID);
@@ -1123,6 +1129,7 @@ Pconfig_Struct;
   extern const char *PlanetTempString(Uns16 pPlanet);
   extern void PutPlanetOwner(Uns16 pID, RaceType_Def pOwner);
   extern void PutPlanetFC(Uns16 pID, char *pFCode);
+#define PutPlanetFCode PutPlanetFC
   extern void PutPlanetMines(Uns16 pID, Uns16 pMines);
   extern void PutPlanetFactories(Uns16 pID, Uns16 pFactories);
   extern void PutPlanetDefense(Uns16 pID, Uns16 pDefense);
@@ -1435,7 +1442,18 @@ Pconfig_Struct;
   extern Uns32 RaceBaseDefenceNumber(RaceType_Def Race);
   extern Uns32 RaceCargoNumber(RaceType_Def Race,CargoType_Def CargoType);
   extern Uns32 RaceMinefieldUnitsNumber(RaceType_Def Race);
-  
+
+  /* friendly codes */
+  extern void InitFCodes(void);
+  extern void ShutdownFCodes(void);
+  extern void DumpExtraFCodes(FILE *pFile);
+  extern Boolean DefineSpecialFCode(const char* pCode);
+  extern Boolean IsFCodeSpecial(const char* pFCode);
+  extern Boolean IsShipFCodeSpecial(Uns16 pShip);
+  extern Boolean IsPlanetFCodeSpecial(Uns16 pPlanet);
+  extern Boolean IsFCodeMatch(const char* p1, const char* p2);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -wT --
+#!/usr/bin/perl -wT
 
 # pconf.pl -- PHOST configuration utility
 #
