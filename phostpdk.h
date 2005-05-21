@@ -850,6 +850,7 @@ Pconfig_Struct;
   extern void KillPlayerBases(RaceType_Def Race);
   extern void KillPlayerMinefields(RaceType_Def Race);
   extern Uns16 EffRace(Uns16 pPlayer);
+  extern Uns16 EffMission(Uns16 pPlayer);
 
 /*
  *  Build Queue Interface
@@ -1389,6 +1390,19 @@ Pconfig_Struct;
   extern Boolean ShipIsGiveableOnce(Uns16 pShip);
   extern Boolean ShipHasLevel2Tow(Uns16 pShip);
 
+  extern Boolean ShipCanTow(Uns16 pShip);
+  extern Boolean ShipCanChunnelItself(Uns16 pShip);
+  extern Boolean ShipCanChunnelOthers(Uns16 pShip);
+  extern Boolean ShipCanBeChunnelMate(Uns16 pShip);
+  extern Boolean ShipIsImmuneToPlanetAttacks(Uns16 pShip);
+  extern Boolean ShipIsOreCondenser(Uns16 pShip);
+  extern Boolean ShipCanBoard(Uns16 pShip);
+  extern Boolean ShipIsImmuneToAntiCloak(Uns16 pShip);
+  extern Boolean ShipIsCrewAcademy(Uns16 pShip);
+  extern Boolean ShipCanRepairOthers(Uns16 pShip);
+  extern Boolean ShipHasFullWeaponry(Uns16 pShip);
+  extern Boolean ShipHasHardenedEngines(Uns16 pShip);
+
   /* NOTE: Following Hull functions Added by Maurits 2004-07-30 */
   extern Boolean HullDoesAlchemy(Uns16 pHull, Uns16 Owner);
   extern Boolean HullDoesRefinery(Uns16 pHull, Uns16 Owner);
@@ -1417,6 +1431,19 @@ Pconfig_Struct;
   extern Boolean HullIsUngiveable(Uns16 pHull, Uns16 Owner);
   extern Boolean HullIsGiveableOnce(Uns16 pHull, Uns16 Owner);
   extern Boolean HullHasLevel2Tow(Uns16 pHull, Uns16 Owner);
+
+  extern Boolean HullCanTow(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullCanChunnelItself(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullCanChunnelOthers(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullCanBeChunnelMate(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullIsImmuneToPlanetAttacks(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullIsOreCondenser(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullCanBoard(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullIsImmuneToAntiCloak(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullIsCrewAcademy(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullCanRepairOthers(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullHasFullWeaponry(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullHasHardenedEngines(Uns16 pHull, Uns16 pOwner);
 
 /*
  *   Engine functions
