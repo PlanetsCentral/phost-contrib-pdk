@@ -664,6 +664,8 @@ PutShipCargo(Uns16 pID, CargoType_Def pType, Uns16 pCargo)
   case COLONISTS:
     GetShip(pID)->Colonists = pCargo; /* CLANS!!! */
     break;
+  default:
+    passert(0);
   }
 }
 
