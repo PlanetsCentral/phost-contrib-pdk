@@ -452,6 +452,7 @@ CFControl(CargoDump,              DO_CARGO_DUMP)
 CFControl(CargoTransfer,          DO_CARGO_TRANSFER)
 CFControl(TrimShipCargo,          DO_TRIM_SHIP_CARGO)
 #ifdef PHOST4
+CFControl(CrewExchange,           DO_CREW_EXCHANGE)
 CFControl(Training,               DO_TRAINING_MISSION)
 #endif
 CFControl(BeamTransfers,          DO_BEAM_TRANSFERS)
