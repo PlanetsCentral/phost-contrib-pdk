@@ -1,3 +1,27 @@
+2005-05-21  Stefan Reuther  <Streu@gmx.de>
+
+	* phostpdk.h: new prototypes
+
+	* hullfunc.c: added new accessors
+	added support for level-restricted functions
+
+	* main.c (EffMission): new function
+	increased banner date :)
+
+	* vgapdat2.c (PutShipCargo): removed warning
+
+	* pdk.texi: new functions documented; improved hullfunc docs and title page
+
+	* ex*.c: removed warnings
+
+2005-05-19  Stefan Reuther  <Streu@gmx.de>
+
+	* splitmod.pl, Makefile: added support for compilation in separate
+	directory
+	* splitmod.def: added tons.c
+
+	* hullfunc.c: added inhibited functions
+
 2004-12-30  Stefan Reuther  <Streu@gmx.de>
 
 	* auxdata.c: added Enemies accessors
