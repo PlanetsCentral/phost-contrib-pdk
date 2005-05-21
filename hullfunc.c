@@ -1,28 +1,35 @@
+/**
+  *  \file hullfunc.c
+  *  \brief Hull Function Handling
+  *
+  *  \author Andrew Sterian (original)
+  *  \author Maurits van Rees (HullXXX functions)
+  *  \author Stefan Reuther (updates for PHost 4.0i)
+  *
+  *  This file defines the functions to access hull functions. It
+  *  reads hullfunc.txt resp. shiplist.txt, and the relevant
+  *  auxdata.hst parts.
+  *
+  *  All files in this distribution are Copyright (C) 1995-2000 by the program
+  *  authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
+  *  You can reach the PHOST team via email (support@phost.de).
+  *
+  *  This program is free software; you can redistribute it and/or
+  *  modify it under the terms of the GNU General Public License
+  *  as published by the Free Software Foundation; either version 2
+  *  of the License, or (at your option) any later version.
+  *
+  *  This program is distributed in the hope that it will be useful,
+  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  *  GNU General Public License for more details.
+  *
+  *  You should have received a copy of the GNU General Public License
+  *  along with this program; if not, write to the Free Software
+  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+  */
 
-/****************************************************************************
-All files in this distribution are Copyright (C) 1995-2000 by the program
-authors: Andrew Sterian, Thomas Voigt, and Steffen Pietsch.
-You can reach the PHOST team via email (phost@gmx.net).
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*****************************************************************************/
-
-#ifndef CBUILDER
 #include <ctype.h>
-#endif
-
 #include "phostpdk.h"
 #include "private.h"
 #include "listmat.h"
@@ -57,10 +64,22 @@ typedef enum {
   SPC_Ungiveable,
   SPC_GiveOnce,
   SPC_Level2Tow,
+  SPC_Tow,                    /* 25 */
+  SPC_ChunnelSelf,
+  SPC_ChunnelOthers,
+  SPC_ChunnelTarget,
+  SPC_PlanetImmunity,
+  SPC_OreCondenser,           /* 30 */
+  SPC_Boarding,
+  SPC_AntiCloakImmunity,
+  SPC_Academy,
+  SPC_Repairs,
+  SPC_FullWeaponry,           /* 35 */
+  SPC_HardenedEngines,
 
   NumSpecials,
 
-  SPC_NO_SPECIAL                /* Marker */
+  SPC_NO_SPECIAL  /* Marker */
 } Special_Def;
 
 /* Must match order of Special_Def above */
@@ -89,10 +108,28 @@ static const char *gSpecialNames[] = {
   "CloneOnce",
   "Ungiveable",
   "GiveOnce",
-  "Level2Tow"
+  "Level2Tow",
+  "Tow",
+  "ChunnelSelf",
+  "ChunnelOthers",
+  "ChunnelTarget",
+  "PlanetImmunity",
+  "OreCondenser",
+  "Boarding",
+  "AntiCloakImmunity",
+  "Academy",
+  "Repairs",
+  "FullWeaponry",
+  "HardenedEngines",
 };
 
 #define NumSpecialNames (sizeof(gSpecialNames)/sizeof(gSpecialNames[0]))
+
+typedef struct {
+  Int16 mFunction;
+  Int16 mHostBit;
+  Uns16 mLevelMask;
+} Special_Struct;
 
 /* This is where we implement HULLFUNC lookup using an array of arrays. The
    structure is as follows:
@@ -119,6 +156,7 @@ static const char *gSpecialNames[] = {
 */
 
 static Uns16 **gHullfunc = 0;
+static Uns16 **gSynthHullfunc = 0;
 
 /* This is where we store the default special assignments if no HULLFUNC.TXT
    file is found.
@@ -168,61 +206,155 @@ static SpecialInfo_Struct gDefaultSpecials[] = {
   {96, SPC_Bioscan},            /* Cobol */
   {97, SPC_AdvancedRefinery},   /* Aries */
   {104, SPC_Refinery},          /* NR ship */
-  {105, SPC_Alchemy}            /* Merlin */
+  {105, SPC_Alchemy},           /* Merlin */
+  {69, SPC_PlanetImmunity},
 };
 
 #define NumDefaultSpecials (sizeof(gDefaultSpecials)/sizeof(gDefaultSpecials[0]))
 
+#define NumSynthSpecials 64
+#define FirstSynthSpecial 128
+static Special_Struct sSynthSpecials[NumSynthSpecials];
+static unsigned sNumSynthSpecials;
+static Uns16 sAllLevelsMask = (1 << 11) - 1;
+
+static void clearAllSpecials(void);
+
 static void
 ShutdownHullfunc(void)
 {
-  MemFree(gHullfunc);
-  gHullfunc = 0;
+  clearAllSpecials();
+  if (gHullfunc) {
+    MemFree(gHullfunc);
+    gHullfunc = 0;
+  }
+  if (gSynthHullfunc) {
+    MemFree(gSynthHullfunc);
+    gSynthHullfunc = 0;
+  }
+  sNumSynthSpecials = 0;
 }
 
 static void
 InitHullfunc(void)
 {
-  if (gHullfunc)
-    return;                     /* Already initialized */
-
   passert(NumSpecialNames EQ NumSpecials);
+  if (gHullfunc) {
+    passert(gSynthHullfunc);
+    return;                     /* Already initialized */
+  }
+
   gHullfunc = (Uns16 **) MemCalloc(HULL_NR + 1, sizeof(Uns16 *));
+  gSynthHullfunc = (Uns16 **) MemCalloc(HULL_NR + 1, sizeof(Uns16 *));
 
   RegisterCleanupFunction(ShutdownHullfunc);
 }
 
-static void
-setSpecialRaces(Uns16 pHull, Special_Def pSpecial, Uns16 pRaceMask)
+static int
+getFunctionFromDef(const Special_Struct* pSpecial)
 {
-  /* pSpecial == NumSpecials means we got a special we don't know. 
-     Simply ignore it. */
-  if (pSpecial == NumSpecials)
-      return;
+  unsigned i;
 
-  passert(pHull >= 1 AND pHull <= HULL_NR);
-  passert(pSpecial >= 0 AND pSpecial < NumSpecials);
-  passert(gHullfunc);
+  /* do we know the function? */
+  if (pSpecial->mFunction == NumSpecials)
+    return -1;
+  passert(pSpecial->mFunction >= 0 AND pSpecial->mFunction < NumSpecials);
 
-  if (gHullfunc[pHull] EQ 0) {
-    gHullfunc[pHull] = (Uns16 *) MemCalloc(NumSpecials, sizeof(Uns16));
+  /* is it a standard function? */
+  if ((pSpecial->mLevelMask & sAllLevelsMask) == sAllLevelsMask)
+    return pSpecial->mFunction;
+
+  /* not a standard function, try to find one. */
+  for (i = 0; i < sNumSynthSpecials; ++i) {
+    if (sSynthSpecials[i].mFunction == pSpecial->mFunction
+        && (sSynthSpecials[i].mLevelMask & sAllLevelsMask) == (pSpecial->mLevelMask & sAllLevelsMask))
+    {
+      if (sSynthSpecials[i].mHostBit < 0)
+        sSynthSpecials[i].mHostBit = pSpecial->mHostBit;
+      return i + FirstSynthSpecial;
+    }
   }
 
-  gHullfunc[pHull][pSpecial] = pRaceMask;
+  /* allocate new function */
+  if (sNumSynthSpecials >= NumSynthSpecials) {
+    static char sBeenHere = 0;
+    if (!sBeenHere) {
+      Warning("Too many modified hull functions. Ignoring some.");
+      sBeenHere = 1;
+    }
+    return -1;
+  }
+
+  i = sNumSynthSpecials++;
+  sSynthSpecials[i] = *pSpecial;
+
+  return i + FirstSynthSpecial;
+}
+
+static void
+setSpecialRaces(Uns16 pHull, const Special_Struct* pSpecial, Uns16 pAdd, Uns16 pRemove)
+{
+  int lFunc = getFunctionFromDef(pSpecial);
+  Uns16* lEntry;
+
+  if (lFunc < 0)
+    return;
+
+  passert(pHull >= 1 AND pHull <= HULL_NR);
+  passert(gHullfunc);
+  passert(gSynthHullfunc);
+
+  if (lFunc >= 0 && lFunc < NumSpecials) {
+    if (gHullfunc[pHull] EQ 0) {
+      gHullfunc[pHull] = (Uns16 *) MemCalloc(NumSpecials, sizeof(Uns16));
+    }
+    lEntry = &gHullfunc[pHull][lFunc];
+  } else if (lFunc >= FirstSynthSpecial && lFunc < FirstSynthSpecial + NumSynthSpecials) {
+    if (gSynthHullfunc[pHull] EQ 0) {
+      gSynthHullfunc[pHull] = (Uns16*) MemCalloc(NumSynthSpecials, sizeof(Uns16));
+    }
+    lEntry = &gSynthHullfunc[pHull][lFunc - FirstSynthSpecial];
+  } else {
+    passert(0);
+    return;
+  }
+
+  *lEntry = (*lEntry & ~pRemove) | pAdd;
 }
 
 static void
 clearAllSpecials(void)
 {
   Uns16 lHull;
-  Uns16 **lSpecials;
 
   passert(gHullfunc);
+  passert(gSynthHullfunc);
 
-  for (lHull = 1, lSpecials = gHullfunc; lHull <= HULL_NR;
-        lHull++, lSpecials++) {
-    MemFree(*lSpecials);
-    *lSpecials = 0;
+  for (lHull = 1; lHull <= HULL_NR; lHull++) {
+    MemFree(gHullfunc[lHull]);
+    MemFree(gSynthHullfunc[lHull]);
+    gHullfunc[lHull] = 0;
+    gSynthHullfunc[lHull] = 0;
+  }
+}
+
+static void
+giveAllShips(Uns16 (*pFunc)(Uns16), RaceType_Def pRace, Special_Def pSpecial)
+{
+  Uns16 lMask = 0;
+  int i;
+  Special_Struct lDev;
+
+  for (i = 1; i <= RACE_NR; ++i)
+    if (pFunc(i) == pRace)
+      lMask |= 1 << i;
+
+  if (lMask) {
+    lDev.mFunction = pSpecial;
+    lDev.mHostBit = -1;
+    lDev.mLevelMask = sAllLevelsMask;
+    for (i = 1; i <= HULL_NR; ++i)
+      setSpecialRaces(i, &lDev, lMask, 0);
   }
 }
 
@@ -232,27 +364,47 @@ addDefaultSpecials(void)
   int i;
   Uns16 lMask;
   SpecialInfo_Struct *lInfo;
+  Special_Struct lDev;
 
   passert(gHullfunc);
 
   /* Set a mask that enables all players for any special */
   lMask = ~0;
-
   for (i = 0, lInfo = gDefaultSpecials; i < NumDefaultSpecials; i++, lInfo++) {
-    setSpecialRaces(lInfo->mHull, lInfo->mSpecial, lMask);
+    lDev.mFunction = lInfo->mSpecial;
+    lDev.mHostBit = -1;
+    lDev.mLevelMask = sAllLevelsMask;
+    setSpecialRaces(lInfo->mHull, &lDev, lMask, 0);
+  }
+
+  /* Now the PHost4 specific things */
+  if (!gConfigInfo->PlanetKlingonAttack)
+    giveAllShips(EffRace, Klingons, SPC_PlanetImmunity);
+  if (!gConfigInfo->PlanetRebelAttack)
+    giveAllShips(EffRace, Rebels, SPC_PlanetImmunity);
+  if (gConfigInfo->AllowPrivTowCapture)
+    giveAllShips(EffMission, Privateers, SPC_Boarding);
+  if (gConfigInfo->AllowCrystalTowCapture)
+    giveAllShips(EffMission, Crystals, SPC_Boarding);
+  if (gConfigInfo->FedCrewBonus)
+    giveAllShips(EffRace, Federation, SPC_FullWeaponry);
+  for (i = 1; i <= HULL_NR; ++i) {
+    lDev.mFunction = SPC_Tow;
+    lDev.mHostBit = -1;
+    lDev.mLevelMask = sAllLevelsMask;
+    if (gConfigInfo->OneTow || HullEngineNumber(i) > 1)
+      setSpecialRaces(i, &lDev, lMask, 0);
   }
 }
 
 static Boolean
-shipHasSpecial(Uns16 pShip, Special_Def pSpecial)
+shipHasBasicSpecial(Uns16 pShip, Special_Def pSpecial)
 {
-  /* NOTE: Do NOT map through EffRace() */
-  Uns16 lOwner;
-  Uns16 *lPtr;
   struct Auxdata_Chunk* lChunk;
+  Uns16 lOwner;
+  Uns16* lPtr;
 
-  InitHullfunc();
-
+  /* may be per-ship special */
   lChunk = GetAuxdataChunkById(aux_ShipSpecial);
   if (pSpecial < 64 && AuxdataChunkSize(lChunk) >= 8 * pShip) {
       unsigned char* lEle = AuxdataChunkData(lChunk);
@@ -260,11 +412,81 @@ shipHasSpecial(Uns16 pShip, Special_Def pSpecial)
           return True;
   }
 
+  /* check basic special */
   lOwner = ShipOwner(pShip);
   lPtr = gHullfunc[ShipHull(pShip)];
 
   if (lPtr) {
     return (lPtr[pSpecial] & (1 << lOwner)) ? True : False;
+  }
+
+  return False;
+}
+
+static Boolean
+shipHasSynthSpecial(Uns16 pShip, int pIndex)
+{
+  struct Auxdata_Chunk* lChunk;
+  Uns16 lOwner;
+  Uns16* lPtr;
+  Uns16 lBit;
+
+  /* sanity check */
+  if (pIndex < 0 || pIndex >= sNumSynthSpecials)
+    return False;
+  pIndex -= FirstSynthSpecial;
+
+  /* may be per-ship special */
+  if (sSynthSpecials[pIndex].mHostBit >= 0) {
+    lBit = sSynthSpecials[pIndex].mHostBit;
+    lChunk = GetAuxdataChunkById(aux_ShipExtraSpecial);
+    if (AuxdataChunkSize(lChunk) >= 8 * pShip) {
+      unsigned char* lEle = AuxdataChunkData(lChunk);
+      if (lEle[8 * (pShip-1) + lBit / 8] & (1 << (lBit & 7)))
+        return True;
+    }
+  }
+
+  /* check hull special */
+  lOwner = ShipOwner(pShip);
+  lPtr = gSynthHullfunc[ShipHull(pShip)];
+
+  if (lPtr) {
+    return (lPtr[pIndex] & (1 << lOwner)) ? True : False;
+  }
+
+  return False;
+}
+
+static Boolean
+shipHasSpecial(Uns16 pShip, Special_Def pSpecial)
+{
+  /* NOTE: Do NOT map through EffRace() */
+  struct Auxdata_Chunk* lChunk;
+  unsigned i;
+
+  InitHullfunc();
+
+  /* must not be inhibited */
+  lChunk = GetAuxdataChunkById(aux_SpecialInhibited);
+  if (pSpecial < 64 && AuxdataChunkSize(lChunk) >= 8 * pShip) {
+    unsigned char* lEle = AuxdataChunkData(lChunk);
+    if (lEle[8 * (pShip-1) + pSpecial / 8] & (1 << (pSpecial & 7)))
+      return False;
+  }
+
+  /* does it have the basic device? */
+  if (shipHasBasicSpecial(pShip, pSpecial))
+    return True;
+
+  /* now check modified devices */
+  for (i = 0; i < sNumSynthSpecials; ++i) {
+    if (sSynthSpecials[i].mFunction != pSpecial)
+      continue;
+    if ((sSynthSpecials[i].mLevelMask & (1 << ExperienceLevel(ShipExperience(pShip)))) == 0)
+      continue;
+    if (shipHasSynthSpecial(pShip, i))
+      return True;
   }
 
   return False;
@@ -650,10 +872,157 @@ HullHasLevel2Tow(Uns16 pHull, Uns16 Owner)
   return hullHasSpecial(pHull, SPC_Level2Tow, Owner);
 }
 
+/* NEW 21/May/2005: */
+Boolean
+ShipCanTow(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_Tow) || ShipHasLevel2Tow(pShip);
+}
+
+Boolean
+HullCanTow(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_Tow, pOwner) || HullHasLevel2Tow(pHull, pOwner);
+}
+
+Boolean
+ShipCanChunnelItself(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_ChunnelSelf) || ShipDoesChunneling(pShip);
+}
+
+Boolean
+HullCanChunnelItself(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_ChunnelSelf, pOwner) || HullDoesChunneling(pHull, pOwner);
+}
+
+Boolean
+ShipCanChunnelOthers(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_ChunnelOthers) || ShipDoesChunneling(pShip);
+}
+
+Boolean
+HullCanChunnelOthers(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_ChunnelOthers, pOwner) || HullDoesChunneling(pHull, pOwner);
+}
+
+Boolean
+ShipCanBeChunnelMate(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_ChunnelTarget) || ShipDoesChunneling(pShip);
+}
+
+Boolean
+HullCanBeChunnelMate(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_ChunnelTarget, pOwner) || HullDoesChunneling(pHull, pOwner);
+}
+
+Boolean
+ShipIsImmuneToPlanetAttacks(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_PlanetImmunity);
+}
+
+Boolean
+HullIsImmuneToPlanetAttacks(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_PlanetImmunity, pOwner);
+}
+
+Boolean
+ShipIsOreCondenser(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_OreCondenser);
+}
+
+Boolean
+HullIsOreCondenser(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_OreCondenser, pOwner);
+}
+
+Boolean
+ShipCanBoard(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_Boarding);
+}
+
+Boolean
+HullCanBoard(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_Boarding, pOwner);
+}
+
+Boolean
+ShipIsImmuneToAntiCloak(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_AntiCloakImmunity);
+}
+
+Boolean
+HullIsImmuneToAntiCloak(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_AntiCloakImmunity, pOwner);
+}
+
+Boolean
+ShipIsCrewAcademy(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_Academy);
+}
+
+Boolean
+HullIsCrewAcademy(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_Academy, pOwner);
+}
+
+Boolean
+ShipCanRepairOthers(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_Repairs);
+}
+
+Boolean
+HullCanRepairOthers(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_Repairs, pOwner);
+}
+
+Boolean
+ShipHasFullWeaponry(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_FullWeaponry);
+}
+
+Boolean
+HullHasFullWeaponry(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_FullWeaponry, pOwner);
+}
+
+Boolean
+ShipHasHardenedEngines(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_HardenedEngines);
+}
+
+Boolean
+HullHasHardenedEngines(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_HardenedEngines, pOwner);
+}
+
 /* ----------------------------------------------------------------------- */
 
-static Uns16 gHull = 0;
-static Special_Def gSpecial = SPC_NO_SPECIAL;
+static Uns16 gHullSet[HULL_NR / 16 + 1];
+static Boolean gHullSeen;
+static Special_Struct gSpecial;
+static Boolean gAssignToShip;
 
 static Boolean doAssignment(const char *pName, char *pValue);
 
@@ -667,15 +1036,49 @@ HullfuncAssign(const char* name, char* value, const char* line)
         return True;
 }
 
+static void
+initReader(void)
+{
+  struct Auxdata_Chunk* lChunk;
+
+  sAllLevelsMask = (1 << (gConfigInfo->NumExperienceLevels+1)) - 1;
+
+  gHullSeen = False;
+  gSpecial.mFunction = SPC_NO_SPECIAL;
+  gSpecial.mHostBit = -1;
+  gSpecial.mLevelMask = sAllLevelsMask;
+  gAssignToShip = 0;
+  InitHullfunc();
+
+  /* Process AUXDATA.HST numbers */
+  if ((lChunk = GetAuxdataChunkById(aux_ShipExtraDef)) != 0) {
+    Uns16 lData[2];
+    char* lPtr = AuxdataChunkData(lChunk);
+    unsigned lSize = AuxdataChunkSize(lChunk);
+    unsigned lIndex = 0;
+    while (lSize >= 4 && lIndex < NumSynthSpecials) {
+      memcpy(lData, lPtr, 4);
+      lPtr += 4;
+      lSize -= 4;
+      EndianSwap16(lData, 2);
+      if (lData[0] < NumSpecials && lData[1] != 0) {
+        Special_Struct lDev;
+        lDev.mFunction  = lData[0];
+        lDev.mHostBit   = lIndex;
+        lDev.mLevelMask = lData[1] & sAllLevelsMask;
+        getFunctionFromDef(&lDev);
+      }
+      ++lIndex;
+    }
+  }
+}
+
 void
 SpecialReadHullfunc(const char *shiplistFile, const char *hullfuncFile)
 {
     FILE* lFile;
 
-    gHull = 0;
-    gSpecial = SPC_NO_SPECIAL;
-
-    InitHullfunc();
+    initReader();
     lFile = fopen(shiplistFile,"r");
     if (lFile) {
         ConfigFileReader(lFile, shiplistFile, "hullfunc", False, HullfuncAssign);
@@ -696,10 +1099,7 @@ ReadHullfunc(void)
 {
     FILE* lFile;
 
-    gHull = 0;
-    gSpecial = SPC_NO_SPECIAL;
-
-    InitHullfunc();
+    initReader();
     lFile = OpenInputFile(SHIPLIST_FILE, GAME_OR_ROOT_DIR | TEXT_MODE | NO_MISSING_ERROR);
     if (lFile) {
         ConfigFileReader(lFile, SHIPLIST_FILE, "hullfunc", False, HullfuncAssign);
@@ -716,73 +1116,98 @@ ReadHullfunc(void)
 }
 
 static Boolean
-doHullAssignment(char *pName)
+doHullAssignment(char *pNames)
 {
   Uns16 lLen;
+  Uns16 lHull;
+  char* lStr;
 
-  /* pName can be either a hull number or hull name */
-  if (isdigit(*pName)) {
-    gHull = (Uns16) atoi(pName);
-    if (gHull < 1 OR gHull > HULL_NR) {
-      gHull = 0;
-      return False;
+  memset(gHullSet, 0, sizeof(gHullSet));
+  gHullSeen = True;
+  while ((lStr = strtok(pNames, ",")) != 0) {
+    pNames = 0; /* for next call to strtok */
+    while (*lStr && isspace((unsigned char) *lStr))
+      ++lStr;
+    TrimTrailingWS(lStr);
+
+    /* Might be wildcard? */
+    if (strcmp(lStr, "*") == 0) {
+      for (lHull = 0; lHull < sizeof(gHullSet) / sizeof(gHullSet[0]); ++lHull)
+        gHullSet[lHull] = ~0;
+      continue;
     }
 
-    return True;
+    /* Might be hull number */
+    if (isdigit((unsigned char) *lStr)) {
+      int lStart, lEnd;
+      switch (sscanf(lStr, "%d - %d", &lStart, &lEnd)) {
+       case 1:
+          lEnd = lStart;
+          /* FALLTHROUGH */
+       case 2:
+          if (lStart <= 0 || lEnd > HULL_NR || lStart > lEnd)
+            return False;
+          for (lHull = lStart; lHull <= (unsigned) lEnd; ++lHull)
+            gHullSet[lHull / 16] |= 1 << (lHull & 15);
+          break;
+       default:
+          return False;
+      }
+    }
+
+    /* It's a name. Look through hull names for a match */
+    strupr(lStr);
+    lLen = strlen(lStr);
+
+    for (lHull = 1; lHull <= HULL_NR; lHull++) {
+      if (memcmp(lStr, strupr((char *)HullName(lHull, 0)), lLen) EQ 0) {
+        gHullSet[lHull / 16] |= 1 << (lHull & 15);
+        break;
+      }
+    }
   }
 
-  /* It's a name. Look through hull names for a match */
-  strupr(pName);
-  lLen = strlen(pName);
+  return True;
+}
 
-  for (gHull = 1; gHull <= HULL_NR; gHull++) {
-    if (memcmp(pName, strupr((char *) HullName(gHull, 0)), lLen) EQ 0)
-      return True;
+static Special_Def
+ParseHullFunction(const char* pName)
+{
+  int lVal;
+  size_t lLen;
+  char lStr[64], lName[64];
+
+  if (isdigit((unsigned char) *pName)) {
+    lVal = atoi(pName);
+    if (lVal < 0 OR lVal >= NumSpecials)
+      return NumSpecials;
+    return lVal;
   }
 
-  gHull = 0;
-  return False;
+  strncpy(lName, pName, sizeof(lName));
+  lName[sizeof(lName)-1] = 0;
+  strupr(lName);
+
+  lLen = strlen(lName);
+  for (lVal = 0; lVal < NumSpecialNames; lVal++) {
+    strcpy(lStr, gSpecialNames[lVal]);
+    strupr(lStr);
+    if (memcmp(lName, lStr, lLen) EQ 0)
+      return lVal;
+  }
+  return NumSpecials;
 }
 
 static Boolean
 doFuncAssignment(char *pName)
 {
-  int lVal;
-  size_t lLen;
-  char lStr[64];
-
-  /* pName can be either a special number or special name */
-  if (isdigit(*pName)) {
-    lVal = atoi(pName);
-    if (lVal < 0 OR lVal >= NumSpecials) {
-        /* for forward compatibility, just ignore specials we can't
-           handle. */
-        gSpecial = NumSpecials;
-        return True;
-    }
-
-    gSpecial = (Special_Def) lVal;
-    return True;
-  }
-
-  strupr(pName);
-  lLen = strlen(pName);
-  for (lVal = 0; lVal < NumSpecialNames; lVal++) {
-    strcpy(lStr, gSpecialNames[lVal]);
-    strupr(lStr);
-    if (memcmp(pName, lStr, lLen) EQ 0) {
-      gSpecial = (Special_Def) lVal;
-      return True;
-    }
-  }
-
-  /* for forward compatibility, just ignore specials we can't handle. */
-  gSpecial = NumSpecialNames;
+  gSpecial.mFunction = ParseHullFunction(pName);
   return True;
 }
 
 static Boolean
-getPlayerMask(char *pValue, Boolean pMapRace, Uns16 * pRaceMaskPtr)
+getPlayerMask(char *pValue, Boolean pMapRace,
+              Uns16 *pRacesToRemove, Uns16* pRacesToAdd)
 {
   /* Format is: expr expr expr expr
 
@@ -791,73 +1216,72 @@ getPlayerMask(char *pValue, Boolean pMapRace, Uns16 * pRaceMaskPtr)
 
      Processing is sequential from left to right, so that + - + - + - + is
      simply equivalent to + */
-  Uns16 lMask = 0;
   int lRace;
   Boolean lAdd;
   char *p;
 
   while ((p = strtok(pValue, " ,\t")) NEQ 0) {
-    pValue = 0;                 /* For next call to strtok */
+    pValue = 0; /* For next call to strtok */
 
-    lAdd = True;                /* So we can skip the leading '+' */
+    lAdd = True;    /* So we can skip the leading '+' */
 
-    if (*p EQ '+') {
+    if (strcmp(p, "*") == 0) {
+      *pRacesToRemove = 0;
+      *pRacesToAdd = ~0;
+      continue;
+    } else if (*p EQ '+') {
       /* Check for non-digit following '+' */
-      if (!isdigit(*++p)) {
-        lMask = ~0;             /* Enable all */
+      if (! isdigit((unsigned char) *++p)) {
+        *pRacesToRemove = 0;
+        *pRacesToAdd = ~0;     /* Enable all */
         continue;
       }
-    }
-    else if (*p EQ '-') {
+    } else if (*p EQ '-') {
       lAdd = False;
 
       /* Check for non-digit following '-' */
-      if (!isdigit(*++p)) {
-        lMask = 0;              /* Disable all */
+      if (! isdigit((unsigned char) *++p)) {
+        *pRacesToRemove = ~0;      /* Disable all */
+        *pRacesToAdd = 0;
         continue;
       }
     }
-    if (isdigit(*p)) {
+    if (isdigit((unsigned char) *p)) {
+      Uns16 lMaskHere = 0;
+
       lRace = atoi(p);
 
       /* Skip past race number */
-      while (*p AND isdigit(*p))
-        p++;
-
-      /* Allow RACE_NR to allow for aliens or non-race players */
-      if (lRace < 1 OR lRace > RACE_NR)
-        return False;
+      while (*p AND isdigit((unsigned char) *p)) p++;
 
       /* Map race through EffRace if so desired */
       if (pMapRace) {
         Uns16 lPlayer;
 
-        for (lPlayer = 1; lPlayer <= OLD_RACE_NR; lPlayer++) {
-          if (gConfigInfo->PlayerRace[lPlayer] EQ lRace) {
-            if (lAdd) {
-              lMask |= (1 << lPlayer);
-            }
-            else {
-              lMask &= ~(1 << lPlayer);
-            }
-          }
-        }
+        /* Allow any race. If hosts want to shoot themselves
+           in the feet, let them do it. */
+        if (lRace < 1 OR lRace > 255)
+          return False;
+        for (lPlayer=1; lPlayer <= OLD_RACE_NR; lPlayer++)
+          if (gConfigInfo->PlayerRace[lPlayer] EQ lRace)
+            lMaskHere |= (1 << lPlayer);
+      } else {
+        if (lRace < 1 OR lRace > RACE_NR)
+          return False;
+        lMaskHere = 1 << lRace;
       }
-      else {
-        if (lAdd) {
-          lMask |= (1 << lRace);
-        }
-        else {
-          lMask &= ~(1 << lRace);
-        }
+
+      if (lAdd) {
+        *pRacesToAdd |= lMaskHere;
+        *pRacesToRemove &= ~lMaskHere;
+      } else {
+        *pRacesToRemove |= lMaskHere;
+        *pRacesToAdd &= ~lMaskHere;
       }
-    }
-    else {
+    } else {
       return False;
     }
   }
-
-  *pRaceMaskPtr = lMask;
 
   return True;
 }
@@ -866,12 +1290,10 @@ static Boolean
 doAssignment(const char *pName, char *pValue)
 {
   int ix;
-  Uns16 lRaceMask;
+  Uns16 lAdd, lRemove;
   Boolean lEffRaceMap;
 
-  ix =
-        ListMatch(pName,
-        "Hull Function RacesAllowed PlayersAllowed Initialize AssignTo");
+  ix = ListMatch(pName, "Hull Function RacesAllowed PlayersAllowed Initialize AssignTo Level");
   switch (ix) {
   case 0:                      /* Hull */
     return doHullAssignment(pValue);
@@ -881,19 +1303,29 @@ doAssignment(const char *pName, char *pValue)
 
   case 2:                      /* RacesAllowed */
   case 3:                      /* PlayersAllowed */
-    if (gHull == 0) {
-        Error("No 'Hull' assignment seen yet");
-        return False;
+    if (!gHullSeen) {
+      Error("No 'Hull' assignment seen yet");
+      return False;
     }
-    if (gSpecial == SPC_NO_SPECIAL) {
-        Error("No 'Function' assignment seen yet");
-        return False;
+    if (gSpecial.mFunction == SPC_NO_SPECIAL) {
+      Error("No 'Function' assignment seen yet");
+      return False;
+    }
+    if (gSpecial.mFunction == NumSpecials) {
+      /* Forward-compatible parsing of an unknown function */
+      return True;
     }
     lEffRaceMap = (ix EQ 2) ? True : False;
-    if (!getPlayerMask(pValue, lEffRaceMap, &lRaceMask))
+    lRemove = lAdd = 0;
+    if (!getPlayerMask(pValue, lEffRaceMap, &lRemove, &lAdd)) {
       return False;
+    }
 
-    setSpecialRaces(gHull, gSpecial, lRaceMask);
+    if (!gAssignToShip)
+      for (ix = 1; ix <= HULL_NR; ++ix)
+        if (gHullSet[ix / 16] & (1 << (ix & 15)))
+          setSpecialRaces(ix, &gSpecial, lAdd, lRemove);
+    gSpecial.mLevelMask = sAllLevelsMask;
     return True;
 
   case 4:                      /* Initialize */
@@ -913,14 +1345,31 @@ doAssignment(const char *pName, char *pValue)
     }
     return True;
   case 5:                       /* AssignTo */
-    /* FIXME? */
+    gAssignToShip = (ListMatch(pValue, "Hull Ship") == 1);
     return True;
+
+  case 6: { /* Level */
+    int lMin, lMax, i;
+    char lTmp;
+    switch (sscanf(pValue, "%d - %d%c", &lMin, &lMax, &lTmp)) {
+     case 1:
+        lMax = 10;
+        /* FALLTHROUGH */
+     case 2:
+        if (lMin < 0 || lMax > 10 || lMin > lMax)
+          return False;
+        gSpecial.mLevelMask = 0;
+        for (i = lMin; i <= lMax; ++i)
+          gSpecial.mLevelMask |= (1 << i);
+        gSpecial.mLevelMask &= sAllLevelsMask;
+        break;
+     default:
+        return False;
+    }
+    return True;
+  }
 
   default:
     return False;
   }
 }
-
-/*************************************************************
-  $HISTORY:$
-**************************************************************/
