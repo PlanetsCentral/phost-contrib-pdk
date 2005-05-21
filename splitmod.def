@@ -124,3 +124,6 @@ keep worm.c
 
 ; exp.c
 AddExp: AddToExperience, SaturatedAdd
+
+; tons.c
+keep tons.c

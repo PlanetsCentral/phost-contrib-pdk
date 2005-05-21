@@ -68,8 +68,8 @@ use less time;                  # never give up hope :-)
 
 ########################## Command Line Handling ##########################
 
-if ((@ARGV != 1 && @ARGV != 2) || $ARGV[0] =~ /^-./) {
-    print STDERR "usage: $0 input-file [output-template]\n";
+if ((@ARGV != 1 && @ARGV != 2 && @ARGV != 3) || $ARGV[0] =~ /^-./) {
+    print STDERR "usage: $0 input-file [output-template [def-file]]\n";
     exit 1;
 }
 
@@ -87,12 +87,14 @@ if (@ARGV > 1) {
         $arg_output =~ s/\.(?=[^.]$ )/_\%./x or $arg_output .= '%';
     }
 }
+my $arg_def = "splitmod.def";
+if (@ARGV > 2) { $arg_def = $ARGV[2] }
 
 ############################# Group Overrides #############################
 
 my %group_override;
 my $keep_override = 0;
-if (open OVER, "< splitmod.def") {
+if (open OVER, "< $arg_def") {
     while (defined(my $line = <OVER>)) {
         chomp $line;
         next if $line =~ /^\s*;/ || $line =~ /^\s*$/;
@@ -111,7 +113,7 @@ if (open OVER, "< splitmod.def") {
                 }
             }
         } else {
-            print STDERR "warning: didn't understand line `$_' in splitmod.def\n";
+            print STDERR "warning: didn't understand line `$_' in $arg_def\n";
         }
     }
     close OVER;
