@@ -41,7 +41,6 @@
 int
 main(int argc, char *argv[])
 {
-    Uns16 race;
     Uns16 count;
     float mdecay[RACE_NR+1], wdecay[RACE_NR+1];
     FILE *infile;

@@ -33,8 +33,9 @@ Int16 * extra;  Int16 * expts;
 Int16 exval;
 char * messages[21];
 char * message;
+static char sGameDirectory[256];
 
-int main (Int16 args, char* cline[]) {
+int main (int args, char* cline[]) {
   Int16 pts[12] = {0};
   Int16 newpts[12] = {0};
   Int16 hws[12] = {0};
@@ -42,17 +43,13 @@ int main (Int16 args, char* cline[]) {
   Int16 x, y, z, hwval, listtype, argst;
   char string[20];
   char filename[256] = {'\0'};
-  char fill;
-  Int16 dummy1, dummy2;
 
   InitPHOSTLib();
 
-  gGameDirectory = (char *)MemAlloc(256);
-
 #ifdef THINK_C  /* For Macintosh */
-  strcpy(gGameDirectory, "");
+  strcpy(sGameDirectory, "");
 #else
-  strcpy(gGameDirectory, "./");
+  strcpy(sGameDirectory, "./");
 #endif
 
   hwval = 1; exval = 0; listtype = 1;
@@ -60,7 +57,7 @@ int main (Int16 args, char* cline[]) {
 
   if (args > 1) {
     if (cline[1][0] != '\\' && cline[1][0] != '/' && cline[1][0] != '-') {
-      strcpy(gGameDirectory, cline[1]);
+      strcpy(sGameDirectory, cline[1]);
       argst++;
     }
     for (x = argst; x < args; x++) {
@@ -89,15 +86,16 @@ int main (Int16 args, char* cline[]) {
     }
   }
 
-  x = strlen(gGameDirectory) - 1;
+  x = strlen(sGameDirectory) - 1;
 
-  if (gGameDirectory[x] != '\\' && gGameDirectory[x] != '/') {
+  if (sGameDirectory[x] != '\\' && sGameDirectory[x] != '/') {
 #ifdef THINK_C
-    strcat(gGameDirectory, ":");
+    strcat(sGameDirectory, ":");
 #else
-    strcat(gGameDirectory, "/");
+    strcat(sGameDirectory, "/");
 #endif
   }
+  gGameDirectory = sGameDirectory;
 
   gLogFile = OpenOutputFile("inv.log", TEXT_MODE | GAME_DIR_ONLY);
   if (gLogFile == NULL)  {
@@ -139,7 +137,7 @@ int main (Int16 args, char* cline[]) {
         crash(); return 1;
       }
       fgets(string, 20, planfile);
-      sscanf(string, "%d %d", &hws[x], &pts[x]);
+      sscanf(string, "%hd %hd", &hws[x], &pts[x]);
     }
     fclose(planfile);
   }
@@ -166,13 +164,13 @@ int main (Int16 args, char* cline[]) {
    NO_MISSING_ERROR);
   if (planfile != NULL) {
     fgets(string, 20, planfile);
-    sscanf(string, "%d", &exval);
+    sscanf(string, "%hd", &exval);
     extra = (Int16 *)MemAlloc(2 * (exval + 1));
     expts = (Int16 *)MemAlloc(2 * (exval + 1));
 
     for (x = 0; x < exval; x++) {
       fgets(string, 20, planfile);
-      sscanf(string, "%d %d", (extra + x), (expts + x));
+      sscanf(string, "%hd %hd", (extra + x), (expts + x));
     }
   }
   else {

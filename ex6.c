@@ -162,7 +162,7 @@ static char *promptString(const char *pPrompt, const char *pDefault)
 
 static Boolean getParameters(Combat_Struct *pShip)
 {
-    Uns16 lHull, lBeamNum, lTubeNum;
+    Uns16 lHull;
     char lShipDefName[30];
 
     pShip->IsPlanet = False;
@@ -291,8 +291,8 @@ main(int argc, char *argv[])
 
         printCombatInfo(&gShip[0], &gShip[1], True /* after battle */);
 
-        MemFree(gShip[0].Name);
-        MemFree(gShip[1].Name);
+        MemFree((char*) gShip[0].Name);
+        MemFree((char*) gShip[1].Name);
     } while (1);
 
     fclose(gLogFile);

@@ -28,11 +28,10 @@
 int
 main(int argc, char *argv[])
 {
-    Int16 dummy1, dummy2;
     Uns16 ships[RACE_NR+1], planets[RACE_NR+1], bases[RACE_NR+1], ix;
     Uns16 race;
     char  message[128];
-    char  *messagePtr[2];
+    const char  *messagePtr[2];
 
     /* Parse our command-line parameters. First parameter, if any, is the
     game directory. Second parameter, if present, is the root directory. */

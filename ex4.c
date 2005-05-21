@@ -179,7 +179,6 @@ static void doHomeworlds(void)
     Uns16 planet;
     Uns16 assigned[RACE_NR+1];
     Uns16 race;
-    Uns16 ship;
     Uns16 cargo;
 
     /* Start off with a random angle from 0 to 2*PI */

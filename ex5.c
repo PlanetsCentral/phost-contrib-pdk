@@ -71,8 +71,7 @@ static const char *transferString[NumCargoTypes] = {
 int
 main(int argc, char *argv[])
 {
-    Int16 dummy1, dummy2;
-    Uns16 race, base, count;
+    Uns16 race, count;
     Uns16 *baseList = 0, *basePtr;
     char playerMessage[500];
 
@@ -187,7 +186,7 @@ next_transmitter: ;
 
     /* Close down. We need to write the planets file back to disk. The
        base info hasn't changed. */
-    if (! Write_Planets_File(dummy1)) exit(1);
+    if (! Write_Planets_File(0)) exit(1);
 
     FreePHOSTLib();
 
