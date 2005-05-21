@@ -17,13 +17,21 @@
 #  - docs (build pdk-api.txt and pdk.inf from pdk.texi)
 #  - libpdks.a (build small library)
 #
+#  You can build the PDK in a different directory. All object files
+#  will be dropped in that directory, and the sources will not be
+#  touched. To do that, 'cd' into the target directory and do
+#  'make -f <DIR>/Makefile SRCDIR=<DIR>'. If you do not specify SRCDIR,
+#  this Makefile automatically looks for sources in the current
+#  directory, and one or two levels up. This makes it easy to build
+#  versions for multiple platforms from a single source tree.
+#
 #  This makefile usually is the most up-to-date one. If you port to an
 #  operating system not yet supported by the PDK, you should probably
 #  start with this one. Please include a date in your new file, so
 #  that it can easily be seen when your file is possibly obsolete. 
 #  Thanks.
 #
-#     --Stefan, 07/Aug/2004
+#     --Stefan, 19/May/2005
 #
 
 RANLIB = ranlib
@@ -36,33 +44,38 @@ SRCS = auxdata.c pconfig.c crc.c enum.c hostio.c main.c portable.c \
 	exp.c tons.c
 HDRS = battle.h doscvt.h listmat.h phostpdk.h ptscore.h squishio.h version.h \
 	conf.h includes.h pgetopt.h private.h shrouds.h stdtyp.h
-OBJS = $(SRCS:.c=.o)
 
+# Take a wild guess where our sources are.
+SRCDIR = $(patsubst %/,%,$(dir $(firstword $(wildcard phostpdk.h ../phostpdk.h ../../phostpdk.h))))
+
+OBJS = $(SRCS:.c=.o)
 SPLITSRC = $(patsubst %.c, split/%.mc, $(SRCS))
 SPLITOBJ = $(patsubst %.c, split/%.mo, $(SRCS))
+EXAMPLES = $(patsubst $(SRCDIR)/%.c, %, $(wildcard $(SRCDIR)/ex[0-9]*.c))
 
-CC = gcc -Wall -O3 -I. -g
+CC = gcc -Wall -O3 -I$(SRCDIR) -g
+MAKE += -f $(SRCDIR)/Makefile
 
 all: libpdk.a sendmess crack ptscore killrace pmaster pally
 
 pdk: libpdk.a
 
-sendmess: sendmess.o phostpdk.h libpdk.a
+sendmess: sendmess.o $(SRCDIR)/phostpdk.h libpdk.a
 	$(CC) -o sendmess sendmess.o -L. -lpdk -lm
 
-killrace: killrace.o phostpdk.h libpdk.a
+killrace: killrace.o $(SRCDIR)/phostpdk.h libpdk.a
 	$(CC) -o killrace killrace.o -L. -lpdk -lm
 
-crack: crack.o phostpdk.h libpdk.a
+crack: crack.o $(SRCDIR)/phostpdk.h libpdk.a
 	$(CC) -o crack crack.o -L. -lpdk -lm
 
-ptscore: ptscore.o phostpdk.h libpdk.a
+ptscore: ptscore.o $(SRCDIR)/phostpdk.h libpdk.a
 	$(CC) -o ptscore ptscore.o -L. -lpdk -lm
 
-pmaster: pmaster.o phostpdk.h libpdk.a
+pmaster: pmaster.o $(SRCDIR)/phostpdk.h libpdk.a
 	$(CC) -o pmaster pmaster.o -L. -lpdk -lm
 
-pally: pally.o phostpdk.h libpdk.a
+pally: pally.o $(SRCDIR)/phostpdk.h libpdk.a
 	$(CC) -o pally pally.o -L. -lpdk -lm
 
 libpdk.a: $(OBJS)
@@ -71,20 +84,27 @@ libpdk.a: $(OBJS)
 	$(RANLIB) libpdk.a
 
 clean:
-	-rm -f *.o libpdk.a crack sendmess ptscore killrace pmaster *.log
+	-rm -f *.o libpdk.a libpdks.a crack sendmess ptscore killrace pmaster pally *.log
 
-%.o: %.c *.h
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+%.o: $(SRCDIR)/%.c $(SRCDIR)/*.h
+	$(CC) -c $(CPPFLAGS) -I$(SRCDIR) $(CFLAGS) -o $*.o $(SRCDIR)/$*.c
+
+################################# Examples ################################
+
+examples: $(EXAMPLES)
+
+$(EXAMPLES): %: %.o libpdk.a
+	$(CC) -o $* $*.o -L. -lpdk -lm
 
 ############################## Documentation ##############################
 
 docs: pdk.inf pdk-api.txt
 
-pdk.inf: pdk.texi
-	makeinfo --no-split -o pdk.inf pdk.texi
+pdk.inf: $(SRCDIR)/pdk.texi
+	makeinfo --no-split -o pdk.inf $(SRCDIR)/pdk.texi
 
-pdk-api.txt: pdk.texi
-	makeinfo --no-split --no-headers -o pdk-api.txt pdk.texi
+pdk-api.txt: $(SRCDIR)/pdk.texi
+	makeinfo --no-split --no-headers -o pdk-api.txt $(SRCDIR)/pdk.texi
 
 ############################ The Small Library ############################
 
@@ -110,9 +130,9 @@ libpdks.a: $(SPLITOBJ)
 	ar r libpdks.a split/*.o
 	$(RANLIB) libpdks.a
 
-split/%.mc: split/00 %.c
+split/%.mc: split/00 $(SRCDIR)/%.c
 	-rm -f split/$*_* split/$*.*
-	perl splitmod.pl $*.c split/$*_%.c
+	perl $(SRCDIR)/splitmod.pl $(SRCDIR)/$*.c split/$*_%.c $(SRCDIR)/splitmod.def
 	echo foo >split/$*.mc
 
 # This rule is split, because we want the wildcard to be expanded
@@ -129,3 +149,6 @@ split/%.mo-helper:
 split/00:
 	-mkdir split
 	echo foo >split/00
+
+split/%.o: split/%.c $(SRCDIR)/*.h
+	$(CC) -c $(CPPFLAGS) -I$(SRCDIR) $(CFLAGS) -o split/$*.o split/$*.c
