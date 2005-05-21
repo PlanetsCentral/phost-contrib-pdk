@@ -20,21 +20,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *****************************************************************************/
 
 /******************************************************************
- *                  *
- *  Module:   PHOST Main Module          *
- *  Project:   Portable Host           *
- *  File Name:   main.c            *
- *  Programmer:  Andrew Sterian          *
- *  Create Date: October 18, 1994          *
- *  Description: This module is the mainline of the application. *
- *      The command line is parsed and the appropriate  *
- *      global switches are set. Host data files are   *
- *      read in and turn processing occurs. The mission *
- *      order is determined in this module.     *
- *  Functions:               *
- *  Change Record:              *
- *                  *
- *                  *
+ *                                                                *
+ *  Module:   PHOST Main Module                                   *
+ *  Project:   Portable Host                                      *
+ *  File Name:   main.c                                           *
+ *  Programmer:  Andrew Sterian                                   *
+ *  Create Date: October 18, 1994                                 *
+ *  Description: This module is the mainline of the application.  *
+ *      The command line is parsed and the appropriate            *
+ *      global switches are set. Host data files are              *
+ *      read in and turn processing occurs. The mission           *
+ *      order is determined in this module.                       *
+ *                                                                *
  ******************************************************************/
 
 #include "phostpdk.h"
@@ -92,7 +89,7 @@ InitPHOSTLib(void)
     firstTime = False;
     fprintf(stdout, "PHOST Development Kit Version %u.%u\n",
             PDK_VERSION_MAJOR, PDK_VERSION_MINOR);
-    fprintf(stdout, "Copyright (C) 1995-2003 Portable Host Project\n\n");
+    fprintf(stdout, "Copyright (C) 1995-2005 Portable Host Project\n\n");
   }
 
   /* We DO need to create a gConfigInfo structure else InitWraparounds() will 
@@ -129,6 +126,18 @@ EffRace(Uns16 pPlayer)
   return (pPlayer >= 1 AND pPlayer <= OLD_RACE_NR)
         ? gConfigInfo->PlayerRace[pPlayer]
         : 0;
+}
+
+Uns16
+EffMission(Uns16 pPlayer)
+{
+#ifdef PHOST4
+  return (pPlayer >= 1 && pPlayer <= OLD_RACE_NR)
+      ? gConfigInfo->PlayerSpecialMission[pPlayer]
+      : 0;
+#else
+  return EffRace(pPlayer);
+#endif
 }
 
 /*************************************************************
