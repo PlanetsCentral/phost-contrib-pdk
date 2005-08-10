@@ -260,6 +260,8 @@ extern "C" {
     LANG_Dutch,
     LANG_Russian,
     LANG_Estonian,
+    LANG_NewEnglish,
+    LANG_Polish,
     NumLanguages
   } Language_Def;
 
