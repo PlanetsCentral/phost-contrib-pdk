@@ -142,7 +142,7 @@ TorpDestructivePower(Uns16 pTorpNr)
 }
 
 void
-PutTorpName(Uns16 pTorpNr, char *pName)
+PutTorpName(Uns16 pTorpNr, const char *pName)
 {  
   static char lName[21];
   int i;

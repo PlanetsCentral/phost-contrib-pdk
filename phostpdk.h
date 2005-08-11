@@ -174,8 +174,9 @@ extern "C" {
   } BaseMission_Def;
 
   typedef enum {
-    FIX_MISSION = 0,
-    RECYCLE_MISSION = 1
+    NO_FIX_MISSION = 0,
+    FIX_MISSION = 1,
+    RECYCLE_MISSION = 2
   } BaseFixMission_Def;
 
   typedef enum {
@@ -1261,7 +1262,7 @@ Pconfig_Struct;
   extern void PutPlanetTemp(Uns16 pID, Uns16 pTemp);
   extern void PutPlanetBuildBase(Uns16 pID, Boolean pBuild);
 
-  extern void PutPlanetName(Uns16 pID, char *pName);
+  extern void PutPlanetName(Uns16 pID, const char *pName);
   extern void PutPlanetLocationX(Uns16 pID, Uns16 pX);
   extern void PutPlanetLocationY(Uns16 pID, Uns16 pY);
 
@@ -1480,7 +1481,7 @@ Pconfig_Struct;
   extern Uns16 TorpTechLevel(Uns16 pTorpNr);
   extern Uns16 TorpKillPower(Uns16 pTorpNr);
   extern Uns16 TorpDestructivePower(Uns16 pTorpNr);
-  extern void PutTorpName(Uns16 pTorpNr, char *pName);
+  extern void PutTorpName(Uns16 pTorpNr, const char *pName);
   extern void PutTorpTorpCost(Uns16 pTorpNr, Uns16 pTorpCost);
   extern void PutTorpTubeCost(Uns16 pTorpNr, Uns16 pTubeCost);
   extern void PutTorpTritCost(Uns16 pTorpNr, Uns16 pTubeTritCost);
@@ -1504,7 +1505,7 @@ Pconfig_Struct;
   extern Uns16 BeamTechLevel(Uns16 pBeamNr);
   extern Uns16 BeamKillPower(Uns16 pBeamNr);
   extern Uns16 BeamDestructivePower(Uns16 pBeamNr);
-  extern void PutBeamName(Uns16 pBeamNr, char *pName);
+  extern void PutBeamName(Uns16 pBeamNr, const char *pName);
   extern void PutBeamMoneyCost(Uns16 pBeamNr, Uns16 pMoneyCost);
   extern void PutBeamTritCost(Uns16 pBeamNr, Uns16 pTritCost);
   extern void PutBeamDurCost(Uns16 pBeamNr, Uns16 pDurCost);

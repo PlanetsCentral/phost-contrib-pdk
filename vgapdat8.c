@@ -133,7 +133,7 @@ BeamDestructivePower(Uns16 pBeamNr)
 }
 
 void
-PutBeamName(Uns16 pBeamNr, char *pName)
+PutBeamName(Uns16 pBeamNr, const char *pName)
 {
   static char lName[21];
   int i;

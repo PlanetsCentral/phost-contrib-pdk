@@ -62,7 +62,7 @@ PlanetName(Uns16 pID, char *pBuffer)
 }
 
 void
-PutPlanetName(Uns16 pID, char *pName)
+PutPlanetName(Uns16 pID, const char *pName)
 {
   static char lName[PLANETNAME_SIZE + 1];
   int i;
