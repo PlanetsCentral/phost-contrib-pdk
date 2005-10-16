@@ -1136,6 +1136,30 @@ SetActivityLevel(Uns16 pRace, Uns32 pNewLevel)
   gActivityLevel[pRace] = pNewLevel;
 }
 
+void
+AddToActivityLevel(Uns16 pRace, Uns32 pToAdd)
+{
+  struct Auxdata_Chunk* lChunk = GetAuxdataChunkById(aux_TAL);
+  assert((pRace >= 1) && (pRace <= RACE_NR));
+  if (AuxdataChunkSize(lChunk) >= pRace * sizeof(Uns32)) {
+    char* lPtr = (char*) AuxdataChunkData(lChunk) + sizeof(Uns32) * (pRace-1);
+    WriteDOSUns32(lPtr, ReadDOSUns32(lPtr) + pToAdd);
+  } else {
+    SetActivityLevel(pRace, GetActivityLevel(pRace) + pToAdd);
+  }
+}
+
+Uns32
+GetTotalActivityLevel(Uns16 pRace)
+{
+  struct Auxdata_Chunk* lChunk = GetAuxdataChunkById(aux_TAL);
+  Uns32 lPoints = GetActivityLevel(pRace);
+  if (AuxdataChunkSize(lChunk) >= pRace * sizeof(Uns32))
+    lPoints += ReadDOSUns32((char*) AuxdataChunkData(lChunk) + sizeof(Uns32) * (pRace-1));
+  return lPoints;
+}
+
+
 /*
  *                  R E M O T E    C O N T R O L
  */

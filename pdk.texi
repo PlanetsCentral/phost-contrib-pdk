@@ -4275,13 +4275,24 @@ This function sets priority of build order for a given position in build queue.
 @node Player Activity Level, Alliance Management, Build Queue Interface, Function Call Interface
 @section Player Activity Level
 
-The PDK allows access to the player activity level (PAL). Access to the
-turn activity level (TAL) is not possible, but may be added in future PDK
-versions.
+The PDK allows access to the player activity level (PAL). Access to turn
+activity level (TAL) is possible with PHost 4.0f and later; the PDK
+transparently distinguishes both cases.
+
+@emph{PHost 4.0f and later:} Points you add using @code{AddToActivityLevel}
+will appear in the PAL status message as new points this turn. Players will
+not be able to use them this turn for ship building (PBP queue).
+
+@emph{PHost up to 4.0e, or add-on not running using pcontrol/auxhost:}
+Points you add using @code{AddToActivityLevel} will be immediately
+visible as PAL. They will be included in the PAL status message as "Old
+value". They can be immediately used for ship building with a PBP queue.
 
 @menu
 * GetActivityLevel::
 * SetActivityLevel::
+* AddToActivityLevel::
+* GetTotalActivityLevel::
 @end menu
 
 @iftex
@@ -4289,6 +4300,8 @@ Functions in this section:
 @itemize @minus
 @item GetActivityLevel
 @item SetActivityLevel
+@item AddToActivityLevel
+@item GetTotalActivityLevel
 @end itemize
 @end iftex
 
@@ -4300,11 +4313,28 @@ Functions in this section:
 This routine returns the activity level of a player.
 
 
-@node SetActivityLevel,  , GetActivityLevel, Player Activity Level
+@node SetActivityLevel, AddToActivityLevel, GetActivityLevel, Player Activity Level
 @subsection void  SetActivityLevel(Uns16 pRace, Uns32 pNewLevel)
 @findex SetActivityLevel
 
 This routine sets the activity level of a player.
+
+@node AddToActivityLevel, GetTotalActivityLevel, SetActivityLevel, Player Activity Level
+@subsection void AddToActivityLevel(Uns16 pRace, Uns32 pToAdd)
+@findex AddToActivityLevel
+
+Adds @code{pToAdd} points to the specified race's activity level. If
+possible (add-on running in pcontrol/auxhost of PHost 4.0f or later),
+the points are added to the TAL, and will appear as new points in the
+report. Otherwise, they will be added to the PAL.
+
+@node GetTotalActivityLevel,  , AddToActivityLevel, Player Activity Level
+@subsection Uns32 GetTotalActivityLevel(Uns16 pRace)
+@findex GetTotalActivityLevel
+
+Returns the total activity level of the player, consisting of PAL plus
+TAL. This is an estimate only, it does not include point decay and
+consumption by PBP builds.
 
 @node Alliance Management, Game Status Interface, Player Activity Level, Function Call Interface
 @section Alliance Management

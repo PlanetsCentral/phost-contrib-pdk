@@ -334,7 +334,7 @@ typedef struct
              MiningRate[12],        /*!< mineral mining rate */
              TaxRate[12];           /*!< taxation rate -- NO LONGER USED */
     Boolean  AllowBuildFighters[12];
-    Uns16    CloakFailure;          /*!< % chance of cloaking failure */
+    Uns16    CloakFailure[12];      /*!< % chance of cloaking failure */
     Boolean  RobCloakedShips;       /*!< Privateers can rob cloaked ships */
     Uns16    ScanRange[12],         /*!< Enemy ship scan range */
              DarksenseRange;        /*!< Dark sense range */
@@ -578,6 +578,7 @@ typedef struct
     Uns16    EPShipMovement100LY;
     Uns16    EPShipHyperjump;
     Uns16    EPShipChunnel;
+    Uns16    EPShipIonStorm100MEV;
     Uns16    EPCombatKillScaling;
     Uns16    EPCombatDamageScaling;
     Uns16    EPShipAlchemy100KT;
@@ -883,6 +884,8 @@ Pconfig_Struct;
  */
   extern Uns32 GetActivityLevel(Uns16 pRace);
   extern void SetActivityLevel(Uns16 pRace, Uns32 pNewLevel);
+  extern void AddToActivityLevel(Uns16 pRace, Uns32 pToAdd);
+  extern Uns32 GetTotalActivityLevel(Uns16 pRace);
 
 /*
  *   Alliance interface

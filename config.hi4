@@ -76,7 +76,7 @@ CFDefine4(RebelsBuildFighters,          AllowBuildFighters[10],          1, Bool
 CFDefine4(ColoniesBuildFighters,        AllowBuildFighters[11],          1, Boolean,    0,        1, 0,                           0,                            "True")
 CFDefine4(RobotsBuildFighters,          AllowBuildFighters[9],           1, Boolean,    0,        1, 0,                           0,                            "True")
 #endif
-CFDefine4(CloakFailureRate,             CloakFailure,                    1, Uns16,      0,      100, 0,                           0,                            "1")
+CFDefine4(CloakFailureRate,             CloakFailure[1],                11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "1")
 CFDefine4(RobCloakedShips,              RobCloakedShips,                 1, Boolean,    0,        1, 0,                           0,                            "False")
 CFDefine4(ScanRange,                    ScanRange[1],                   11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY,         0,                            "300")
 CFDefine4(SensorRange,                  SensorRange[1],                 11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY,         0,                            "200")
@@ -140,7 +140,7 @@ CFDefine4(AllowMinesDestroyWebs,        DestroyWebs,                     1, Bool
 /* NOTE: changed to 5000 in 3.4d, was 3000 */
 CFDefine4(MaxPlanetaryIncome,           MaxPlanetaryIncome,              1, Uns32,      0,0x7FFFFFFFUL,0,                         0,                            "5000")
 /* NOTE: this is 5 in HOST */
-CFDefine4(IonStormActivity,             IonStormActivity,                1, Uns16,      0,      100, OPTIONAL,                    0,                            "0")
+CFDefine4(IonStormActivity,             IonStormActivity,                1, Uns16,      0,       50, OPTIONAL,                    0,                            "0")
 CFDefine4(AllowChunneling,              AllowChunneling,                 1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
 CFDefine4(AllowDeluxeSuperSpy,          AllowDeluxeSuperSpy,             1, Boolean,    0,        1, 0,                           0,                            "Yes")
 CFDefine4(IonStormsHideMines,           IonStormsHideMines,              1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
@@ -333,6 +333,7 @@ CFDefine4(EPPlanetAging,                EPPlanetAging,                   1, Uns1
 CFDefine4(EPShipMovement100LY,          EPShipMovement100LY,             1, Uns16,      0,    10000, OPTIONAL,                    0,                            "40")
 CFDefine4(EPShipHyperjump,              EPShipHyperjump,                 1, Uns16,      0,    10000, OPTIONAL,                    0,                            "30")
 CFDefine4(EPShipChunnel,                EPShipChunnel,                   1, Uns16,      0,    10000, OPTIONAL,                    0,                            "30")
+CFDefine4(EPShipIonStorm100MEV,         EPShipIonStorm100MEV,            1, Uns16,      0,    10000, OPTIONAL,                    0,                            "80")
 CFDefine4(EPCombatKillScaling,          EPCombatKillScaling,             1, Uns16,      0,    10000, OPTIONAL,                    0,                            "800")
 CFDefine4(EPCombatDamageScaling,        EPCombatDamageScaling,           1, Uns16,      0,    10000, OPTIONAL,                    0,                            "200")
 CFDefine4(EPShipAlchemy100KT,           EPShipAlchemy100KT,              1, Uns16,      0,    10000, OPTIONAL,                    0,                            "5")
@@ -464,6 +465,12 @@ CFControl(MinesDestroyMines,      DO_MINES_DESTROY_MINES)
 CFControl(MineSweeping,           DO_MINE_SWEEPING)
 CFControl(MinefieldScan,          DO_MINE_SCANS)
 CFControl(WebDraining,            DO_WEB_DRAINING)
+#ifdef PHOST4
+CFControl(MoveIonStorms,          DO_ION_MOVE)
+CFControl(IonStormEffects,        DO_ION_EFFECTS)
+CFControl(NewIonStorms,           DO_ION_NEW)
+CFControl(IonStormReports,        DO_ION_REPORTS)
+#endif
 CFControl(SpecialMissions_1,      DO_SPECIAL_MISSIONS_1)
 CFControl(BuildFighters,          DO_BUILD_FIGHTERS)
 CFControl(BuildTorpedoes,         DO_BUILD_TORPEDOES)

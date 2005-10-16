@@ -77,6 +77,18 @@ WriteTeams(void)
 
 }
 
+static char*
+mygets(char* p, size_t size)
+{
+  size_t i;
+  if (!fgets(p, size, stdin))
+    return 0;
+  i = strlen(p);
+  while (i && (p[i-1] == '\r' || p[i-1] == '\n'))
+    p[--i] = 0;
+  return p;
+}
+
 /* generate a new team.dat structure */
 
 void
@@ -92,7 +104,7 @@ GenerateTeams(void)
     printf
           ("\n Do you really want to delete the current team setup (y/N) ?\n");
 
-    if (gets(lTmpStr) EQ NULL)
+    if (mygets(lTmpStr, sizeof(lTmpStr)) EQ NULL)
       return;
 
     if (toupper(lTmpStr[0]) NEQ 'Y')
@@ -113,7 +125,7 @@ GenerateTeams(void)
     lTeamNr = 1;                /* need this in case we go through the loop
                                    more than once */
 
-    while ((gets(lTmpStr) NEQ NULL) AND strlen(lTmpStr) /* NEQ 0 */ ) {
+    while ((mygets(lTmpStr, sizeof(lTmpStr)) NEQ NULL) AND strlen(lTmpStr) /* NEQ 0 */ ) {
       const char *p;            /* NEW */
 
       lTmpPtr = lTmpStr;
@@ -138,7 +150,7 @@ GenerateTeams(void)
     }
     printf("\n correct (Y/n) ?");
 
-    if ((gets(lTmpStr) EQ NULL) OR(toupper(lTmpStr[0]) NEQ 'N'))
+    if ((mygets(lTmpStr, sizeof(lTmpStr)) EQ NULL) OR(toupper(lTmpStr[0]) NEQ 'N'))
       return;
 
   }

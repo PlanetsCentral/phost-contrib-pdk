@@ -6,8 +6,11 @@
 Version 4.5
 ============
 
-* Added support for PHost 4 (i.e. there are now interfaces to 4.0
-  features)
+* Added support for PHost 4 (i.e. there are now interfaces to 4.0 features)
+  - enemies
+  - turn activity level
+  - experience
+  - configuration
 * Added ShipDoesXXX() functions (Maurits van Rees)
 * Added PutMinefieldLocationX/Y() and PutMinefieldWeb() (Piotr Winiarczyk)
 

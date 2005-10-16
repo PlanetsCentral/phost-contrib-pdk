@@ -1,3 +1,12 @@
+2005-10-16  Stefan Reuther  <Streu@gmx.de>
+
+	* ptscore.c (mygets): do not use 'gets'
+
+	* auxdata.c (GetTotalActivityLevel, AddToActivityLevel): new
+	functions
+
+	* phostpdk.h: updated config
+
 2005-08-11  Stefan Reuther  <Streu@gmx.de>
 
 	* phostpdk.h: fixed BaseFixMission_Def
