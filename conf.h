@@ -339,6 +339,24 @@
 #define FILES_HAVE_CRLF
 #endif
 
+#ifdef __BEOS__
+#define SYSTEM_ID "BeOS"
+#define SYSTEM_CODE 21
+
+#define HAVE_MEMMOVE
+#undef HAVE_BCOPY
+
+#define HAVE_STRERROR
+#undef HAVE_SGN
+
+#undef HAVE_STRICMP
+#undef HAVE_STRUPR
+#define HAVE_STRDUP
+#define LITTLE_ENDIAN
+#define HAVE_ANSI_INCLUDES
+#undef  FILES_HAVE_CRLF
+#endif
+
 #ifndef SYSTEM_ID
 /*
  *  If your system is not recognized, compilation aborts here.
