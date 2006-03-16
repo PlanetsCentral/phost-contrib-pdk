@@ -948,7 +948,7 @@ Read_THost_HConfig_File(void)
               sConfigDef[lItem->mPIndex].mName);
       lRes = IO_FAILURE;
     }
-   next_item:
+   next_item:;
   }
   DoDefaultAssignments();
   if (lRes == IO_FAILURE)
