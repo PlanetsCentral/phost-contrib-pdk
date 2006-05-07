@@ -15,7 +15,7 @@
 #define HAVE_STRICMP
 #define HAVE_STRUPR
 #define HAVE_STRDUP
-#define LITTLE_ENDIAN
+#define PHOST_LITTLE_ENDIAN
 #define HAVE_ANSI_INCLUDES
 #define FILES_HAVE_CRLF
 #undef __MSDOS__
@@ -31,9 +31,9 @@
 # undef  HAVE_STRICMP
 # undef  HAVE_STRUPR
 # define HAVE_STRDUP
-# undef  LITTLE_ENDIAN
-# undef  BIG_ENDIAN
-# define LITTLE_ENDIAN
+# undef  PHOST_LITTLE_ENDIAN
+# undef  PHOST_BIG_ENDIAN
+# define PHOST_LITTLE_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -48,9 +48,9 @@
 # undef  HAVE_STRICMP
 # undef  HAVE_STRUPR
 # define HAVE_STRDUP
-# undef  LITTLE_ENDIAN
-# undef  BIG_ENDIAN
-# define LITTLE_ENDIAN
+# undef  PHOST_LITTLE_ENDIAN
+# undef  PHOST_BIG_ENDIAN
+# define PHOST_LITTLE_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -65,9 +65,9 @@
 # undef  HAVE_STRICMP
 # undef  HAVE_STRUPR
 # define HAVE_STRDUP
-# undef  LITTLE_ENDIAN
-# undef  BIG_ENDIAN
-# define BIG_ENDIAN
+# undef  PHOST_LITTLE_ENDIAN
+# undef  PHOST_BIG_ENDIAN
+# define PHOST_BIG_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -82,9 +82,9 @@
 # undef  HAVE_STRICMP
 # undef  HAVE_STRUPR
 # define HAVE_STRDUP
-# undef  LITTLE_ENDIAN
-# undef  BIG_ENDIAN
-# define BIG_ENDIAN
+# undef  PHOST_LITTLE_ENDIAN
+# undef  PHOST_BIG_ENDIAN
+# define PHOST_BIG_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -99,9 +99,9 @@
 # undef  HAVE_STRICMP
 # undef  HAVE_STRUPR
 # define HAVE_STRDUP
-# undef  LITTLE_ENDIAN
-# undef  BIG_ENDIAN
-# define BIG_ENDIAN
+# undef  PHOST_LITTLE_ENDIAN
+# undef  PHOST_BIG_ENDIAN
+# define PHOST_BIG_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -117,9 +117,9 @@
 #define stricmp strcasecmp
 # undef  HAVE_STRUPR
 # define HAVE_STRDUP
-# undef  LITTLE_ENDIAN
-# undef  BIG_ENDIAN
-# define LITTLE_ENDIAN
+# undef  PHOST_LITTLE_ENDIAN
+# undef  PHOST_BIG_ENDIAN
+# define PHOST_LITTLE_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -135,9 +135,9 @@
 #define stricmp strcasecmp
 # undef  HAVE_STRUPR
 # define HAVE_STRDUP
-# undef  LITTLE_ENDIAN
-# undef  BIG_ENDIAN
-# define LITTLE_ENDIAN
+# undef  PHOST_LITTLE_ENDIAN
+# undef  PHOST_BIG_ENDIAN
+# define PHOST_LITTLE_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -152,7 +152,7 @@
 # undef HAVE_STRICMP
 # undef HAVE_STRUPR
 # define HAVE_STRDUP
-# define BIG_ENDIAN
+# define PHOST_BIG_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -167,7 +167,7 @@
 # define HAVE_STRICMP
 # define HAVE_STRUPR
 # define HAVE_STRDUP
-# define LITTLE_ENDIAN
+# define PHOST_LITTLE_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # define FILES_HAVE_CRLF
 #endif
@@ -182,7 +182,7 @@
 # undef  HAVE_STRICMP
 # undef  HAVE_STRUPR
 # define HAVE_STRDUP
-# define LITTLE_ENDIAN
+# define PHOST_LITTLE_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -201,12 +201,12 @@
 #define stricmp strcasecmp
 #undef  HAVE_STRUPR
 # define HAVE_STRDUP
-#undef  LITTLE_ENDIAN
-#undef  BIG_ENDIAN
+#undef  PHOST_LITTLE_ENDIAN
+#undef  PHOST_BIG_ENDIAN
 #ifdef __sparc__
-#define BIG_ENDIAN
+#define PHOST_BIG_ENDIAN
 #else
-#define LITTLE_ENDIAN
+#define PHOST_LITTLE_ENDIAN
 #endif
 #define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
@@ -222,7 +222,7 @@
 # undef  HAVE_STRICMP
 # undef  HAVE_STRUPR
 # define HAVE_STRDUP
-# define LITTLE_ENDIAN
+# define PHOST_LITTLE_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -238,7 +238,7 @@
 #   undef HAVE_STRICMP
 #   undef HAVE_STRUPR
 #   define HAVE_STRDUP
-#   define BIG_ENDIAN
+#   define PHOST_BIG_ENDIAN
 #   define HAVE_ANSI_INCLUDES
 #   define SOLARIS 1
 #   undef  FILES_HAVE_CRLF
@@ -248,7 +248,7 @@
 #ifdef _AIX
 #define SYSTEM_ID "RS/6000 AIX"
 #define SYSTEM_CODE 5
-#define BIG_ENDIAN
+#define PHOST_BIG_ENDIAN
 #define HAVE_MEMMOVE
 #undef HAVE_BCOPY
 #define HAVE_STRERROR
@@ -271,7 +271,7 @@
 #define stricmp strcasecmp
 #undef HAVE_STRUPR
 # define HAVE_STRDUP
-#define BIG_ENDIAN
+#define PHOST_BIG_ENDIAN
 #define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
 #endif
@@ -287,7 +287,7 @@
 #  define HAVE_STRICMP
 #  undef HAVE_STRUPR
 #  define HAVE_STRDUP
-#  define BIG_ENDIAN
+#  define PHOST_BIG_ENDIAN
 #  undef HAVE_ANSI_INCLUDES
 #  define SUNOS
 #  undef  FILES_HAVE_CRLF
@@ -304,7 +304,7 @@
 #define HAVE_STRICMP
 #define HAVE_STRUPR
 #define HAVE_STRDUP
-#define LITTLE_ENDIAN
+#define PHOST_LITTLE_ENDIAN
 #define HAVE_ANSI_INCLUDES
 #define FILES_HAVE_CRLF
 #endif
@@ -319,7 +319,7 @@
 #define HAVE_STRICMP
 #define HAVE_STRUPR
 #define HAVE_STRDUP
-#define LITTLE_ENDIAN
+#define PHOST_LITTLE_ENDIAN
 #define HAVE_ANSI_INCLUDES
 #define FILES_HAVE_CRLF
 #endif
@@ -334,27 +334,56 @@
 #define HAVE_STRICMP
 #define HAVE_STRUPR
 #define HAVE_STRDUP
-#define LITTLE_ENDIAN
+#define PHOST_LITTLE_ENDIAN
 #define HAVE_ANSI_INCLUDES
 #define FILES_HAVE_CRLF
 #endif
 
-#ifdef __BEOS__
-#define SYSTEM_ID "BeOS"
-#define SYSTEM_CODE 21
+#if defined(__APPLE__) && defined(__ppc__) && defined(__MACH__)
+# define SYSTEM_ID "MacOS X/PPC"
+# define SYSTEM_CODE 22
+# define HAVE_MEMMOVE
+# undef HAVE_BCOPY
+# define HAVE_STRERROR
+# undef HAVE_SGN
+# undef HAVE_STRICMP
+# undef HAVE_STRUPR
+# define HAVE_STRDUP
+# define PHOST_BIG_ENDIAN
+# define HAVE_ANSI_INCLUDES
+# undef FILES_HAVE_CRLF
+#endif
 
+#ifdef __BEOS__
+# define SYSTEM_ID "BeOS"
+# define SYSTEM_CODE 23
+# define HAVE_MEMMOVE
+# undef HAVE_BCOPY
+# define HAVE_STRERROR
+# undef HAVE_SGN
+# undef HAVE_STRICMP
+# undef HAVE_STRUPR
+# define HAVE_STRDUP
+# define PHOST_LITTLE_ENDIAN
+# define HAVE_ANSI_INCLUDES
+# undef  FILES_HAVE_CRLF
+#endif
+
+#if defined(__CYGWIN__)
+#define SYSTEM_ID "Cygwin"
+#define SYSTEM_CODE 22
 #define HAVE_MEMMOVE
 #undef HAVE_BCOPY
-
 #define HAVE_STRERROR
 #undef HAVE_SGN
-
-#undef HAVE_STRICMP
-#undef HAVE_STRUPR
+#define HAVE_STRICMP
+#define HAVE_STRUPR
 #define HAVE_STRDUP
-#define LITTLE_ENDIAN
+#ifndef PHOST_LITTLE_ENDIAN
+#define PHOST_LITTLE_ENDIAN
+#endif
 #define HAVE_ANSI_INCLUDES
-#undef  FILES_HAVE_CRLF
+#define FILES_HAVE_CRLF
 #endif
 
 #ifndef SYSTEM_ID

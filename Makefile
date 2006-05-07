@@ -56,27 +56,40 @@ EXAMPLES = $(patsubst $(SRCDIR)/%.c, %, $(wildcard $(SRCDIR)/ex[0-9]*.c))
 CC = gcc -Wall -O3 -I$(SRCDIR) -g
 MAKE += -f $(SRCDIR)/Makefile
 
+# Figure out platform
+ifdef DJDIR
+PLATFORM=DOS
+else
+PLATFORM=$(shell uname)
+endif
+ifeq ($(PLATFORM),BeOS)
+LM= 
+else
+LM=-lm
+endif
+
+
 all: libpdk.a sendmess crack ptscore killrace pmaster pally
 
 pdk: libpdk.a
 
 sendmess: sendmess.o $(SRCDIR)/phostpdk.h libpdk.a
-	$(CC) -o sendmess sendmess.o -L. -lpdk -lm
+	$(CC) -o sendmess sendmess.o -L. -lpdk $(LM)
 
 killrace: killrace.o $(SRCDIR)/phostpdk.h libpdk.a
-	$(CC) -o killrace killrace.o -L. -lpdk -lm
+	$(CC) -o killrace killrace.o -L. -lpdk $(LM)
 
 crack: crack.o $(SRCDIR)/phostpdk.h libpdk.a
-	$(CC) -o crack crack.o -L. -lpdk -lm
+	$(CC) -o crack crack.o -L. -lpdk $(LM)
 
 ptscore: ptscore.o $(SRCDIR)/phostpdk.h libpdk.a
-	$(CC) -o ptscore ptscore.o -L. -lpdk -lm
+	$(CC) -o ptscore ptscore.o -L. -lpdk $(LM)
 
 pmaster: pmaster.o $(SRCDIR)/phostpdk.h libpdk.a
-	$(CC) -o pmaster pmaster.o -L. -lpdk -lm
+	$(CC) -o pmaster pmaster.o -L. -lpdk $(LM)
 
 pally: pally.o $(SRCDIR)/phostpdk.h libpdk.a
-	$(CC) -o pally pally.o -L. -lpdk -lm
+	$(CC) -o pally pally.o -L. -lpdk $(LM)
 
 libpdk.a: $(OBJS)
 	-rm -f libpdk.a
@@ -94,7 +107,7 @@ clean:
 examples: $(EXAMPLES)
 
 $(EXAMPLES): %: %.o libpdk.a
-	$(CC) -o $* $*.o -L. -lpdk -lm
+	$(CC) -o $* $*.o -L. -lpdk $(LM)
 
 ############################## Documentation ##############################
 

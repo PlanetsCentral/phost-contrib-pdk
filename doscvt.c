@@ -161,7 +161,7 @@ DOSWrite32(const Uns32 * pData, Uns16 pNum, FILE * pOutFile)
 void
 EndianSwap32(void *pData, Uns16 pNumber)
 {
-#ifdef BIG_ENDIAN               /* NEW */
+#ifdef PHOST_BIG_ENDIAN               /* NEW */
   Uns32 lVal;
 
   while (pNumber-- > 0) {
@@ -175,7 +175,7 @@ EndianSwap32(void *pData, Uns16 pNumber)
 void
 EndianSwap16(void *pData, Uns16 pNumber)
 {
-#ifdef BIG_ENDIAN               /* NEW */
+#ifdef PHOST_BIG_ENDIAN               /* NEW */
   Uns16 lVal;
 
   while (pNumber-- > 0) {
@@ -311,7 +311,7 @@ bad_write:
 static
 void DOS16Convert(const void *pData, Uns16 pNum, void *pOut)
 {
-#ifdef LITTLE_ENDIAN
+#ifdef PHOST_LITTLE_ENDIAN
   passert(pData NEQ NULL);
   passert(pOut NEQ NULL);
   passert(pNum NEQ 0);
@@ -340,7 +340,7 @@ void DOS16Convert(const void *pData, Uns16 pNum, void *pOut)
 static void
 DOS32Convert(const void *pData, Uns16 pNum, void *pOut)
 {
-#ifdef LITTLE_ENDIAN
+#ifdef PHOST_LITTLE_ENDIAN
   memcpy(pOut, pData, pNum*sizeof(Uns32));
 #else
   Uns32 *pDst = pOut;

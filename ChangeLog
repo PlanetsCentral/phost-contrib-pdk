@@ -1,3 +1,10 @@
+2006-05-07  Stefan Reuther  <Streu@gmx.de>
+
+	* conf.h: added platform definitions:
+	  - Cygwin from Javier Sedano <javier.sedano@gmail.com>
+	  - MacOS X from PHost port
+	  - BeOS from PHost port by Alexey Veselovsky
+
 2005-10-16  Stefan Reuther  <Streu@gmx.de>
 
 	* ptscore.c (mygets): do not use 'gets'
