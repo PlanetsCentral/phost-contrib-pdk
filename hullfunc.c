@@ -76,6 +76,10 @@ typedef enum {
   SPC_Repairs,
   SPC_FullWeaponry,           /* 35 */
   SPC_HardenedEngines,
+  SPC_Commander,
+  SPC_IonShield,
+  SPC_HardenedCloak,
+  SPC_AdvancedAntiCloak,      /* 40 */
 
   NumSpecials,
 
@@ -121,6 +125,10 @@ static const char *gSpecialNames[] = {
   "Repairs",
   "FullWeaponry",
   "HardenedEngines",
+  "Commander",
+  "IonShield",
+  "HardenedCloak",
+  "AdvancedAntiCloak",
 };
 
 #define NumSpecialNames (sizeof(gSpecialNames)/sizeof(gSpecialNames[0]))
@@ -673,14 +681,16 @@ HullIsGamblingShip(Uns16 pHull, Uns16 Owner)
 Boolean
 ShipIsAntiCloaking(Uns16 pShip)
 {
-  return shipHasSpecial(pShip, SPC_AntiCloak);
+  return shipHasSpecial(pShip, SPC_AntiCloak)
+      || ShipHasAdvancedAntiCloak(pShip);
 }
 
 Boolean
 HullIsAntiCloaking(Uns16 pHull, Uns16 Owner)
 {
   /* NOTE: Added by Maurits 2004-07-30 */
-  return hullHasSpecial(pHull, SPC_AntiCloak, Owner);
+  return hullHasSpecial(pHull, SPC_AntiCloak, Owner)
+      || HullHasAdvancedAntiCloak(pHull, Owner);
 }
 
 Boolean
@@ -751,15 +761,18 @@ HullHasAdvancedCloak(Uns16 pHull, Uns16 Owner)
 Boolean
 ShipCanCloak(Uns16 pShip)
 {
-  return shipHasSpecial(pShip, SPC_Cloak) OR ShipHasAdvancedCloak(pShip);
+  return shipHasSpecial(pShip, SPC_Cloak)
+      || ShipHasAdvancedCloak(pShip)
+      || ShipHasHardenedCloak(pShip);
 }
 
 Boolean
 HullCanCloak(Uns16 pHull, Uns16 Owner)
 {
   /* NOTE: Added by Maurits 2004-07-30 */
-  return hullHasSpecial(pHull, SPC_Cloak, Owner) \
-      OR HullHasAdvancedCloak(pHull, Owner);;
+  return hullHasSpecial(pHull, SPC_Cloak, Owner)
+      || HullHasAdvancedCloak(pHull, Owner)
+      || HullHasHardenedCloak(pHull, Owner);
 }
 
 Boolean
@@ -1015,6 +1028,54 @@ Boolean
 HullHasHardenedEngines(Uns16 pHull, Uns16 pOwner)
 {
   return hullHasSpecial(pHull, SPC_HardenedEngines, pOwner);
+}
+
+Boolean
+ShipIsCommander(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_Commander);
+}
+
+Boolean
+HullIsCommander(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_Commander, pOwner);
+}
+
+Boolean
+ShipHasIonShield(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_IonShield);
+}
+
+Boolean
+HullHasIonShield(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_IonShield, pOwner);
+}
+
+Boolean
+ShipHasHardenedCloak(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_HardenedCloak);
+}
+
+Boolean
+HullHasHardenedCloak(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_HardenedCloak, pOwner);
+}
+
+Boolean
+ShipHasAdvancedAntiCloak(Uns16 pShip)
+{
+  return shipHasSpecial(pShip, SPC_AdvancedAntiCloak);
+}
+
+Boolean
+HullHasAdvancedAntiCloak(Uns16 pHull, Uns16 pOwner)
+{
+  return hullHasSpecial(pHull, SPC_AdvancedAntiCloak, pOwner);
 }
 
 /* ----------------------------------------------------------------------- */

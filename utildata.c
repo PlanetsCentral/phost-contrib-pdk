@@ -170,3 +170,40 @@ PutUtilFileTransfer(RaceType_Def pRace, const char* pName,
 
   return PutUtilRecord(pRace, 34, 2, lSizes, lPtrs);
 }
+
+Boolean
+PutUtilExplosionAllPlayers(Uns16 pX, Uns16 pY, const char* pName, Uns16 pId)
+{
+  int i;
+  Boolean lResult = True;
+  for (i = 1; i <= OLD_RACE_NR; ++i)
+    if (PlayerIsActive(i))
+      if (!PutUtilExplosion((RaceType_Def) i, pX, pY, pName, pId))
+        lResult = False;
+  return lResult;
+}
+
+Boolean
+PutUtilExplosion(RaceType_Def pRace, Uns16 pX, Uns16 pY, const char* pName, Uns16 pId)
+{
+  /* For simplicity, we build the structure by hand */
+  char lData[26];
+  Uns16 lSize;
+  Uns16 lIndex;
+  WriteDOSUns16(lData,   pX);
+  WriteDOSUns16(lData+2, pY);
+  WriteDOSUns16(lData+4, pId);
+  if (pName != 0) {
+    for (lIndex = 0; lIndex < 20; ++lIndex) {
+      if (*pName)
+        lData[6 + lIndex] = *pName++;
+      else
+        lData[6 + lIndex] = ' ';
+    }
+    lSize = 26;
+  } else {
+    lSize = 6;
+  }
+
+  return PutUtilRecordSimple(pRace, 1, lSize, lData);
+}

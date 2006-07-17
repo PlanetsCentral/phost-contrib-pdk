@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *                MemAlloc                                        *
  *                MemCalloc                                       *
  *                MemFree                                         *
- *                MemMinAvailable                                 *
  *                Error                                           *
  *                ErrorExit                                       *
  *                Warning                                         *
@@ -367,17 +366,7 @@ MemAlloc(size_t pAmount)
   if (gAllocFailed)
     quickExit();
 
-#ifdef SUBALLOC
-
-/*    fprintf(stderr,"Allocating %u bytes...\n",pAmount); */
-  lPtr = suballoc_farmalloc(pAmount);
-  if (lPtr EQ NULL)
-    CheckMemory();
-
-  minMemory = min(minMemory, suballoc_memfree());
-#else
   lPtr = farmalloc(pAmount);
-#endif
   if (lPtr EQ NULL) {
     gAllocFailed = True;
     ErrorExit("out of memory");
@@ -398,15 +387,7 @@ MemRealloc(void *pPtr, size_t pAmount)
 
   passert(pPtr NEQ 0);
   passert(pAmount NEQ 0);
-#ifdef SUBALLOC
-  lPtr = suballoc_farrealloc(pPtr, pAmount);
-  if (lPtr EQ NULL)
-    CheckMemory();
-
-  minMemory = min(minMemory, suballoc_memfree());
-#else
   lPtr = farrealloc(pPtr, pAmount);
-#endif
   if (lPtr EQ NULL) {
     gAllocFailed = True;
     ErrorExit("out of memory");
@@ -422,16 +403,7 @@ MemCalloc(size_t pNumber, size_t pSize)
   if (gAllocFailed)
     quickExit();
 
-#ifdef SUBALLOC
-
-/*    fprintf(stderr,"Allocating %u X %u bytes...\n", pNumber, pSize); */
-  lPtr = suballoc_farcalloc(pNumber, pSize);
-  if (lPtr EQ NULL)
-    CheckMemory();
-  minMemory = min(minMemory, suballoc_memfree());
-#else
   lPtr = farcalloc(pNumber, pSize);
-#endif
   if (lPtr EQ NULL) {
     gAllocFailed = True;
     ErrorExit("out of memory");
@@ -442,17 +414,8 @@ MemCalloc(size_t pNumber, size_t pSize)
 void
 MemFree(void *pPtr)
 {
-#ifdef SUBALLOC
-  if (pPtr) {
-    if (!suballoc_farfree(pPtr)) {
-      CheckMemory();
-      ErrorExit("MemFree of pointer failed");
-    }
-  }
-#else
   if (pPtr)
     farfree(pPtr);
-#endif
 }
 
 /*
@@ -730,7 +693,3 @@ int RND(double value)
     if (fraction<0.5) return base;
     else return base+1;
 }
-
-/*************************************************************
-  $HISTORY:$
-**************************************************************/

@@ -308,6 +308,7 @@ typedef enum {
     CFType_String,
     CFType_BuildQueue_Def,
     CFType_Tristate,
+    CFType_Cost,
     CFType_MAX
 } CFType;
 
@@ -321,6 +322,7 @@ static const int sConfigItemSize[CFType_MAX] = {
     sizeof(char),
     sizeof(BuildQueue_Def),
     sizeof(Tristate),
+    sizeof(Cost_Struct)
 };
 
 static const char* const sConfigItemNames[CFType_MAX] = {
@@ -333,6 +335,7 @@ static const char* const sConfigItemNames[CFType_MAX] = {
     "string",
     "build queue",
     "tristate",
+    "cost"
 };
 
 typedef Boolean (*ConfigReader_Func)(const struct ConfigItem_Struct*, char* value);
@@ -381,9 +384,10 @@ enum {
 };
 
 enum {
-    CFOPT_Arrayized = 1,
-    CFOPT_Obsolete  = 2,
-    CFOPT_Optional  = 4
+    CFOPT_Arrayized    = 1,
+    CFOPT_Obsolete     = 2,
+    CFOPT_Optional     = 4,
+    CFOPT_Incompatible = 8
 };
 
 enum {
@@ -394,6 +398,7 @@ static const ConfigItem_Struct sConfigDef[CF_NumItems] = {
 #define ARRAYIZED CFOPT_Arrayized
 #define OBSOLETE  CFOPT_Obsolete
 #define OPTIONAL  CFOPT_Optional
+#define INCOMPATIBLE CFOPT_Incompatible
 #define RACEARRAY 0     /* PHost does not need this (yet?) */
 #define IFYES(x)  (2 * CF_ ## x + 2)
 #define IFNO(x)   (2 * CF_ ## x + 3)
@@ -403,6 +408,8 @@ static const ConfigItem_Struct sConfigDef[CF_NumItems] = {
 #undef ARRAYIZED
 #undef OBSOLETE
 #undef RACEARRAY
+#undef OPTIONAL
+#undef INCOMPATIBLE
 #undef IFYES
 #undef IFNO
 };
@@ -427,6 +434,12 @@ lookupOptionByName(const char* pName)
 
 /*---------- Assignment Functions ---------*/
 
+/* This must be a file-scope variable, otherwise Turbo C won't grok
+   it. */
+static const char SEPARATORS[] = " \t,\r\032";
+static const char WHITESPACE[] = " \t\r\032";
+static const char SEP_COMMA[] = ",";
+
 /** Generic Tokenizer. Handles the following
     - splitting into pieces (a, b, c)
     - arrayisation and verification of array bounds
@@ -436,19 +449,20 @@ lookupOptionByName(const char* pName)
     \param pFunc   Function to call for each item (if everything goes
                    well, this function is called exactly pItem->mCount times,
                    with index \in [0, pItem->mCount-1])
-    \param pData   Data pointer to pass to pFunc. */
+    \param pCommaOnly Allow only commas as separators. */
 static Boolean Tokenize(const struct ConfigItem_Struct* pItem,
                         char* pValue,
                         Boolean (*pFunc)(const ConfigItem_Struct*,
                                          char* value, int index, void* data),
-                        void* pData)
+                        void* pData,
+                        Boolean pCommaOnly)
 {
-    /* We treat CR and C-z as whitespace. Why not. */
-    static const char SEPARATORS[] = " \t,\r\032";
     int lIndex;
     int lLength;
     char lEol;
     char* lStr;
+
+    const char* lSep = pCommaOnly ? SEP_COMMA : SEPARATORS;
 
     /* Kill comment */
     if ((lStr = strchr(pValue, '#')) != 0)
@@ -457,8 +471,9 @@ static Boolean Tokenize(const struct ConfigItem_Struct* pItem,
     lStr = 0;
     lIndex = 0;
     while (1) {
-        pValue += strspn(pValue, SEPARATORS);
-        lLength = strcspn(pValue, SEPARATORS);
+        pValue += strspn(pValue, lSep);
+        lLength = strcspn(pValue, lSep);
+
         if (lLength == 0)
             break;
         /* we have an item we can assign now */
@@ -542,6 +557,78 @@ parseBoolean(const ConfigItem_Struct* pItem,
         ((Boolean*) pData)[pIndex] = match;
         return True;
     }
+}
+
+/** Parse cost option. */
+static Boolean
+parseCost(const ConfigItem_Struct* pItem,
+          char* pValue, int pIndex, void* pData)
+{
+    Cost_Struct lValue = {{ 0 }};
+    Uns16* lCurrent = 0;
+    Boolean lNeedNumber = False;
+    Boolean lHadAny = False;
+
+    while (*pValue != 0) {
+        if (lCurrent == 0) {
+            /* we're skipping across the whitespace before a
+               specification */
+            if (isspace((unsigned char) *pValue)) {
+                /* nix */
+            } else {
+                switch (toupper((unsigned char) *pValue)) {
+                 case 'T': lCurrent = &lValue.mCost[TRITANIUM]; break;
+                 case 'D': lCurrent = &lValue.mCost[DURANIUM]; break;
+                 case 'M': lCurrent = &lValue.mCost[MOLYBDENUM]; break;
+                 case '$': lCurrent = &lValue.mCost[CREDITS]; break;
+                 case 'S': lCurrent = &lValue.mCost[SUPPLIES]; break;
+                 default:
+                    Error("%s: invalid cost for option '%s', %s", CONFIG_FILE, pItem->mName,
+                          "need cargo type");
+                    return False;
+                }
+            }
+            if (lCurrent) {
+                *lCurrent = 0;
+                lNeedNumber = True;
+                lHadAny = True;
+            }
+        } else {
+            /* we're reading a number */
+            if (*pValue >= '0' && *pValue <= '9') {
+                Uns32 lNewValue = *lCurrent * 10 + (*pValue - '0');
+                if (lNewValue > 10000) {
+                    Error("%s: invalid cost for option '%s', %s", CONFIG_FILE, pItem->mName,
+                          "amount too large");
+                    return False;
+                }
+                *lCurrent = lNewValue;
+                lNeedNumber = False;
+            } else if (isspace((unsigned char) *pValue) && !lNeedNumber) {
+                lCurrent = 0;
+            } else {
+                goto need_number;
+            }
+        }
+        ++pValue;
+    }
+
+    if (lNeedNumber) {
+        goto need_number;
+    }
+    if (!lHadAny) {
+        Error("%s: invalid cost for option '%s', %s", CONFIG_FILE, pItem->mName,
+              "value is empty");
+        return False;
+    }
+
+    ((Cost_Struct*) pData)[pIndex] = lValue;
+    return True;
+
+ need_number:
+    Error("%s: invalid cost for option '%s', %s", CONFIG_FILE, pItem->mName,
+          "need number");
+    return False;
 }
 
 /** Parse tristate, into a tristate array. For use with Tokenize. */
@@ -635,7 +722,7 @@ readUns32(const struct ConfigItem_Struct* pItem, char* pValue)
     Uns32* lOption = (Uns32*) ((char*)gConfigInfo + pItem->mOffset);
     int i;
 
-    if (!Tokenize(pItem, pValue, parseInteger, &lData))
+    if (!Tokenize(pItem, pValue, parseInteger, &lData, False))
         return False;
     for (i = 0; i < pItem->mCount; ++i)
         lOption[i] = lData[i];
@@ -649,7 +736,7 @@ readUns16(const struct ConfigItem_Struct* pItem, char* pValue)
     Int16* lOption = (Int16*) ((char*)gConfigInfo + pItem->mOffset);
     int i;
 
-    if (!Tokenize(pItem, pValue, parseInteger, &lData))
+    if (!Tokenize(pItem, pValue, parseInteger, &lData, False))
         return False;
     for (i = 0; i < pItem->mCount; ++i)
         lOption[i] = lData[i];
@@ -663,7 +750,7 @@ readInt16(const struct ConfigItem_Struct* pItem, char* pValue)
     Int16* lOption = (Int16*) ((char*)gConfigInfo + pItem->mOffset);
     int i;
 
-    if (!Tokenize(pItem, pValue, parseInteger, &lData))
+    if (!Tokenize(pItem, pValue, parseInteger, &lData, False))
         return False;
     for (i = 0; i < pItem->mCount; ++i)
         lOption[i] = lData[i];
@@ -767,21 +854,24 @@ DoAssignOption(int pOptInd, char* pValue, Boolean pDefault)
         return readUns32(lItem, pValue);
      case CFType_Boolean:
         return Tokenize(lItem, pValue, parseBoolean,
-                        (char*) gConfigInfo + lItem->mOffset);
+                        (char*) gConfigInfo + lItem->mOffset, False);
      case CFType_Language_Def:
         return Tokenize(lItem, pValue, parseLanguage,
-                        (char*) gConfigInfo + lItem->mOffset);
+                        (char*) gConfigInfo + lItem->mOffset, False);
      case CFType_ScoreMethod_Def:
         return Tokenize(lItem, pValue, parseScoreMethod,
-                        (char*) gConfigInfo + lItem->mOffset);
+                        (char*) gConfigInfo + lItem->mOffset, False);
      case CFType_String:
         return readString(lItem, pValue);
      case CFType_BuildQueue_Def:
         return Tokenize(lItem, pValue, parseBuildQueue,
-                        (char*) gConfigInfo + lItem->mOffset);
+                        (char*) gConfigInfo + lItem->mOffset, False);
      case CFType_Tristate:
         return Tokenize(lItem, pValue, parseTristate,
-                        (char*) gConfigInfo + lItem->mOffset);
+                        (char*) gConfigInfo + lItem->mOffset, False);
+     case CFType_Cost:
+        return Tokenize(lItem, pValue, parseCost,
+                        (char*) gConfigInfo + lItem->mOffset, True);
      case CFType_MAX:
         return False;
     }

@@ -1,6 +1,6 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                             Summary of Revisions
-                              Version 3.2.4.5
+                                 Version 4.5
 
 
 Version 4.5
@@ -13,6 +13,8 @@ Version 4.5
   - configuration
 * Added ShipDoesXXX() functions (Maurits van Rees)
 * Added PutMinefieldLocationX/Y() and PutMinefieldWeb() (Piotr Winiarczyk)
+* Added ability to create Explosions
+* Added access to tons
 
 
 Version 4.4b

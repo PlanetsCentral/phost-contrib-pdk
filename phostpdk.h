@@ -280,6 +280,12 @@ extern "C" {
     TSX_External                /* Feature is externalized */
   } Tristate;
 
+  typedef struct {
+    /** Cost. Although this allows all cargo types, only TDM$S are
+        allowed to be nonzero. */
+    Uns16 mCost[7 /*NumCargoTypes*/];
+  } Cost_Struct;
+
   typedef enum {
     UTIL_Ext,
     UTIL_Dat,
@@ -456,6 +462,7 @@ typedef struct
     Uns16    RobCloakedChance;               /*!< percent chance that rob cloaked succeeds */
     Uns16    PlanetaryTorpsPerTube;          /*!< number of free torps to give per tube */
     Uns16    UnitsPerTorpRate[12];           /*!< percent of normal units-per-torp rate */
+    Uns16    UnitsPerWebRate[12];            /*!< percent of normal units-per-torp rate for web minefields */
     Boolean  ESBonusAgainstPlanets;          /*!< E-S bonus applies when fighting planets */
     Uns16    ShipCloneCostRate[12];          /*!< percentage cost of original ship */
     Boolean  HyperjumpGravityWells;          /*!< allow hyperwarp ships to get sucked in */
@@ -569,12 +576,20 @@ typedef struct
     Tristate CPEnableShow;
     Tristate CPEnableRefit;
 
+    Boolean  AllowIncompatibleConfiguration;
+    Cost_Struct FreeFighterCost[12];
+    Cost_Struct StarbaseCost[12];
+    Cost_Struct BaseFighterCost[12];
+    Cost_Struct ShipFighterCost[12];
+    Uns16    MaximumFightersOnBase[12];
+
     Uns16    NumExperienceLevels;
     char     ExperienceLevelNames[255];
     Uns32    ExperienceLevels[10];
     Uns16    EPRecrewScaling[12];
     Uns16    EPShipAging;
     Uns16    EPPlanetAging;
+    Uns16    EPPlanetGovernment;
     Uns16    EPShipMovement100LY;
     Uns16    EPShipHyperjump;
     Uns16    EPShipChunnel;
@@ -1408,6 +1423,10 @@ Pconfig_Struct;
   extern Boolean ShipCanRepairOthers(Uns16 pShip);
   extern Boolean ShipHasFullWeaponry(Uns16 pShip);
   extern Boolean ShipHasHardenedEngines(Uns16 pShip);
+  extern Boolean ShipIsCommander(Uns16 pShip);
+  extern Boolean ShipHasIonShield(Uns16 pShip);
+  extern Boolean ShipHasHardenedCloak(Uns16 pShip);
+  extern Boolean ShipHasAdvancedAntiCloak(Uns16 pShip);
 
   /* NOTE: Following Hull functions Added by Maurits 2004-07-30 */
   extern Boolean HullDoesAlchemy(Uns16 pHull, Uns16 Owner);
@@ -1450,6 +1469,10 @@ Pconfig_Struct;
   extern Boolean HullCanRepairOthers(Uns16 pHull, Uns16 pOwner);
   extern Boolean HullHasFullWeaponry(Uns16 pHull, Uns16 pOwner);
   extern Boolean HullHasHardenedEngines(Uns16 pHull, Uns16 pOwner);
+  extern Boolean HullIsCommander(Uns16 pShip, Uns16 pOwner);
+  extern Boolean HullHasIonShield(Uns16 pShip, Uns16 pOwner);
+  extern Boolean HullHasHardenedCloak(Uns16 pShip, Uns16 pOwner);
+  extern Boolean HullHasAdvancedAntiCloak(Uns16 pShip, Uns16 pOwner);
 
 /*
  *   Engine functions
@@ -1579,6 +1602,10 @@ Pconfig_Struct;
                                Uns16* pSizes, void** pData);
   extern Boolean PutUtilFileTransfer(RaceType_Def pRace, const char* pName,
                                      Boolean pText, Uns16 pSize, void* pData);
+
+  extern Boolean PutExplosion(Uns16 pX, Uns16 pY);
+  extern Boolean PutUtilExplosionAllPlayers(Uns16 pX, Uns16 pY, const char* pName, Uns16 pId);
+  extern Boolean PutUtilExplosion(RaceType_Def pRace, Uns16 pX, Uns16 pY, const char* pName, Uns16 pId);
 
 /*
  *  points

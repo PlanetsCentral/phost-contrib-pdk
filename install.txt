@@ -1,6 +1,6 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
                          Installation Instructions
-                                Version 4.4
+                                Version 4.5
 
 
 Getting The Source
@@ -13,61 +13,58 @@ SourceForge's project description is at
 
 You can get an "official" source archive there, or fetch the
 CVS version. In a nutshell (assuming bash, Linux):
- $ mkdir src; cd src
- $ cvs login
- // just hit Enter at the password prompt
- $ cvs co phostpdk
- $ cvs logout
- $ cd phostpdk
+    * mkdir src; cd src
+    * cvs login
+      No password required, just hit ENTER
+    * cvs co phostpdk
+    * cvs logout
+    * cd phostpdk
 
 
 Compiling
 ----------
 
-Right now, the PDK does not configure itself 100% automatically. It
-comes with several makefiles (`makefile.XXX'), and you have to pick
-one. There should be one that works for you. The best-tested one is
-probably `makefile.gcc' which is for GNU make and gcc. Maybe the
-easiest way to go is to copy it, modifying it if needed. `makefile.dj'
-is for Borland make and DJGPP2 gcc.
+Right now, the PDK does not configure itself 100% automatically. There
+are two Makefiles:
+    * "Makefile" is for GNU make and gcc, under various Unix-like
+      operating systems:
+         * DOS with DJGPP
+         * Windows with Cygwin
+         * Linux
+         * BeOS
+         * probably many others
+    * "Makefile.bor" is for Borland Make and Borland C++ 5.5, the
+      free command line compiler from Borland.
 
-Install the following files to a place where the compiler will find
-them:
-    * phostpdk.h, doscvt.h: the API include files
-    * libpdk.a or pdk.lib: the library you'll be linking againgt
+To build the PDK for your platform, pick (and customize) the right
+Makefile, and then just invoke "make" to build it. If you have some
+customisations to be made, please prefer changing an existing Makefile
+(i.e. by adding an if/else/endif block) instead of creating a new
+Makefile.
 
-To compile your own PDK programs, #include <phostpdk.h> (and
-<doscvt.h> if needed), and link against the library. For example,
-assume you have installed the PDK in a subdirectory `phostpdk', so you
-can do
-    gcc -c module.c -Iphostpdk
-to compile your modules, and
-    gcc -o program module.o -Lphostpdk -lpdk
+The build result will be a file "libpdk.a" or "pdk.lib", as well as
+executable files for the utilities (sendmess, pmaster, etc.)
 
 
-OLD INSTALLATION INSTRUCTIONS
-==============================
+Using
+-----
 
-The installation of the PDK is very straightforward.
+You do not need to formally install the PDK. You can compile and link
+PDK programs by telling your C compiler to look for headers and
+libraries in the PDK directory:
 
-    * Simply place the PHOSTPDK.H file in a global or local include
-      directory and place the PDK.LIB (or MSCPDK.LIB, or PDK32.LIB, or
-      libpdk.a) file in a global or local library directory.
+    gcc -c module.c -I/path/to/phostpdk
+    gcc -o program module.o -L/path/to/phostpdk -lpdk
 
-To use the PDK, you need only do the following:
+If you wish to install it:
 
-    * Include the file <phostpdk.h> in your source files.
+    * copy "libpdk.a" or "pdk.lib" into your "libraries" directory
+      (e.g. /usr/lib, %PROGRAMFILES%\bcc55\Lib) copy
+    * "phostpdk.h", "version.h" and "doscvt.h" into your "include"
+      directory (e.g. /usr/include, %PROGRAMFILES%\bcc55\Include).
 
-    * Link with the PDK.LIB (or MSCPDK.LIB, or PDK32.LIB, or libpdk.a)
-      library.
+Note that the "version.h" file defines some compile-time options. It
+will affect the way how the PDK library accesses the configuration
+structure, for example. If you want to change some of these options,
+you must recompile the PDK.
 
-That's it!
-
-Platform-Specific Notes
-=======================
-
-* For the DOS distribution, your program must be compiled in the large model.
-
-* For Win32 systems are several PDK versions available to support different
-  compilers. Currently we support BorlandC++ 5.0, Borland/Inprise CBuilder 4
-  and Cygwin GCC.

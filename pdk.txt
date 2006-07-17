@@ -1,5 +1,5 @@
                      THE PORTABLE HOST DEVELOPMENT KIT
-                                 Version 4.4
+                                 Version 4.5
 
 
 What is the Portable Host Development Kit?
@@ -70,7 +70,7 @@ The latest version of the PDK distribution can be found at:
     http://phost-contrib.sourceforge.net/
 
 or one of the PHost web sites. The most recent "official" version is
-4.4 as of March 2003.
+4.5 as of July 2006.
 
 You can at any time get the PDK via CVS from SourceForge, see install.txt.
 
@@ -97,8 +97,8 @@ Read through some of the example programs (EX*.C files) to get an idea
 how the PDK works. You may even want to try compiling them, running
 them, and modifying them to "get your hands dirty" with PDK
 programming. Once you have obtained a feel for how to program with the
-PDK, browse through the PDK.TEXI file for a complete description of the
-PDK application programming interface (API).
+PDK, browse through the PDK.INF resp. PDK-API.TXT file for a complete
+description of the PDK application programming interface (API).
 
 
 The Distribution Files

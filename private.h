@@ -33,7 +33,8 @@ enum {
     aux_ShipNewExp       = 103,
     aux_PlanetNewExp     = 104,
     aux_TAL              = 105,
-    aux_SpecialInhibited = 106
+    aux_SpecialInhibited = 106,
+    aux_Bangs            = 107
 };
 
 typedef unsigned char Byte;

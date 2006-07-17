@@ -1483,6 +1483,36 @@ DefaultRemoteState(RaceType_Def pRace)
 }
 
 /*
+ *    E X P L O S I O N S
+ */
+
+Boolean
+PutExplosion(Uns16 pX, Uns16 pY)
+{
+    struct Auxdata_Chunk* lChunk;
+    unsigned lIndex, lLimit;
+
+    /* Find place in auxdata.hst */
+    lChunk = GetAuxdataChunkById(aux_Bangs);
+    if (!lChunk)
+        return False;
+
+    /* Find some unused location */
+    lLimit = AuxdataChunkSize(lChunk);
+    for (lIndex = 0; lIndex < lLimit; lIndex += 4) {
+        char* p = (char*) AuxdataChunkData(lChunk) + lIndex;
+        if (ReadDOSUns16(p) == 0 && ReadDOSUns16(p + 2) == 0) {
+            /* found it! */
+            WriteDOSUns16(p, pX);
+            WriteDOSUns16(p+2, pY);
+            return True;
+        }
+    }
+    return False;
+}
+
+
+/*
  *    F I L E    I N P U T    A N D  O U T P U T
  *
  *       A N D   I N I T I A L I Z A T I O N

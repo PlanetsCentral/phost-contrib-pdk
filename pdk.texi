@@ -11,9 +11,9 @@
 @title THE PDK API
 @subtitle THE PORTABLE HOST DEVELOPMENT KIT
 @subtitle Application Programming Interface Reference
-@subtitle PDK Library Version 4.4
+@subtitle PDK Library Version 4.5
 @author TexInfo version
-@author Version 2005-May-21
+@author Version 2006-Jul-15
 @author Andrew Sterian
 @author Piotr Winiarczyk
 @author Stefan Reuther
@@ -22,7 +22,7 @@
 @node Top, Manifest Constants, (dir), (dir)
 @center THE PORTABLE HOST DEVELOPMENT KIT
 @center Application Programming Interface Reference
-@center Version 4.4
+@center Version 4.5
 
 This document outlines the usage of the PDK for writing programs. A good
 understanding of the ANSI C language is assumed. The entire API is declared
@@ -109,7 +109,7 @@ all revisions.
 @item SHIP_NR  @tab The maximum number of ships in the game (999)
 @item PLANET_NR  @tab The maximum number of planets in the game (500)
 @item BASE_NR  @tab The maximum number of bases in the game (500)
-@item MINE_NR  @tab The maximum number of minefields in the game (10000 - NEW)
+@item MINE_NR  @tab The maximum number of minefields in the game (10000)
 @item HULL_NR  @tab The number of different hull types in the game (105)
 @item ENGINE_NR  @tab The number of different engine types in the game (9)
 @item BEAM_NR  @tab The number of different beam types in the game (10)
@@ -407,9 +407,9 @@ endings inconsistently; the "canonical" name now is the one ending with
 * Memory Management::
 * Messaging and Logging::
 * Random Number Generation::
-* Cross - Platform Portability::
-* Cross - Platform Portability Part II::
-* Command - Line Option Processing::
+* Cross-Platform Portability::
+* Cross-Platform Portability Part II::
+* Command-Line Option Processing::
 * Combat Interface::
 * Remote Control Interface::
 * Config File Reader Interface::
@@ -942,10 +942,10 @@ This functions kills all ships of a given player.
 @findex KillPlayerPlanets
 
 This functions kills all planets of a given player. Colonists number is set to 0,
-colonist happines is set to 100, planet owner is set to NoOwner, planet FC is randomized.
+colonist happiness is set to 100, planet owner is set to NoOwner, planet FC is randomized.
 If KillPlayerConfigure (KILL_Cash_Supplies) returns True all supplies and cash on planets are deleted.
 If KillPlayerConfigure (KILL_Structures) returns True all mineral mines, factories and
-defence posts on planets are deleted.
+defense posts on planets are deleted.
 
 @node KillPlayerBases, KillPlayerMinefields, KillPlayerPlanets, Player Status
 @subsection void KillPlayerBases(RaceType_Def Race)
@@ -1121,7 +1121,7 @@ Functions in this section:
 This function returns True if the given parameter represents a valid ship
 number (in the range 1 to SHIP_NR) and the ship is in play. All other
 functions listed below assume that the ship specified by the function's
-parameter is a valid ship. OnOn this function will accept a parameter that
+parameter is a valid ship. This function will accept a parameter that
 is not a legal, active ship number.
 
 @node DeleteShip, IsShipCloaked, IsShipExist, Ship Accessors
@@ -1163,7 +1163,7 @@ Super Spy, then the ship is considered to be cloaked.
 This function sets the cloak status of a ship using the CLOAKC.HST file.
 Setting the cloak status True works only if the ship is capable of cloaking.
 Note that the cloak status is not permanent in PHOST, the cloak status
-is redetermined after all acions that affect cloaking (damage, fuel
+is redetermined after all actions that affect cloaking (damage, fuel
 usage etc.)
 
 Setting the cloak status to False works different since PHOST 3.2.3.3:
@@ -1200,7 +1200,7 @@ This function returns the current owner of the given ship.
 @subsection Uns16 ShipSpeed(Uns16 pID)
 @findex ShipSpeed
 
-This function returns the warp speed setting of the gigin ship.
+This function returns the warp speed setting of the given ship.
 
 @node ShipLocationX, ShipLocationY, ShipSpeed, Ship Accessors
 @subsection Uns16 ShipLocationX(Uns16 pID)
@@ -1264,7 +1264,7 @@ ENGINE_NR).
 @subsection Uns16 ShipBeamType(Uns16 pID)
 @findex ShipBeamType
 
-This function returns the type of cbeams on the given ship (in the range 1
+This function returns the type of beams on the given ship (in the range 1
 to BEAM_NR).
 
 @node ShipBeamNumber, ShipTorpType, ShipBeamType, Ship Accessors
@@ -1366,7 +1366,7 @@ cargo rather than dumping it at a planet.
 @findex ShipTransfer
 
 This function returns the amount of the specified cargo to transfer to
-another ship. The ship to transfer to is determimid by calling
+another ship. The ship to transfer to is determined by calling
 ShipTransferShip().
 
 @node ShipTransferShip, ShipName, ShipTransfer, Ship Accessors
@@ -1375,7 +1375,7 @@ ShipTransferShip().
 
 This function returns the ship ID number of the ship to which the given
 ship is transferring cargo. This function returns 0 if there is no ship to
-ship transfer ocurring.
+ship transfer occurring.
 
 @node ShipName, ShipFC, ShipTransferShip, Ship Accessors
 @subsection char* ShipName(Uns16 pID, char* pName)
@@ -1431,8 +1431,8 @@ ammunition and fuel masses.
 @subsection Uns16 ShipTravelMass(Uns16 sID)
 @findex ShipTravelMass
 
-This routine returns total ship mass and total ship mass of ship beeing
-tow by this ship, if ship sID is towing.
+This routine returns total ship mass and total ship mass of ship being
+towed by this ship, if ship sID is towing.
 
 @node ShipCargoMass, ShipMissionName, ShipTravelMass, Ship Accessors
 @subsection Uns16 ShipCargoMass(Uns16 sID)
@@ -1595,7 +1595,7 @@ This function sets the given ship's mission.
 
 @node PutShipEnemy, PutShipTowTarget, PutShipMission, Ship Accessors
 @subsection void PutShipEnemy(Uns16 pID, RaceType_Def pEnemy)
-@findex PuPuhipEnemy
+@findex PutShipEnemy
 
 This function sets the given ship's primary enemy.
 
@@ -1941,7 +1941,7 @@ to the temporary area containing the ship's name.
 @subsection char *PlanetNatGovmString(int pID, char *pBuffer)
 @findex PlanetNatGovmString
 
-This function returns given planet natives goverment type name as string.
+This function returns given planet natives government type name as string.
 If the 'pName' parameter is 0, then the name is stored in a temporary
 area which is overwritten with each call to this routine. Otherwise,
 the name is stored in the area pointed to by 'pName', which must be at
@@ -1959,7 +1959,7 @@ to build due to colonist population.
 @subsection Uns16 PlanetMaxDefense(Uns16 pID)
 @findex PlanetMaxDefense
 
-This function returns given planet maximal number of defence outposts
+This function returns given planet maximal number of defense outposts
 allowed to build due to colonist population.
 
 @node PlanetMaxMines, PlanetMining, PlanetMaxDefense, Planet Accessors
@@ -1980,9 +1980,9 @@ from mineral mines.
 @subsection Uns16 PlanetGovTaxRate(Uns16 pID)
 @findex PlanetGovTaxRate
 
-This function returns given planet natives tax modyficastor due to nativies
-goverment type. If Anarchy type native goverment is present on planet this
-function will return 20, for participatory goverment this will be 160.
+This function returns given planet natives tax modificator due to natives
+government type. If Anarchy type native government is present on planet this
+function will return 20, for participatory government this will be 160.
 
 @node NumberOfShipsHissingPlanet, PlanetNatHappyChange, PlanetGovTaxRate, Planet Accessors
 @subsection Uns16 NumberOfShipsHissingPlanet(Uns16 pID)
@@ -1995,14 +1995,14 @@ Gorn, ship mission must be set to Hiss, ship must have fuel and beams to be coun
 @subsection int PlanetNatHappyChange(Uns16 pID)
 @findex PlanetNatHappyChange
 
-This function returns given planet natives happines change next turn due
+This function returns given planet natives happiness change next turn due
 to taxes. Ships doing Hiss mission are NOT included.
 
 @node PlanetColHappyChange, PlanetColIncome, PlanetNatHappyChange, Planet Accessors
 @subsection int PlanetColHappyChange(Uns16 pID)
 @findex PlanetColHappyChange
 
-This function returns given planet colonist happines change next turn due
+This function returns given planet colonist happiness change next turn due
 to taxes. Ships doing Hiss mission are NOT included.
 
 @node PlanetColIncome, PlanetNatIncome, PlanetColHappyChange, Planet Accessors
@@ -2088,7 +2088,7 @@ present at this planet. See also @xref{ChangePlanetOwner}.
 
 This function changes ownership of the specified planet to the given race.
 If the planet has a starbase, that base's ownership is changed as well,
-the build order is cancelled and the hulls removed.
+the build order is canceled and the hulls removed.
 
 @node PutPlanetFC, PutPlanetMines, ChangePlanetOwner, Planet Accessors
 @subsection void PutPlanetFC(Uns16 pID, char* pFCode)
@@ -2425,7 +2425,7 @@ range 1 through TORP_NR) in storage at the given base.
 @findex BaseBuildOrder
 
 This routine returns True if the given base has a pending build order,
-otherwise it returns False. IfIfhere is a pending build order, then the
+otherwise it returns False. If there is a pending build order, then the
 build order is stored in the 'pOrder' structure (which must already have
 been allocated).
 
@@ -3464,7 +3464,7 @@ torpedo of the given type.
 @subsection Uns16 TorpTubeCost(Uns16 pTorpNr)
 @findex TorpTubeCost
 
-This routien returns the number of megacredits required to build one
+This routine returns the number of megacredits required to build one
 torpedo launcher tube of the given type.
 
 @node TorpTritCost, TorpDurCost, TorpTubeCost, Torpedo Accessors
@@ -3534,7 +3534,7 @@ torpedo of the given type.
 @subsection void PutTorpTubeCost(Uns16 pTorpNr, Uns16 pTubeCost)
 @findex PutTorpTubeCost
 
-This routien sets the number of megacredits required to build one
+This routine sets the number of megacredits required to build one
 torpedo launcher tube of the given type.
 
 @node PutTorpTritCost, PutTorpDurCost, PutTorpTubeCost, Torpedo Accessors
@@ -3848,7 +3848,7 @@ string are used.
 @node Host Run Time Accessors, Enumeration Functions, Race Name Accessors, Function Call Interface
 @section Host Run Time Accessors
 
-These routines s ovide an interface to the host run time and host turn
+These routines provide an interface to the host run time and host turn
 number. These routines should not be invoked unless the ReadHostData()
 routine has been called.
 
@@ -4263,7 +4263,7 @@ given position in build queue.
 @subsection Uns16 BuildQueueTorpNumber(Uns16 pPosition)
 @findex BuildQueueTorpNumber
 
-This function returns torpedo lunchers number mounted to hull of
+This function returns torpedo launchers number mounted to hull of
 build order for given position in build queue.
 
 @node PutBuildQueuePriority,  , BuildQueueTorpNumber, Build Queue Interface
@@ -4898,8 +4898,8 @@ preferred over 'assert' because 'assert' usually calls 'abort' which does
 not perform an orderly cleanup of the program.
 
 
-@node Random Number Generation, Cross - Platform Portability, Messaging and Logging, Function Call Interface
-@section Randnd Number Generation
+@node Random Number Generation, Cross-Platform Portability, Messaging and Logging, Function Call Interface
+@section Random Number Generation
 
 These routines are not directly related to host processing but are provided
 for convenience. These routines allow for the portable generation of random
@@ -4949,8 +4949,8 @@ This routine returns a floating-point random number in the range [0,1).
 That is, 0 may be returned, but 1 may not.
 
 
-@node Cross - Platform Portability, Cross - Platform Portability Part II, Random Number Generation, Function Call Interface
-@section Cross - Platform Portability
+@node Cross-Platform Portability, Cross-Platform Portability Part II, Random Number Generation, Function Call Interface
+@section Cross-Platform Portability
 
 These routines are not directly related to host processing but are provided
 for convenience. These routines are meant to aid in writing portable
@@ -4977,7 +4977,7 @@ Functions in this section:
 @end itemize
 @end iftex
 
-@node WordSwapLong, WordSwapShort, Cross - Platform Portability, Cross - Platform Portability
+@node WordSwapLong, WordSwapShort, Cross-Platform Portability, Cross-Platform Portability
 @subsection void WordSwapLong(void *pData, Uns16 pNumWords)
 @findex WordSwapLong
 
@@ -4991,7 +4991,7 @@ platform, it must be in little-endian format. However, some platforms are
 big-endian. Thus, this routine can be used to swap the byte order to or
 from little-endian format before or after processing.
 
-@node WordSwapShort, DOSRead16, WordSwapLong, Cross - Platform Portability
+@node WordSwapShort, DOSRead16, WordSwapLong, Cross-Platform Portability
 @subsection void WordSwapShort(void* pData, Uns16 pNumWords)
 @findex WordSwapShort
 
@@ -5000,7 +5000,7 @@ the program is running is big-endian. On little-endian systems, this
 routine does nothing. The 'pNumWords' parameter indicates the number of
 16-bit words which are to be byte-swapped.
 
-@node DOSRead16, DOSRead32, WordSwapShort, Cross - Platform Portability
+@node DOSRead16, DOSRead32, WordSwapShort, Cross-Platform Portability
 @subsection Boolean DOSRead16(Uns16 *pData, Uns16 pNum, FILE *pInFile)
 @findex DOSRead16
 
@@ -5012,19 +5012,19 @@ routine returns, so that the data may be accessed in the native mode of the
 machine on which the program is running. This routine returns True if
 successful, False otherwise.
 
-@node DOSRead32, DOSWrite16, DOSRead16, Cross - Platform Portability
+@node DOSRead32, DOSWrite16, DOSRead16, Cross-Platform Portability
 @subsection Boolean DOSRead32(Uns32 *pData, Uns16 pNum, FILE *pInFile)
 @findex DOSRead32
 
 This routine reads 'pNum' 32-bit words from the file 'pInFile' and stores
 them in the area pointed to by 'pData', which must have been previously
 allocated. The data is assumed to have been generated on a DOS (i.e., IBM
-PC compatible) machine. The d da is byte-swapped if necessary before the
+PC compatible) machine. The data is byte-swapped if necessary before the
 routine returns, so that the data may be accessed in the native mode of the
 machine on which the program is running. This routine returns True if
 successful, False otherwise.
 
-@node DOSWrite16, DOSWrite32, DOSRead32, Cross - Platform Portability
+@node DOSWrite16, DOSWrite32, DOSRead32, Cross-Platform Portability
 @subsection Boolean DOSWrite16(Uns16 *pData, Uns16 pNum, FILE *pOutFile)
 @findex DOSWrite16
 
@@ -5035,7 +5035,7 @@ necessary prior to writing to 'pOutFile', then byte-swapped again to return
 the data to the native format of the machine. Thus, the contents of 'pData'
 remain unchanged. The routine returns True if successful, False otherwise.
 
-@node DOSWrite32,  , DOSWrite16, Cross - Platform Portability
+@node DOSWrite32,  , DOSWrite16, Cross-Platform Portability
 @subsection Boolean DOSWrite32(Uns32 *pData, Uns16 pNum, FILE *pOutFile)
 @findex DOSWrite32
 
@@ -5047,8 +5047,8 @@ the data to the native format of the machine. Thus, the contents of 'pData'
 remain unchanged. The routine returns True if successful, False otherwise.
 
 
-@node Cross - Platform Portability Part II, Command - Line Option Processing, Cross - Platform Portability, Function Call Interface
-@section Cross - Platform Portability Part II (new - 4.2)
+@node Cross-Platform Portability Part II, Command-Line Option Processing, Cross-Platform Portability, Function Call Interface
+@section Cross-Platform Portability Part II (new - 4.2)
 
 The following structures and functions are available by including
 <doscvt.h>.
@@ -5128,7 +5128,7 @@ The following are the functions you can now use:
 @end itemize
 @end iftex
 
-@node DOSWriteStruct, DOSReadStruct, Cross - Platform Portability Part II, Cross - Platform Portability Part II
+@node DOSWriteStruct, DOSReadStruct, Cross-Platform Portability Part II, Cross-Platform Portability Part II
 @subsection Boolean DOSWriteStruct(const DOSConvertElement * pStruct, Uns16 pNumElements, const void *pData, FILE * pOutFile)
 @findex DOSWriteStruct
 
@@ -5143,17 +5143,17 @@ number of items in the array. The above structure could be written by
     DOSWriteStruct(XYPlan_Convert, 3, &lEntry, lFile);
 @end example
 
-'DOSWriteStruct' returns True if everything wents ok, False otherwise.
+'DOSWriteStruct' returns True if everything went OK, False otherwise.
 
-@node DOSReadStruct, DOSStructSize, DOSWriteStruct, Cross - Platform Portability Part II
+@node DOSReadStruct, DOSStructSize, DOSWriteStruct, Cross-Platform Portability Part II
 @subsection Boolean DOSReadStruct(const DOSConvertElement * pStruct, Uns16 pNumElements, void *pData, FILE * pInFile)
 @findex DOSReadStruct
 
 Reads the structure pointed to by 'pData' from 'pInFile'. 'pStruct'
 and 'pNumElements' define the conversion. Returns True if everything
-wents ok, False otherwise.
+went OK, False otherwise.
 
-@node DOSStructSize, DOSStructConvert, DOSReadStruct, Cross - Platform Portability Part II
+@node DOSStructSize, DOSStructConvert, DOSReadStruct, Cross-Platform Portability Part II
 @subsection Uns16 DOSStructSize(const DOSConvertElement *pStruct, Uns16 pNumElem)
 @findex DOSStructSize
 
@@ -5166,7 +5166,7 @@ For example, for the above definition,
 
 would return 6.
 
-@node DOSStructConvert, UnixConvertStruct, DOSStructSize, Cross - Platform Portability Part II
+@node DOSStructConvert, UnixConvertStruct, DOSStructSize, Cross-Platform Portability Part II
 @subsection Boolean DOSStructConvert(const DOSConvertElement *pStruct, Uns16 pNumElements, const void *pSrc, void *pDst)
 @findex DOSStructConvert
 
@@ -5176,7 +5176,7 @@ the conversion information from 'pStruct' and 'pNumElements'. The array
 'pSrc' points to must be 'DOSStructSize(pStruct, pNumElements)' bytes
 in size. Returns True.
 
-@node UnixConvertStruct, ReadDOSUns16, DOSStructConvert, Cross - Platform Portability Part II
+@node UnixConvertStruct, ReadDOSUns16, DOSStructConvert, Cross-Platform Portability Part II
 @subsection void UnixConvertStruct(const DOSConvertElement *pStruct, Uns16 pNumElements, const void *pData, void *pDst)
 @findex UnixConvertStruct
 
@@ -5185,34 +5185,34 @@ the C structure pointed to by 'pData' to DOS format. 'pDst' must
 point to 'DOSStructSize(pStruct, pNumElements)' bytes of memory.
 The conversion is defined by 'pStruct' and 'pNumElements'.
 
-@node ReadDOSUns16, ReadDOSUns32, UnixConvertStruct, Cross - Platform Portability Part II
+@node ReadDOSUns16, ReadDOSUns32, UnixConvertStruct, Cross-Platform Portability Part II
 @subsection Uns16 ReadDOSUns16(const void *pVal)
 @findex ReadDOSUns16
 
 Fetch the 16 quantity pointed to by 'pVal'.
 
-@node ReadDOSUns32, WriteDOSUns16, ReadDOSUns16, Cross - Platform Portability Part II
+@node ReadDOSUns32, WriteDOSUns16, ReadDOSUns16, Cross-Platform Portability Part II
 @subsection Uns32 ReadDOSUns32(const void *pVal)
 @findex ReadDOSUns32
 
 Fetch the 32 quantity pointed to by 'pVal'.
 
-@node WriteDOSUns16, WriteDOSUns32, ReadDOSUns32, Cross - Platform Portability Part II
+@node WriteDOSUns16, WriteDOSUns32, ReadDOSUns32, Cross-Platform Portability Part II
 @subsection void WriteDOSUns16(void* pData, Uns16 pVal)
 @findex WriteDOSUns16
 
 Stores the 16-bit quantity @code{pVal} in the two bytes pointed to by
 @code{pData}.
 
-@node WriteDOSUns32,  , WriteDOSUns16, Cross - Platform Portability Part II
+@node WriteDOSUns32,  , WriteDOSUns16, Cross-Platform Portability Part II
 @subsection void WriteDOSUns32(void* pData, Uns32 pVal)
 @findex WriteDOSUns32
 
 Stores the 32-bit quantity @code{pVal} in the four bytes pointed to by
 @code{pData}.
 
-@node Command - Line Option Processing, Combat Interface, Cross - Platform Portability Part II, Function Call Interface
-@section Command - Line Option Processing
+@node Command-Line Option Processing, Combat Interface, Cross-Platform Portability Part II, Function Call Interface
+@section Command-Line Option Processing
 
 @menu
 * pgetopt::
@@ -5225,7 +5225,7 @@ Function in this section:
 @end itemize
 @end iftex
 
-@node pgetopt,  , Command - Line Option Processing, Command - Line Option Processing
+@node pgetopt,  , Command-Line Option Processing, Command-Line Option Processing
 @subsection int pgetopt(int argc, char *argv[], char *optstring)
 @findex pgetopt
 
@@ -5315,7 +5315,7 @@ see the EX*.C files (for example, EX6.C).
 @end example
 
 
-@node Combat Interface, Remote Control Interface, Command - Line Option Processing, Function Call Interface
+@node Combat Interface, Remote Control Interface, Command-Line Option Processing, Function Call Interface
 @section Combat Interface
 
 The PDK library contains a 'combat module' which implements combat in
@@ -5517,7 +5517,7 @@ in this routine is highly recommended.
 @subsection void DrawEraseFighterAttack(Uns16 pShip, Uns16 pFighter, Int32 pPos)
 @findex DrawEraseFighterAttack
 
-This routine is called by C Cbat() to indicate that fighter 'pFighter'
+This routine is called by Combat() to indicate that fighter 'pFighter'
 belonging to ship 'pShip' is no longer at the given position. The fighter
 is still "attacking" however (see DrawFighterAttack() above). Combat()
 moves a fighter by repeatedly calling DrawEraseFighterAttack() with its old
@@ -5687,7 +5687,7 @@ position.
 
 This routine is called to erase the given ship at the given position. The
 ship is moved on the battlefield by repeatedly calling DrawEraseShip() with
-the ship's old position followed by DrawShip() with the newewosition.
+the ship's old position followed by DrawShip() with the new position.
 
 @node DrawDistance,  , DrawEraseShip, Combat Interface
 @subsection void DrawDistance(Int32 pDist)
@@ -5792,7 +5792,7 @@ This function assigns the default remote control state (as chosen by the
 player with the "remote...default" command) to ship pShip.
 
 @node AllowShipRemoteControl, ForbidShipRemoteControl, AssignDefaultForbidState, Remote Control Interface
-@subsection Boolean AllowShipRemoteControl(Uns16 pShipIpI Uns16 pOrigOwner)
+@subsection Boolean AllowShipRemoteControl(Uns16 pShipId, Uns16 pOrigOwner)
 @findex AllowShipRemoteControl
 
 This function enables remote control on a ship, resetting any previous
@@ -5950,7 +5950,7 @@ last two parameters.
 These functions indicate whether a given ship is capable of a special
 function, such as alchemy or terraforming.
 
-These functions come in two flavours.
+These functions come in two flavors.
 @itemize @bullet
 @item ShipDoesXXX(pShipId) returns true if the ship can perform the
   special function. These functions also handle hull functions assigned
@@ -6005,6 +6005,10 @@ two parameters instead of one.
 * ShipCanRepairOthers::
 * ShipHasFullWeaponry::
 * ShipHasHardenedEngines::
+* ShipIsCommander::
+* ShipHasIonShield::
+* ShipHasHardenedCloak::
+* ShipHasAdvancedAntiCloak::
 @end menu
 
 @iftex
@@ -6049,6 +6053,10 @@ Functions in this section:
 @item ShipCanRepairOthers
 @item ShipHasFullWeaponry
 @item ShipHasHardenedEngines
+@item ShipIsCommander
+@item ShipHasIonShield
+@item ShipHasHardenedCloak
+@item ShipHasAdvancedAntiCloak
 @end itemize
 @end iftex
 
@@ -6159,7 +6167,7 @@ This routine returns True if the given ship has gravitonic capability
 (@code{Gravitonic}).
 
 @node ShipScansAllWormholes, ShipCanCloak, ShipIsGravitonic, Special Ship Function Accessors
-@subsection Boolean ShipScansAllWormholes(Uns16 pShipNpN
+@subsection Boolean ShipScansAllWormholes(Uns16 pShipNr)
 @findex ShipScansAllWormholes
 @findex HullScansAllWormholes
 
@@ -6173,7 +6181,7 @@ equipment and can scan all detectable wormholes in a single turn, i.e. the
 @findex HullCanCloak
 
 This routine returns True if the given ship is capable of cloaking, i.e.
-has the @code{Cloak} or @code{AdvancedCloak} ability.
+has the @code{Cloak}, @code{AdvancedCloak}, or @code{HardenedCloak} ability.
 
 @node ShipDoesAdvancedRefinery, ShipIsGamblingShip, ShipCanCloak, Special Ship Function Accessors
 @subsection Boolean ShipDoesAdvancedRefinery(Uns16 pShipNr)
@@ -6199,7 +6207,8 @@ the @code{Gambling} ability.
 @findex HullIsAntiCloaking
 
 This routine returns True if the given ship emits tachyon pulses that
-uncloak nearby ships, i.e. it has the @code{AntiCloak} ability.
+uncloak nearby ships, i.e. it has the @code{AntiCloak} or
+@code{AdvancedAntiCloak} ability.
 
 @node ShipDoesImperialAssault, ShipDoesChunneling, ShipIsAntiCloaking, Special Ship Function Accessors
 @subsection Boolean ShipDoesImperialAssault(Uns16 pShipNr)
@@ -6402,13 +6411,43 @@ mission, i.e. it has the @code{Repairs} hull function.
 Returns True if the given ship can use its full weaponry even if it is
 damaged (@code{FullWeaponry} ability).
 
-@node ShipHasHardenedEngines,  , ShipHasFullWeaponry, Special Ship Function Accessors
+@node ShipHasHardenedEngines, ShipIsCommander, ShipHasFullWeaponry, Special Ship Function Accessors
 @subsection Boolean ShipHasHardenedEngines(Uns16 pShip)
 @findex ShipHasHardenedEngines
 @findex HullHasHardenedEngines
 
 Returns True if the ship has hardened engines that do not slow down when
 damaged (@code{HardenedEngines} ability).
+
+@node ShipIsCommander, ShipHasIonShield, ShipHasHardenedEngines, Special Ship Function Accessors
+@subsection Boolean ShipIsCommander(Uns16 pShip)
+@findex ShipIsCommander
+@findex HullIsCommander
+
+Returns true if the ship is a Commander ship.
+
+@node ShipHasIonShield, ShipHasHardenedCloak, ShipIsCommander, Special Ship Function Accessors
+@subsection Boolean ShipHasIonShield(Uns16 pShip)
+@findex ShipHasIonShield
+@findex HullHasIonShield
+
+Returns true if the ship has an ion shield that protects it from ion storms.
+
+@node ShipHasHardenedCloak, ShipHasAdvancedAntiCloak, ShipHasIonShield, Special Ship Function Accessors
+@subsection Boolean ShipHasHardenedCloak(Uns16 pShip)
+@findex ShipHasHardenedCloak
+@findex HullHasHardenedCloak
+
+Returns true if the ship has a hardened cloaking device that doesn't fail when
+it gets damaged.
+
+@node ShipHasAdvancedAntiCloak,  , ShipHasHardenedCloak, Special Ship Function Accessors
+@subsection Boolean ShipHasAdvancedAntiCloak(Uns16 pShip)
+@findex ShipHasAdvancedAntiCloak
+@findex HullHasAdvancedAntiCloak
+
+Returns true if the ship has an advanced Anti-Cloak ability, which also
+detects ships that are immune to the normal Anti-Cloak.
 
 @node Wraparound Map Functions, UTILx.DAT Functions, Special Ship Function Accessors, Function Call Interface
 @section Wraparound Map Functions
@@ -6537,6 +6576,8 @@ The following functions allow programs to write UTILx.DAT records.
 * PutUtilRecordStruct::
 * PutUtilRecord::
 * PutUtilFileTransfer::
+* PutUtilExplosion::            new - 4.5
+* PutExplosion::                new - 4.5
 @end menu
 
 @iftex
@@ -6546,6 +6587,9 @@ The following functions allow programs to write UTILx.DAT records.
 @item PutUtilRecordStruct
 @item PutUtilRecord
 @item PutUtilFileTransfer
+@item PutUtilExplosion (new - 4.5)
+@item PutUtilExplosionAllPlayers (new - 4.5)
+@item PutExplosion (new - 4.5)
 @end itemize
 @end iftex
 
@@ -6604,7 +6648,7 @@ a record that consists of two blocks, you can do:
      PutUtilRecord(pRace, pRecordId, 2, lSizes, lData);
 @end example
 
-@node PutUtilFileTransfer,  , PutUtilRecord, UTILx.DAT Functions
+@node PutUtilFileTransfer, PutUtilExplosion, PutUtilRecord, UTILx.DAT Functions
 @subsection Boolean PutUtilFileTransfer(RaceType_Def pRace, const char* pName, Boolean pText, Uns16 pSize, void* pData);
 @findex PutUtilFileTransfer
 
@@ -6617,11 +6661,53 @@ Note that this function will not attempt to open the file 'pName': this
 is just the name the client will see. You have to read the file and
 supply its data and size to this function.
 
+@node PutUtilExplosion, PutExplosion, PutUtilFileTransfer, UTILx.DAT Functions
+@subsection Boolean PutUtilExplosion(RaceType_Def pRace, Uns16 pX, Uns16 pY, const char* pName, Uns16 pId);
+@findex PutUtilExplosion
+@findex PutUtilExplosionAllPlayers
+
+Writes a explosion record into the specified player's util.dat file.
+@code{PutUtilExplosionAllPlayers} will write into all active players'
+files.
+
+The parameters @code{pX}, @code{pY} and @code{pId} are mandatory.
+@code{pName} is the name of the ship which exploded. This parameter can
+be null; in this case, the util.dat record is written without the Name
+field (pre-3.4 format).
+
+You should also use @ref{PutExplosion} to place an explosion marker in
+Winplan's starchart.
+
+@node PutExplosion,  , PutUtilExplosion, UTILx.DAT Functions
+@subsection Boolean PutExplosion(Uns16 pX, Uns16 pY)
+@findex PutExplosion
+
+This function places an explosion marker at @code{pX,pY} on all players'
+starcharts. PHost itself uses this function for mine explosions and
+ships blown up in combat.
+
+@itemize @minus
+@item This function only works with PHost 4.0k and later. Previous
+versions do not have a possibility to add these markers from the outside.
+@item Only Winplan players will receive these markers with their result.
+There is space for 50 markers, excess markers will be ignored.
+@item This marker will always be sent to all players.
+@end itemize
+
+To address the above shortcomings, you should always send a regular
+message (@ref{WriteAUXHOSTMessage}) and a util.dat record
+(@ref{PutUtilExplosion}) as well.
+
+This function returns @code{True} if it successfully delivered the
+explosion into the @code{auxdata.hst} file (first two conditions from
+above). It returns @code{False} if the PHost version in use does not
+support this feature, or if all slots have been used up.
+
 @node Score Functions, FCode Functions, UTILx.DAT Functions, Function Call Interface
 @section Score Functions (new - 4.3)
 
 The following functions allow programs to evaluate scores for
-ships, planets, bases and mines. Default settings are compatibile
+ships, planets, bases and mines. Default settings are compatible
 with PTSCORE v1.4 program. THost scores can be evaluated too.
 Basic global count functions are implemented.
 
@@ -6796,7 +6882,7 @@ This function returns points for one fighter, assuming fighter cost is
 @subsection Uns32 PointsForBaseDefensePost(void)
 @findex PointsForBaseDefensePost
 
-This function returns points for one base defence, assuming base defence cost is
+This function returns points for one base defense, assuming base defense cost is
 1 duranium and 10 credits.
 
 @node PointsForMineralMine, PointsForFactory, PointsForBaseDefensePost, Score Functions
@@ -6817,7 +6903,7 @@ This function returns points for one factory, assuming factory cost is
 @subsection Uns32 PointsForDefencePost(void)
 @findex PointsForDefencePost
 
-This function returns points for one planetary defence post, assuming defence post cost is
+This function returns points for one planetary defense post, assuming defense post cost is
 1 supply and 10 credits.
 
 @node PointsForBaseOnPlanet, PointsForHull, PointsForDefencePost, Score Functions
@@ -6867,7 +6953,7 @@ credits build cost for a given torpedo. The lTorpNr parameter should be in range
 @findex PointsForShipParts
 
 This function returns points for ship, assuming normal build costs for
-all ship equipment and hull. Hull, engines, beams and torpedo lunchers costs
+all ship equipment and hull. Hull, engines, beams and torpedo launchers costs
 are summed.
 
 @node PointsForShipCargo, PointsForShipAmmo, PointsForShipParts, Score Functions
@@ -6888,7 +6974,7 @@ fighters are counted. For ships having torpedo tubes, torpedos are counted.
 @findex PointsForPlanetStructures
 
 This function returns points for given planet structures. All mineral mines,
-factories and defence posts are counted.
+factories and defense posts are counted.
 
 @node PointsForPlanetMinerals, PointsForBaseTechLevels, PointsForPlanetStructures, Score Functions
 @subsection Uns32 PointsForPlanetMinerals(Uns16 pID)
@@ -6907,7 +6993,7 @@ This function returns points for given base tech levels.
 @subsection Uns32 PointsForBaseDefense(Uns16 bID)
 @findex PointsForBaseDefense
 
-This function returns points for given base defence posts and fighters.
+This function returns points for given base defense posts and fighters.
 
 @node PointsForBaseStorage, PointsForBaseTorpedos, PointsForBaseDefense, Score Functions
 @subsection Uns32 PointsForBaseStorage(Uns16 bID)
@@ -6947,7 +7033,7 @@ Setting CountType to UNUSED_POINTS counts only planet cargo
 
 This function returns points for given base. Setting CountType to USED_POINTS
 makes procedure counts points for base build cost, torpedos stored in base,
-base defence system and base tech levels (PointsForBaseOnPlanet, PointsForBaseTorpedos,
+base defense system and base tech levels (PointsForBaseOnPlanet, PointsForBaseTorpedos,
 PointsForBaseDefense and PointsForBaseTechLevels are called).
 Setting CountType to UNUSED_POINTS counts base stored equipment. All hulls,
 engines, beams and torpedo tubes are counted (PointsForBaseStorage is called).
@@ -6958,7 +7044,7 @@ ALL_POINTS sums all points.
 @findex PointsForMinefield
 
 This function returns points for given minefield. Setting CountType to USED_POINTS
-or to ALL_POINTS gives points for minefield mID assuming that minefield was layed
+or to ALL_POINTS gives points for minefield mID assuming that minefield was laid
 using the most cheapest, in points, torpedos. Setting CountType to UNUSED_POINTS
 make procedure to return zero. No race specific corrections are made.
 
@@ -6966,7 +7052,7 @@ make procedure to return zero. No race specific corrections are made.
 @subsection Uns32 RaceScoreForShips( RaceType_Def Race, PointsType_Def CountType, ShipsType_Def ShipsType)
 @findex RaceScoreForShips
 
-This function returns points for given race ships. Points type are controled
+This function returns points for given race ships. Points type are controlled
 by CountType parameter. ShipsType parameter can filter counted ships, so only
 war ships are scored (WAR_SHIPS), freighters (FREIGHTER_SHIPS) or there is no filtering
 at all (ALL_SHIPS).
@@ -6975,21 +7061,21 @@ at all (ALL_SHIPS).
 @subsection Uns32 RaceScoreForPlanets( RaceType_Def Race, PointsType_Def CountType)
 @findex RaceScoreForPlanets
 
-This function returns points for given race planets. Points type are controled
+This function returns points for given race planets. Points type are controlled
 by CountType parameter.
 
 @node RaceScoreForBases, RaceScoreForMinefields, RaceScoreForPlanets, Score Functions
 @subsection Uns32 RaceScoreForBases( RaceType_Def Race, PointsType_Def CountType)
 @findex RaceScoreForBases
 
-This function returns points for given race bases. Points type are controled
+This function returns points for given race bases. Points type are controlled
 by CountType parameter.
 
 @node RaceScoreForMinefields, RaceShipsNumber, RaceScoreForBases, Score Functions
 @subsection Uns32 RaceScoreForMinefields( RaceType_Def Race, PointsType_Def CountType, Boolean RaceModify)
 @findex RaceScoreForMinefields
 
-This function returns points for given race minefields. Points type are controled
+This function returns points for given race minefields. Points type are controlled
 by CountType parameter. Setting RaceModify to True makes points to be corrected by
 race UnitsPerTorpRate PConfig.src parameter, so real torpedo laying costs are counted.
 Making RaceModify False gives no such correction.
@@ -7049,13 +7135,13 @@ This function returns total number of mineral mines for a given race.
 @subsection Uns32 RaceDefencePostsNumber(RaceType_Def Race)
 @findex RaceDefencePostsNumber
 
-This function returns total number of planetary defence posts for a given race.
+This function returns total number of planetary defense posts for a given race.
 
 @node RaceBaseDefenceNumber, RaceCargoNumber, RaceDefencePostsNumber, Score Functions
 @subsection Uns32 RaceBaseDefenceNumber(RaceType_Def Race)
 @findex RaceBaseDefenceNumber
 
-This function returns total number of base defence posts for a given race.
+This function returns total number of base defense posts for a given race.
 
 @node RaceCargoNumber, RaceMinefieldUnitsNumber, RaceBaseDefenceNumber, Score Functions
 @subsection Uns32 RaceCargoNumber(RaceType_Def Race,CargoType_Def CargoType)
@@ -7068,7 +7154,7 @@ Cargo from planets and ships are counted.
 @subsection Uns32 RaceMinefieldUnitsNumber(RaceType_Def Race)
 @findex RaceMinefieldUnitsNumber
 
-This function returns total number of layed minefields units for a given race.
+This function returns total number of laid minefields units for a given race.
 No race specific correction are made.
 
 @node MineralsForFighter, MineralsForBaseDefensePost, RaceMinefieldUnitsNumber, Score Functions
@@ -7082,7 +7168,7 @@ This function returns minerals for one fighter, assuming fighter cost is
 @subsection Uns32 MineralsForBaseDefensePost(CargoType_Def CargoType)
 @findex MineralsForBaseDefensePost
 
-This function returns minerals for one base defence, assuming base defence cost is
+This function returns minerals for one base defense, assuming base defense cost is
 1 duranium and 10 credits.
 
 @node MineralsForMineralMine, MineralsForFactory, MineralsForBaseDefensePost, Score Functions
@@ -7103,7 +7189,7 @@ This function returns minerals for one factory, assuming factory cost is
 @subsection Uns32 MineralsForDefencePost(CargoType_Def CargoType)
 @findex MineralsForDefencePost
 
-This function returns minerals for one planetary defence post, assuming defence post cost is
+This function returns minerals for one planetary defense post, assuming defense post cost is
 1 supply and 10 credits.
 
 @node MineralsForBaseOnPlanet, MineralsForHull, MineralsForDefencePost, Score Functions
@@ -7153,7 +7239,7 @@ credits build cost for a given torpedo. The lTorpNr parameter should be in range
 @findex MineralsForShipParts
 
 This function returns minerals for ship, assuming normal build costs for
-all ship equipment and hull. Hull, engines, beams and torpedo lunchers costs
+all ship equipment and hull. Hull, engines, beams and torpedo launchers costs
 are summed.
 
 @node MineralsForShipCargo, MineralsForShipAmmo, MineralsForShipParts, Score Functions
@@ -7174,7 +7260,7 @@ fighters are counted. For ships having torpedo tubes, torpedos are counted.
 @findex MineralsForPlanetStructures
 
 This function returns minerals for given planet structures. All mineral mines,
-factories and defence posts are counted.
+factories and defense posts are counted.
 
 @node MineralsForPlanetMinerals, MineralsForBaseTechLevels, MineralsForPlanetStructures, Score Functions
 @subsection Uns32 MineralsForPlanetMinerals(Uns16 pID, CargoType_Def CargoType)
@@ -7192,7 +7278,7 @@ This function returns minerals for given base tech levels.
 @subsection Uns32 MineralsForBaseDefense(Uns16 bID, CargoType_Def CargoType)
 @findex MineralsForBaseDefense
 
-This function returns minerals for given base defence posts and fighters.
+This function returns minerals for given base defense posts and fighters.
 
 @node MineralsForBaseStorage, MineralsForBaseTorpedos, MineralsForBaseDefense, Score Functions
 @subsection Uns32 MineralsForBaseStorage(Uns16 bID, CargoType_Def CargoType)
@@ -7232,7 +7318,7 @@ Setting CountType to UNUSED_POINTS counts only planet cargo
 
 This function returns minerals for given base. Setting CountType to USED_POINTS
 makes procedure counts minerals for base build cost, torpedos stored in base,
-base defence system and base tech levels (MineralsForBaseOnPlanet, MineralsForBaseTorpedos,
+base defense system and base tech levels (MineralsForBaseOnPlanet, MineralsForBaseTorpedos,
 MineralsForBaseDefense and MineralsForBaseTechLevels are called).
 Setting CountType to UNUSED_POINTS counts base stored equipment. All hulls,
 engines, beams and torpedo tubes are counted (MineralsForBaseStorage is called).
@@ -7243,7 +7329,7 @@ ALL_POINTS sums all minerals.
 @findex MineralsForMinefield
 
 This function returns minerals for given minefield. Setting CountType to USED_POINTS
-or to ALL_POINTS gives minerals for minefield mID assuming that minefield was layed
+or to ALL_POINTS gives minerals for minefield mID assuming that minefield was laid
 using the most cheapest, in minerals, torpedos. Setting CountType to UNUSED_POINTS
 make procedure to return zero. No race specific corrections are made.
 
@@ -7251,7 +7337,7 @@ make procedure to return zero. No race specific corrections are made.
 @subsection Uns32 RaceMineralsForShips( RaceType_Def Race, PointsType_Def CountType, ShipsType_Def ShipsType)
 @findex RaceMineralsForShips
 
-This function returns minerals for given race ships. Count type is controled
+This function returns minerals for given race ships. Count type is controlled
 by CountType parameter. ShipsType parameter can filter counted ships, so only
 war ships are scored (WAR_SHIPS), freighters (FREIGHTER_SHIPS) or there is no filtering
 at all (ALL_SHIPS).
@@ -7260,21 +7346,21 @@ at all (ALL_SHIPS).
 @subsection Uns32 RaceMineralsForPlanets( RaceType_Def Race, PointsType_Def CountType, CargoType_Def CargoType)
 @findex RaceMineralsForPlanets
 
-This function returns minerals for given race planets. Count type is controled
+This function returns minerals for given race planets. Count type is controlled
 by CountType parameter.
 
 @node RaceMineralsForBases, RaceMineralsForMinefields, RaceMineralsForPlanets, Score Functions
 @subsection Uns32 RaceMineralsForBases( RaceType_Def Race, PointsType_Def CountType, CargoType_Def CargoType)
 @findex RaceMineralsForBases
 
-This function returns minerals for given race bases. Count type is controled
+This function returns minerals for given race bases. Count type is controlled
 by CountType parameter.
 
 @node RaceMineralsForMinefields,  , RaceMineralsForBases, Score Functions
 @subsection Uns32 RaceMineralsForMinefields( RaceType_Def Race, PointsType_Def CountType, Boolean RaceModify, CargoType_Def CargoType)
 @findex RaceMineralsForMinefields
 
-This function returns minerals for given race minefields. Count type is controled
+This function returns minerals for given race minefields. Count type is controlled
 by CountType parameter. Setting RaceModify to True makes minerals to be corrected by
 race UnitsPerTorpRate PConfig.src parameter, so real torpedo laying costs are counted.
 Making RaceModify False gives no such correction.
@@ -7707,7 +7793,7 @@ PHost core make add-ons break the internal experience system}.
 @item @code{Exp_Handle ShipExperience(Uns16 pShipId)}
 
 Obtain a handle to deal with the experience of ship @code{pShipId}. You
-@emph{can} obtain handles to non-existant or out-of-range ships; those
+@emph{can} obtain handles to non-existent or out-of-range ships; those
 will return 0 experience and will not react on modificators. The same
 happens if the game is not using experience.
 

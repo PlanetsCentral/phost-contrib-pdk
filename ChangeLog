@@ -1,3 +1,20 @@
+2006-07-14  Stefan Reuther  <Streu@gmx.de>
+
+	* pconfig.c, config.hi4, phostpdk.h: updated for PHost 4.0k
+
+	* vgaputil.c [SUBALLOC]: removed this branch
+
+	* main.c (InitPHOSTLib): updated year :)
+
+2006-07-13  Stefan Reuther  <Streu@gmx.de>
+
+	* utildata.c (PutUtilExplosion): new
+
+	* pdk.texi: spellchecked
+
+	* hullfunc.c (HullIsCommander, HullHasIonShield,
+	HullHasHardenedCloak, HullHasAdvancedAntiCloak): new
+
 2006-05-07  Stefan Reuther  <Streu@gmx.de>
 
 	* conf.h: added platform definitions:

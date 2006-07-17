@@ -21,6 +21,7 @@
                                RACEARRAY (see below)
                                OPTIONAL (this parameter is not required)
                                IFPHOST3 (required in 3.x, optional in 4.x)
+                               INCOMPATIBLE (option must be enabled)
     . Depend               = zero, or `IFYES(option)' resp `IFNO(option)':
                              parameter is only needed if the specified
                              boolean option is on/off
@@ -206,13 +207,13 @@ CFDefine4(CPEnableGive,                 CPEnableGive,                    1, Tris
 CFDefine4(AllowTowCloakedShips,         AllowTowCloakedShips,            1, Boolean,    0,        1, OPTIONAL,                    0,                            "No")
 CFDefine4(RobCloakedChance,             RobCloakedChance,                1, Uns16,      0,      100, 0,                           IFYES(RobCloakedShips),       "0")
 CFDefine4(UnitsPerTorpRate,             UnitsPerTorpRate[1],            11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "100,100,100,100,100,100,100,100,400,100,100")
+CFDefine4(UnitsPerWebRate,              UnitsPerWebRate[1],             11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "$UnitsPerTorpRate")
 CFDefine4(AllowESBonusAgainstPlanets,   ESBonusAgainstPlanets,           1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
 CFDefine4(ShipCloneCostRate,            ShipCloneCostRate[1],           11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY,         0,                            "200,200,200,200,32767,200,32767,200,200,200,200")
 CFDefine4(AllowHyperjumpGravWells,      HyperjumpGravityWells,           1, Boolean,    0,        1, OPTIONAL,                    IFYES(AllowHyperWarps),       "$AllowGravityWells")
 CFDefine4(NativeCombatSurvivalRate,     NativeCombatSurvRate,            1, Uns16,      0,      100, OPTIONAL,                    0,                            "75")
 CFDefine4(AllowPrivateerTowCapture,     AllowPrivTowCapture,             1, Boolean,    0,        1, OPTIONAL,                    0,                            "$AllowBoardingParties")
 CFDefine4(AllowCrystalTowCapture,       AllowCrystalTowCapture,          1, Boolean,    0,        1, OPTIONAL,                    0,                            "$AllowBoardingParties")
-CFDefine4(GameName,                     GameName,           GAME_NAME_SIZE, String,     0,        0, 0,                           0,                            "PHost Game")
 /* NOTE: This is `Yes' for THost */
 CFDefine4(RoundGravityWells,            RoundWarpWells,                  1, Boolean,    0,        1, OPTIONAL,                    IFYES(AllowGravityWells),     "No")
 CFDefine4(CPEnableSend,                 CPEnableSend,                    1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
@@ -319,6 +320,13 @@ CFDefine4(FuelUsagePerTurnFor100KT,     FuelUsagePerTurnFor100KT,        1, Uns1
 CFDefine4(CPEnableEnemies,              CPEnableEnemies,                 1, Tristate,   0,        3, OPTIONAL,                    0,                            "Yes")
 CFDefine4(CPEnableShow,                 CPEnableShow,                    1, Tristate,   0,        3, OPTIONAL,                    0,                            "Yes")
 CFDefine4(CPEnableRefit,                CPEnableRefit,                   1, Tristate,   0,        3, OPTIONAL,                    0,                            "Yes")
+
+CFDefine4(AllowIncompatibleConfiguration, AllowIncompatibleConfiguration, 1, Boolean,   0,        1, OPTIONAL,                    0,                            "No")
+CFDefine4(FreeFighterCost,              FreeFighterCost[1],             11, Cost,       0,        0, ARRAYIZED|OPTIONAL,          0,                            "T3 M2")
+CFDefine4(StarbaseCost,                 StarbaseCost[1],                11, Cost,       0,        0, ARRAYIZED|OPTIONAL|INCOMPATIBLE, 0,                        "T402 D120 M340 $900")
+CFDefine4(BaseFighterCost,              BaseFighterCost[1],             11, Cost,       0,        0, ARRAYIZED|OPTIONAL|INCOMPATIBLE, 0,                        "T3 M2 $100")
+CFDefine4(ShipFighterCost,              ShipFighterCost[1],             11, Cost,       0,        0, ARRAYIZED|OPTIONAL,          0,                            "T3 M2 S5")
+CFDefine4(MaximumFightersOnBase,        MaximumFightersOnBase[1],       11, Uns16,      0,     1000, ARRAYIZED|OPTIONAL|INCOMPATIBLE, 0,                        "60")
 #endif /* !PVCR */
 
 /* Experience */
@@ -330,6 +338,7 @@ CFDefine4(ExperienceLevelNames,         ExperienceLevelNames,          255, Stri
 CFDefine4(EPRecrewScaling,              EPRecrewScaling[1],             11, Uns16,      0,      100, ARRAYIZED|RACEARRAY|OPTIONAL,0,                           "30")
 CFDefine4(EPShipAging,                  EPShipAging,                     1, Uns16,      0,    10000, OPTIONAL,                    0,                            "15")
 CFDefine4(EPPlanetAging,                EPPlanetAging,                   1, Uns16,      0,    10000, OPTIONAL,                    0,                            "25")
+CFDefine4(EPPlanetGovernment,           EPPlanetGovernment,              1, Uns16,      0,    10000, OPTIONAL,                    0,                            "0")
 CFDefine4(EPShipMovement100LY,          EPShipMovement100LY,             1, Uns16,      0,    10000, OPTIONAL,                    0,                            "40")
 CFDefine4(EPShipHyperjump,              EPShipHyperjump,                 1, Uns16,      0,    10000, OPTIONAL,                    0,                            "30")
 CFDefine4(EPShipChunnel,                EPShipChunnel,                   1, Uns16,      0,    10000, OPTIONAL,                    0,                            "30")
@@ -367,6 +376,9 @@ CFDefine4(EModCrewKillScaling,          EModCrewKillScaling,            10, Int1
 CFDefine4(EModMineHitOddsBonus,         EModMineHitOddsBonus,           10, Int16,  -1000,     1000, OPTIONAL|ARRAYIZED,          0,                            "5,10,15,20")
 #define LastExperienceOption CF_EModMineHitOddsBonus
 #endif
+
+/* PVCR 4.0k needs GameName */
+CFDefine4(GameName,                     GameName,           GAME_NAME_SIZE, String,     0,        0, 0,                           0,                            "PHost Game")
 
 /* Combat items */
 CFDefine4(BayRechargeRate,              BayRechargeRate[1],             11, Uns16,      0,    16384, ARRAYIZED|RACEARRAY,         0,                            "52")
