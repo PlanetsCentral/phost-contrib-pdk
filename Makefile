@@ -41,7 +41,7 @@ SRCS = auxdata.c pconfig.c crc.c enum.c hostio.c main.c portable.c \
 	vgapdat2.c vgapdat3.c vgapdat4.c vgapdat5.c msgtmp.c \
 	rstmsg.c pgetopt.c points.c alldata.c vgapdat6.c vgapdat7.c vgapdat8.c vgapdat9.c \
 	vgapdatb.c vgapdatc.c battle.c hullfunc.c listmat.c utildata.c fcode.c commands.c \
-	exp.c tons.c
+	exp.c tons.c ion.c
 HDRS = battle.h doscvt.h listmat.h phostpdk.h ptscore.h squishio.h version.h \
 	conf.h includes.h pgetopt.h private.h shrouds.h stdtyp.h
 

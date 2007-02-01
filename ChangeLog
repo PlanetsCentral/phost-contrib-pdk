@@ -1,3 +1,10 @@
+2007-02-01  Stefan Reuther  <Streu@gmx.de>
+
+	* main.c (InitPHOSTLib): updated year
+
+	* ion.c, alldata.c, doscvt.c, phostpdk.h: added ion storm
+	accessors
+
 2006-07-14  Stefan Reuther  <Streu@gmx.de>
 
 	* pconfig.c, config.hi4, phostpdk.h: updated for PHost 4.0k

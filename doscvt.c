@@ -889,6 +889,19 @@ const Uns16 NumExtMessageStruct_Convert =
       sizeof(ExtMessageStruct_Convert) / sizeof(ExtMessageStruct_Convert[0]);
 
 #undef DOSCVT_NAME
+#define DOSCVT_NAME IonStorm_Struct
+const DOSConvertElement IonStormStruct_Convert[] = {
+    DOSCVTUns16(X),
+    DOSCVTUns16(Y),
+    DOSCVTUns16(Radius),
+    DOSCVTUns16(Voltage),
+    DOSCVTUns16(Heading),
+    DOSCVTUns16(GrowthFlag),
+    DOSCVTUns16(Unused),
+};
+const Uns16 NumIonStormStruct_Convert = sizeof(IonStormStruct_Convert)/sizeof(IonStormStruct_Convert[0]);
+
+#undef DOSCVT_NAME
 #define DOSCVT_NAME UFO_Struct
 const DOSConvertElement UFOStruct_Convert[] = {
   DOSCVTUns16(mColor),

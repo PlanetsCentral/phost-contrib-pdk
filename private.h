@@ -392,6 +392,17 @@ typedef enum {
   CFG_WRITE_OLD_FORMAT = 0x0008 /* Write in HCONFIG format */
 } CFGFlags_Def;
 
+/* GREY.HST */
+
+typedef struct {
+    Int16         X, Y;
+    Uns16         Radius;
+    Uns16         Voltage;
+    Uns16         Heading;
+    Uns16         GrowthFlag;
+    Uns32         Unused;
+} IonStorm_Struct;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

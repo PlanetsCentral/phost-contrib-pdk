@@ -44,6 +44,7 @@ TargetShip_Struct: TargetShipStruct_Convert, NumTargetShipStruct_Convert
 ExtMessage_Struct: ExtMessageStruct_Convert, NumExtMessageStruct_Convert
 UFO_Struct: UFOStruct_Convert, NumUFOStruct_Convert
 Tons_Struct: TonsStruct_Convert, NumTonsStruct_Convert
+IonStorm_Struct: IonStormStruct_Convert, NumIonStormStruct_Convert
 
 ; enum.c -- should be fixed
 keep enum.c
@@ -127,3 +128,6 @@ AddExp: AddToExperience, SaturatedAdd
 
 ; tons.c
 keep tons.c
+
+; ion.c
+keep ion.c

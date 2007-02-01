@@ -31,6 +31,7 @@ extern "C" {
 #define   ENGINE_NR      9      /*!< Number of engines in ENGSPEC.DAT */
 #define   BEAM_NR       10      /*!< Number of beams in BEAMSPEC.DAT */
 #define   TORP_NR       10      /*!< Number of torps in TORPSPEC.DAT */
+#define   STORM_NR      50      /*!< Number of ion storms */
 
 #define   LONGNAME_SIZE     30  /*!< Length of full race name */
 #define   SHORTNAME_SIZE    20  /*!< Length of short race name */
@@ -65,6 +66,8 @@ extern "C" {
                                      planet */
 #define MAX_TAX    100          /*!< max tax rate on a planet */
 #define MAX_TEMP   100          /*!< max planet temperature */
+#define MAX_STORM_RADIUS   500
+#define MAX_STORM_VOLTAGE 1000
 
 #ifdef PDK_PHOST4_SUPPORT
 #  define PHOST4                /* this one is needed by the configuration struct */
@@ -822,6 +825,7 @@ Pconfig_Struct;
   extern IO_Def Read_Racenames_File(void);
   extern IO_Def Read_Xyplan_File(void);
   extern IO_Def Read_HostGen_File(void);
+  extern IO_Def Read_Ion_File(void);
   extern void SpecialReadHullfunc(const char *shiplistFile, const char *hullfuncFile);
 
 /*! Single-write routines */
@@ -841,6 +845,7 @@ Pconfig_Struct;
   extern Boolean Write_Beamspec_File(void);
   extern Boolean Write_Planetname_File(void);
   extern Boolean Write_Xyplan_File(void);
+  extern IO_Def  Write_Ion_File(void);
 
 
 /*
@@ -1344,6 +1349,30 @@ Pconfig_Struct;
   extern void PutMinefieldWeb(Uns16 pID, Boolean pWeb);
   extern Uns16 CreateMinefield(Uns16 pXloc, Uns16 pYloc, RaceType_Def pRace,
         Uns32 pUnits, Boolean pIsWeb);
+
+/*
+ *   Ion Storm Functions
+ */
+  extern Boolean IsStormExist(Uns16 pStorm);
+  extern Int16   StormLocationX(Uns16 pStorm);
+  extern Int16   StormLocationY(Uns16 pStorm);
+  extern Uns16   StormRadius(Uns16 pStorm);
+  extern Uns16   StormHeading(Uns16 pStorm);
+  extern Boolean IsStormGrowing(Uns16 pStorm);
+  extern Uns16   StormVoltage(Uns16 pStorm);
+  extern char*   StormName(Uns16 pStorm, char* pBuffer);
+  extern Uns16   StormClass(Uns16 pStorm);
+
+  extern void    PutStormLocationX(Uns16 pStorm, Int16 pX);
+  extern void    PutStormLocationY(Uns16 pStorm, Int16 pY);
+  extern void    PutStormRadius(Uns16 pStorm, Uns16 pRadius);
+  extern void    PutStormHeading(Uns16 pStorm, Uns16 pHeading);
+  extern void    PutStormVoltage(Uns16 pStorm, Uns16 pVoltage);
+
+  extern void    CreateStorm(Uns16 pStorm, Uns16 pX, Uns16 pY, Uns16 pRadius, Uns16 pVoltage, Uns16 pHeading);
+
+  extern void    DeleteStorm(Uns16 pStorm);
+  extern int     GetStormCount(void);
 
 /*
  *   Hull functions

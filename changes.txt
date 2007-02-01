@@ -11,6 +11,7 @@ Version 4.5
   - turn activity level
   - experience
   - configuration
+  - ion storms
 * Added ShipDoesXXX() functions (Maurits van Rees)
 * Added PutMinefieldLocationX/Y() and PutMinefieldWeb() (Piotr Winiarczyk)
 * Added ability to create Explosions

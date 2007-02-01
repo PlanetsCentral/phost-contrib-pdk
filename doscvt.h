@@ -75,6 +75,8 @@ extern const DOSConvertElement TurnHeaderStruct_Convert[];
 extern const Uns16 NumTurnHeaderStruct_Convert;
 extern const DOSConvertElement ExtMessageStruct_Convert[];
 extern const Uns16 NumExtMessageStruct_Convert;
+extern const DOSConvertElement IonStormStruct_Convert[];
+extern const Uns16 NumIonStormStruct_Convert;
 
 /* MESS.TMP is same format as MESS.EXT so we don't really need a separate
    conversion structure */

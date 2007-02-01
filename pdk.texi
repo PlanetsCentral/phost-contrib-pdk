@@ -71,6 +71,7 @@ in this file are as follows:
 @vindex ENGINE_NR
 @vindex BEAM_NR
 @vindex TORP_NR
+@vindex STORM_NR
 @vindex LONGNAME_SIZE
 @vindex SHORTNAME_SIZE
 @vindex ADJECTIVE_SIZE
@@ -97,6 +98,9 @@ in this file are as follows:
 @vindex MAX_POPULATION
 @vindex MAX_TAX
 @vindex MAX_TEMP
+@vindex MAX_STORM_RADIUS
+@vindex MAX_STORM_VOLTAGE
+
 
 The file PHOSTPDK.H defines some constants that may be useful in writing
 your program. The constants are used in the PDK itself so using these
@@ -114,6 +118,7 @@ all revisions.
 @item ENGINE_NR  @tab The number of different engine types in the game (9)
 @item BEAM_NR  @tab The number of different beam types in the game (10)
 @item TORP_NR  @tab The number of different torpedo/tube types in the game (10)
+@item STORM_NR @tab The maximum number of ion storms (50)
 @end multitable
 
 @multitable @columnfractions .27 .73
@@ -148,6 +153,8 @@ all revisions.
 @item MAX_POPULATION @tab The maximum number of colonists/natives on a planet (25E6)
 @item MAX_TAX  @tab The maximum tax rate on a planet (100)
 @item MAX_TEMP  @tab The maximum temperature on a planet (100)
+@item MAX_STORM_RADIUS @tab The maximum possible ion storm radius (500)
+@item MAX_STORM_VOLTAGE @tab The maximum possible ion storm voltage (1000)
 @end multitable
 
 @node Common Types, Data Structures, Manifest Constants, Top
@@ -388,6 +395,7 @@ endings inconsistently; the "canonical" name now is the one ending with
 * Planet Accessors::
 * Starbase Accessors::
 * Minefield Accessors::
+* Ion Storm Accessors::
 * Wormhole Accessors::
 * Hull Accessors::
 * Engine Accessors::
@@ -513,6 +521,7 @@ Calling FreePHOSTLib() prior to re-reading the data solves the problem:
 * Write_Torpspec_File::
 * Write_Planetname_File::
 * Write_Xyplan_File::
+* Write_Ion_File::
 * WriteHostData::
 @end menu
 
@@ -537,6 +546,7 @@ Functions in this section:
 @item Write_Torpspec_File
 @item Write_Planetname_File
 @item Write_Xyplan_File
+@item Write_Ion_File
 @item WriteHostData
 @end itemize
 @end iftex
@@ -614,6 +624,7 @@ NOTE: ReadHostData() is roughly equivalent to calling
                Read_Bases_File(&gBaseControl1, &gBaseControl2)
                Read_Mines_File()
                Read_HostGen_File()
+               Read_Ion_File()
                ReadWormholeFile()       (not in MS-C for DOS)
                Read_AuxData_File()
                ReadCLOAKCFile()
@@ -752,7 +763,7 @@ made to torpedos specification are saved to this file.
 This routine writes the PLANET.NM file to the root directory. Any changes
 to planet names made by calling PutPlanetName procedure are saved to this file.
 
-@node Write_Xyplan_File, WriteHostData, Write_Planetname_File, Data File Input/Output
+@node Write_Xyplan_File, Write_Ion_File, Write_Planetname_File, Data File Input/Output
 @subsection Boolean Write_Xyplan_File(void)
 @findex Write_Xyplan_File
 
@@ -760,7 +771,13 @@ This routine writes the XYPLAN.DAT file to the root directory. Any changes
 to planet coordinates made by calling PutPlanetLocationX or PutPlanetLocationY
 procedures are saved to this file.
 
-@node WriteHostData,  , Write_Xyplan_File, Data File Input/Output
+@node Write_Ion_File, WriteHostData, Write_Xyplan_File, Data File Input/Output
+@subsection IO_Def Write_Ion_File(void)
+@findex Write_Ion_File
+
+This routine updates or creates @code{grey.hst} with the current ion storms.
+
+@node WriteHostData,  , Write_Ion_File, Data File Input/Output
 @subsection Boolean WriteHostData(void)
 @findex WriteHostData
 
@@ -2552,7 +2569,7 @@ this routine does not remove any build order from the build queue.
 This routine removes all hulls from storage at the given base.
 
 
-@node Minefield Accessors, Wormhole Accessors, Starbase Accessors, Function Call Interface
+@node Minefield Accessors, Ion Storm Accessors, Starbase Accessors, Function Call Interface
 @section Minefield Accessors
 
 The following functions all assume that the MINES.HST file has been read
@@ -2692,7 +2709,176 @@ minefield is a web mine. The return value is the ID number of the new
 minefield, or 0 if all minefield slots are used up and the minefield could
 not be created.
 
-@node Wormhole Accessors, Hull Accessors, Minefield Accessors, Function Call Interface
+@node Ion Storm Accessors, Wormhole Accessors, Minefield Accessors, Function Call Interface
+@section Ion Storm Accessors
+
+The functions in this section can be used to access ion storms.
+
+Note that host programs impose some restrictions how these are used:
+@itemize @minus
+@item The grow/weaken status is implicitly derived from the storm voltage.
+A growing storm has an odd voltage, a weakening one has an even one.
+@item The speed is not accessible through this interface, as it is never
+stored in host data files.
+@end itemize
+
+@menu
+* IsStormExist::
+* StormLocationX::
+* StormLocationY::
+* StormRadius::
+* StormHeading::
+* IsStormGrowing::
+* StormVoltage::
+* StormName::
+* StormClass::
+* PutStormLocationX::
+* PutStormLocationY::
+* PutStormRadius::
+* PutStormHeading::
+* PutStormVoltage::
+* CreateStorm::
+* DeleteStorm::
+* GetStormCount::
+@end menu
+
+@iftex
+Functions in this section:
+@itemize @minus
+@item IsStormExist
+@item StormLocationX
+@item StormLocationY
+@item StormRadius
+@item StormHeading
+@item IsStormGrowing
+@item StormVoltage
+@item StormName
+@item StormClass
+@item PutStormLocationX
+@item PutStormLocationY
+@item PutStormRadius
+@item PutStormHeading
+@item PutStormVoltage
+@item CreateStorm
+@item DeleteStorm
+@item GetStormCount
+@end itemize
+@end iftex
+
+@node IsStormExist, StormLocationX, Ion Storm Accessors, Ion Storm Accessors
+@subsection Boolean IsStormExist(Uns16 pStorm)
+@findex IsStormExist
+
+Check whether the specified storm exists.
+
+@node StormLocationX, StormLocationY, IsStormExist, Ion Storm Accessors
+@subsection Uns16 StormLocationX(Uns16 pStorm)
+@findex StormLocationX
+
+Returns a storm's X-location.
+
+@node StormLocationY, StormRadius, StormLocationX, Ion Storm Accessors
+@subsection Uns16 StormLocationY(Uns16 pStorm)
+@findex StormLocationY
+
+Returns a storm's Y-location.
+
+@node StormRadius, StormHeading, StormLocationY, Ion Storm Accessors
+@subsection Uns16 StormRadius(Uns16 pStorm)
+@findex StormRadius
+
+Returns a storm's radius.
+
+@node StormHeading, IsStormGrowing, StormRadius, Ion Storm Accessors
+@subsection Uns16 StormHeading(Uns16 pStorm)
+@findex StormHeading
+
+Returns a storm's heading (movement angle).
+
+@node IsStormGrowing, StormVoltage, StormHeading, Ion Storm Accessors
+@subsection Boolean IsStormGrowing(Uns16 pStorm)
+@findex IsStormGrowing
+
+Checks whether the specified storm is a growing one.
+
+@node StormVoltage, StormName, IsStormGrowing, Ion Storm Accessors
+@subsection Uns16 StormVoltage(Uns16 pStorm)
+@findex StormVoltage
+
+Returns a storm's voltage.
+
+@node StormName, StormClass, StormVoltage, Ion Storm Accessors
+@subsection char* StormName(Uns16 pStorm, char* pBuffer)
+@findex StormName
+
+Returns a storm's name. If the @code{pBuffer} is not NULL, it must point to at
+least 21 bytes that will receive the name. If it is NULL, the name will be
+returned in static storage.
+
+Note that the names may not be available if the host has not installed the
+@code{storm.nm} file.
+
+@node StormClass, PutStormLocationX, StormName, Ion Storm Accessors
+@subsection Uns16 StormClass(Uns16 pStorm)
+@findex StormClass
+
+Returns a storm's class. The storm class is an integer between 1 and 5.
+
+@node PutStormLocationX, PutStormLocationY, StormClass, Ion Storm Accessors
+@subsection void PutStormLocationX(Uns16 pStorm, Int16 pX)
+@findex PutStormLocationX
+
+Changes a storm's X-position.
+
+@node PutStormLocationY, PutStormRadius, PutStormLocationX, Ion Storm Accessors
+@subsection void PutStormLocationY(Uns16 pStorm, Int16 pY)
+@findex PutStormLocationY
+
+Changes a storm's Y-position.
+
+@node PutStormRadius, PutStormHeading, PutStormLocationY, Ion Storm Accessors
+@subsection void PutStormRadius(Uns16 pStorm, Uns16 pRadius)
+@findex PutStormRadius
+
+Changes a storm's radius.
+
+@node PutStormHeading, PutStormVoltage, PutStormRadius, Ion Storm Accessors
+@subsection void PutStormHeading(Uns16 pStorm, Uns16 pHeading)
+@findex PutStormHeading
+
+Changes a storm's heading (movement angle).
+
+@node PutStormVoltage, CreateStorm, PutStormHeading, Ion Storm Accessors
+@subsection void PutStormVoltage(Uns16 pStorm, Uns16 pVoltage)
+@findex PutStormVoltage
+
+Changes a storm's voltage.
+
+Odd voltages make the storm grow, even ones make it weaken. A voltage of zero
+makes the storm non-existant.
+
+@node CreateStorm, DeleteStorm, PutStormVoltage, Ion Storm Accessors
+@subsection void CreateStorm(Uns16 pStorm, Uns16 pX, Uns16 pY, Uns16 pRadius, Uns16 pVoltage, Uns16 pHeading)
+@findex CreateStorm
+
+Creates a new storm with the given parameters.
+
+Note that instead of using this function you can also simply call the
+@code{PutStormXXX} functions to set its properties.
+
+@node DeleteStorm, GetStormCount, CreateStorm, Ion Storm Accessors
+@subsection DeleteStorm(Uns16 pStorm)
+@findex DeleteStorm
+
+Deletes the specified storm.
+
+@node GetStormCount,  , DeleteStorm, Ion Storm Accessors
+@subsection GetStormCount(void)
+@findex GetStormCount
+
+Computes the number of active ion storms.
+
+@node Wormhole Accessors, Hull Accessors, Ion Storm Accessors, Function Call Interface
 @section Wormhole Accessors
 
 These routines provide an interface to wormholes in PHOST. These routines

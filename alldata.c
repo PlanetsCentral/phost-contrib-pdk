@@ -92,6 +92,8 @@ ReadHostData(void)
     goto read_fail;
   if (Read_HostGen_File()NEQ IO_SUCCESS)
     goto read_fail;
+  if (Read_Ion_File() != IO_SUCCESS)
+    goto read_fail;
 #ifndef MICROSQUISH
   if (!ReadWormholeFile())
     goto read_fail;
@@ -139,6 +141,8 @@ WriteHostData(void)
   if (Write_HostGen_File()NEQ IO_SUCCESS)
     goto write_fail;
   if (WriteCLOAKCFile()NEQ IO_SUCCESS)
+    goto write_fail;
+  if (Write_Ion_File() != IO_SUCCESS)
     goto write_fail;
   WriteTonsFile();
 
