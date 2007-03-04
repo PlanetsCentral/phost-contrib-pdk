@@ -1,3 +1,10 @@
+2007-03-04  Stefan Reuther  <Streu@gmx.de>
+
+	* vgapdatc.c (PlayerPassword): hack to allow reading of passwords
+	with less than 10 characters
+
+	* ion.c (Write_Ion_File): use correct file mode
+
 2007-02-01  Stefan Reuther  <Streu@gmx.de>
 
 	* main.c (InitPHOSTLib): updated year

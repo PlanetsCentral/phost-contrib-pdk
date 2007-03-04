@@ -73,9 +73,13 @@ PlayerPassword(RaceType_Def pPlayer)
     return 0;
 
   for (lIndex = 0; lIndex < 10; lIndex++) {
-    lPasswd[lIndex] =
+    /* Passwd1[][n] may be 0 if password is shorter than n characters,
+       making the result negative. However, some passwords utilize
+       wraparound, hence we must truncate to signed char. */
+    signed char n =
           gHostGenPtr->Passwd1[pPlayer - 1][lIndex] + 0x20 -
           gHostGenPtr->Passwd2[pPlayer - 1][9 - lIndex];
+    lPasswd[lIndex] = n < 0 ? 0 : n;
   }
   lPasswd[lIndex] = 0;
   return lPasswd;
