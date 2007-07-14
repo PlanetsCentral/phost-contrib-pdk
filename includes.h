@@ -130,7 +130,7 @@ extern "C" {
 
 /* If we've gotten this far, we expect certain things. Here is where we
    check for them. */
-#if !defined(LITTLE_ENDIAN) && !defined(BIG_ENDIAN)
+#if !defined(PHOST_LITTLE_ENDIAN) && !defined(PHOST_BIG_ENDIAN)
 #error "You must indicate whether this machine is LITTLE_ENDIAN or BIG_ENDIAN"
 #endif
 #if !defined(SYSTEM_ID)

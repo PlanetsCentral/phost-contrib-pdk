@@ -1047,6 +1047,8 @@ Pconfig_Struct;
   extern void VError(const char *pStr, va_list pAP);
   extern void ErrorExit(const char *pStr, ...);
   extern void VErrorExit(const char *pStr, va_list pAP);
+  extern void ErrorAssert(const char *pStr, ...);
+  extern void VErrorAssert(const char *pStr, va_list pAP);
   extern void Warning(const char *pStr, ...);
   extern void VWarning(const char *pStr, va_list pAP);
   extern void Info(const char *pStr, ...);
@@ -1055,7 +1057,7 @@ Pconfig_Struct;
 #ifdef NDEBUG
 #define passert(p) ((void)0)
 #else
-#define passert(p) ((p) ? ((void)0) : AssertFail(0, __FILE__, __LINE__))
+#define passert(p) ((p) ? ((void)0) : AssertFail( # p , __FILE__, __LINE__))
 #endif
 
 /*! Random numbers */

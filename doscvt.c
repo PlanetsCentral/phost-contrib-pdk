@@ -897,7 +897,7 @@ const DOSConvertElement IonStormStruct_Convert[] = {
     DOSCVTUns16(Voltage),
     DOSCVTUns16(Heading),
     DOSCVTUns16(GrowthFlag),
-    DOSCVTUns16(Unused),
+    DOSCVTUns32(Unused),
 };
 const Uns16 NumIonStormStruct_Convert = sizeof(IonStormStruct_Convert)/sizeof(IonStormStruct_Convert[0]);
 

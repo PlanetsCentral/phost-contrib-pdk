@@ -1,3 +1,17 @@
+2007-07-14  Stefan Reuther  <Streu@gmx.de>
+
+	* includes.h: fixed endianness test
+
+	* phostpdk.h, vgaputil.c: assert includes failing expression,
+	and exits using 'abort()'. New routine ErrorAssert. Patch from
+	Jörg Habenicht.
+
+2007-04-01  Stefan Reuther  <Streu@gmx.de>
+
+	* doscvt.c: use correct type for IonStorm_Struct::Unused
+
+	* ion.c (LoadStorms): strengthened validity test
+
 2007-03-04  Stefan Reuther  <Streu@gmx.de>
 
 	* vgapdatc.c (PlayerPassword): hack to allow reading of passwords

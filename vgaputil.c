@@ -486,6 +486,31 @@ VError(const char *pStr, va_list pAP)
   reportMessage("Error: ", pStr, pAP, gMuteOperation);
 }
 
+/* Report an assert and exit the program with a (fixed) error code. Behavior
+   is the same as Error() except that instead of returning from this routine,
+   the program aborts and the OS may throw a core dump. */
+void
+ErrorAssert(const char *pStr, ...)
+{
+  va_list lAP;
+
+  va_start(lAP, pStr);
+
+  VErrorAssert(pStr, lAP);
+}
+
+/* Same as ErrorExit but with a va_list parameter */
+void
+VErrorAssert(const char *pStr, va_list pAP)
+{
+  reportMessage("Assert: ", pStr, pAP, gMuteOperation);
+
+  if (gLogFile NEQ 0)
+    fflush(gLogFile);
+
+  abort();
+}
+
 /* Report an error and exit the program with a (fixed) error code. Behavior
    is the same as Error() except that instead of returning from this routine,
    the program exits. */
@@ -555,8 +580,8 @@ VInfo(const char *pStr, va_list pAP)
 void
 AssertFail(const char *pExpr, const char *pFile, int pLine)
 {
-  ErrorExit("Assertion failed! File: %s  Line: %d\n", pFile, pLine);
-  (void) pExpr;
+  ErrorAssert("Assertion failed! File: %s  Line: %d  Expression: %s\n", pFile, pLine,
+              pExpr ? pExpr : "(?)");
 }
 
 /*

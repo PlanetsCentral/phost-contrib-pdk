@@ -22,6 +22,8 @@ static char                 gStormNames[STORM_NR][20];
 static const char gStormNameFile[] = "storm.nm";
 static const char gGreyFile[] = "grey.hst";
 
+static char gStormsModified = 0;
+
 /** Get pointer to storm by Id. */
 static RealIonStorm_Struct*
 GetStorm(Uns16 pStorm)
@@ -114,12 +116,14 @@ void
 PutStormLocationX(Uns16 pStorm, Int16 pX)
 {
     GetStorm(pStorm)->mData.X = WrapMapX(pX);
+    gStormsModified = 1;
 }
 
 void
 PutStormLocationY(Uns16 pStorm, Int16 pY)
 {
     GetStorm(pStorm)->mData.Y = WrapMapY(pY);
+    gStormsModified = 1;
 }
 
 void
@@ -128,12 +132,14 @@ PutStormRadius(Uns16 pStorm, Uns16 pRadius)
     if (pRadius > MAX_STORM_RADIUS)
         pRadius = MAX_STORM_RADIUS;
     GetStorm(pStorm)->mData.Radius = pRadius;
+    gStormsModified = 1;
 }
 
 void
 PutStormHeading(Uns16 pStorm, Uns16 pHeading)
 {
     GetStorm(pStorm)->mData.Heading = pHeading;
+    gStormsModified = 1;
 }
 
 void
@@ -144,6 +150,7 @@ PutStormVoltage(Uns16 pStorm, Uns16 pVoltage)
         pVoltage = MAX_STORM_VOLTAGE;
     lP->mData.Voltage    = pVoltage;
     lP->mData.GrowthFlag = pVoltage & 1;
+    gStormsModified = 1;
 }
 
 void
@@ -154,6 +161,7 @@ CreateStorm(Uns16 pStorm, Uns16 pX, Uns16 pY, Uns16 pRadius, Uns16 pVoltage, Uns
     PutStormLocationY(pStorm, pY);
     PutStormRadius(pStorm, pRadius);
     PutStormHeading(pStorm, pHeading);
+    gStormsModified = 1;
 }
 
 /** Delete a storm. */
@@ -161,6 +169,7 @@ void
 DeleteStorm(Uns16 pStorm)
 {
     PutStormVoltage(pStorm, 0);
+    gStormsModified = 1;
 }
 
 /** Count active ion storms. */
@@ -219,7 +228,9 @@ LoadStorms(FILE* pFile)
         if (lTmp.X <= MIN_COORDINATE || lTmp.X > MAX_COORDINATE
             || lTmp.Y <= MIN_COORDINATE || lTmp.Y > MAX_COORDINATE
             || lTmp.Radius > MAX_STORM_RADIUS || lTmp.Voltage > MAX_STORM_VOLTAGE
-            || lTmp.Radius <= 0)
+            || lTmp.Radius <= 0 || lTmp.Voltage <= 0
+            || lTmp.Heading > 500
+            || lTmp.GrowthFlag > 1)
         {
             /* storm is invalid, ignore it. */
             /* FIXME: message */
@@ -229,7 +240,7 @@ LoadStorms(FILE* pFile)
             lTmp.Heading %= 360;
             lTmp.GrowthFlag = lTmp.Voltage & 1;
             lTmp.X = WrapMapX(lTmp.X);
-            lTmp.Y = WrapMapX(lTmp.Y);
+            lTmp.Y = WrapMapY(lTmp.Y);
             pS->mData = lTmp;
             /* do not modify pS->mSpeed, to carry it over from previous run. */
         }
@@ -268,6 +279,7 @@ Read_Ion_File(void)
         fclose(lFP);
     }
     InitStormNames();
+    gStormsModified = 0;
     return IO_SUCCESS;
 }
 
@@ -279,6 +291,11 @@ Write_Ion_File(void)
     Boolean lSuccess;
     int i;
 
+    if (!gStormsModified)
+        return IO_SUCCESS;
+
+    gStormsModified = 0;
+    
     lFP = OpenUpdateFile(gGreyFile, GAME_DIR_ONLY | REWRITE_MODE | NO_MISSING_ERROR);
     if (lFP == 0) {
         if (GetStormCount() == 0)
