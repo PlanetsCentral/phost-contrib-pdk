@@ -543,6 +543,25 @@ invalidateOrder(Uns16 pOrder)
   gBaseOrder[gNumBaseOrders].mBase = 0;
 }
 
+/** Canonicalize a build order. This is yet another subset of
+    CheckBaseBuildOrder(). Some programs submit build orders where
+    only one half of the type/count pair is zero. This routine fixes
+    that problem, so that the "build order changed" test in
+    BuildQueuePush() does not yield a false positive. */
+static void
+CanonicalizeBuildOrder(BuildOrder_Struct* pBuildOrder)
+{
+    if (pBuildOrder->mNumBeams == 0 || pBuildOrder->mBeamType == 0) {
+        pBuildOrder->mNumBeams = 0;
+        pBuildOrder->mBeamType = 0;
+    }
+
+    if (pBuildOrder->mNumTubes == 0 || pBuildOrder->mTubeType == 0) {
+        pBuildOrder->mNumTubes = 0;
+        pBuildOrder->mTubeType = 0;
+    }
+}
+
 /* This routine adds a build order to the build order queue. There are three
    cases to consider:
  1. The base has no pending order already in the queue
@@ -574,6 +593,8 @@ BuildQueuePush(BaseOrder_Struct * pOrderPtr)
 
   passert((pOrderPtr NEQ 0) AND IsBaseExist(pOrderPtr->mBase));
 
+  CanonicalizeBuildOrder(&pOrderPtr->mOrder);
+
   /* Try to find the given base in the queue */
   for (lCount = 0; lCount < gNumBaseOrders; lCount++) {
     if (gBaseOrder[lCount].mBase EQ pOrderPtr->mBase)
@@ -595,6 +616,8 @@ BuildQueuePush(BaseOrder_Struct * pOrderPtr)
      may well be different. Compare BuildOrder structures then remaining
      fields. */
   lCurrPtr = gBaseOrder + lCount;
+
+  CanonicalizeBuildOrder(&lCurrPtr->mOrder);
 
   if ((memcmp(&lCurrPtr->mOrder, &pOrderPtr->mOrder, sizeof(BuildOrder_Struct)) EQ 0)
 #ifdef PDK_PHOST4_SUPPORT
@@ -1188,6 +1211,9 @@ InitRemoteControl(void)
   gRemoteOwner = (Uns16 *) MemCalloc(SHIP_NR + 1, sizeof(gRemoteOwner[0]));
   gOriginalOwner =
         (Uns16 *) MemCalloc(SHIP_NR + 1, sizeof(gOriginalOwner[0]));
+
+  /* default: ships are not remote-controlable */
+  gOriginalOwner[0] = 0xFFFF;
 }
 
 static void

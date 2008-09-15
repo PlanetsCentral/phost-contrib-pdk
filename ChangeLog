@@ -1,3 +1,12 @@
+2008-08-02  Stefan Reuther  <Streu@gmx.de>
+
+	* auxdata.c: ships are not remote-controllable by default
+
+2007-12-02  Stefan Reuther  <Streu@gmx.de>
+
+	* auxdata.c (BuildQueuePush): CanonicalizeBuildOrder(), imported
+	from PHost.
+
 2007-07-14  Stefan Reuther  <Streu@gmx.de>
 
 	* includes.h: fixed endianness test
