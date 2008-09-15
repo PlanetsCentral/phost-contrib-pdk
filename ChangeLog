@@ -1,3 +1,8 @@
+2008-09-15  Stefan Reuther  <Streu@gmx.de>
+
+	* vgapdat2.c (PutShipInterceptTarget, PutShipTowTarget): removed
+	range restriction; restriction is not present in PHost since 3.3
+
 2008-08-02  Stefan Reuther  <Streu@gmx.de>
 
 	* auxdata.c: ships are not remote-controllable by default

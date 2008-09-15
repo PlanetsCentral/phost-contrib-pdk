@@ -543,14 +543,14 @@ PutShipEnemy(Uns16 pID, RaceType_Def pEnemy)
 void
 PutShipTowTarget(Uns16 pID, Uns16 pTarget)
 {
-  passert(pTarget <= SHIP_NR);
+  /* passert(pTarget <= SHIP_NR); */
   GetShip(pID)->TowTarget = pTarget;
 }
 
 void
 PutShipInterceptTarget(Uns16 pID, Uns16 pTarget)
 {
-  passert(pTarget <= SHIP_NR);
+  /* passert(pTarget <= SHIP_NR); */
   GetShip(pID)->InterceptTarget = pTarget;
 }
 
