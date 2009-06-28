@@ -24,12 +24,12 @@
 /* A change in PHOST_VERSION_MINOR does *not* invalidate data file formats */
 #  define PHOST_VERSION_MINOR 4
 #else
-#  define PHOST_VERSION_MAJOR 5
+#  define PHOST_VERSION_MAJOR 4
 #  define PHOST_VERSION_MINOR 0
 #endif
 
 /* PDK Version */
 #define PDK_VERSION_MAJOR 4
-#define PDK_VERSION_MINOR 4
+#define PDK_VERSION_MINOR 5
 
 #endif /* _VERSION_H_ */
