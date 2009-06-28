@@ -1,3 +1,10 @@
+2009-06-28  Stefan Reuther  <Streu@gmx.de>
+
+	* enum.c (InitEnumerations): typo fix causing too much memory to
+	be allocated
+	(EnumerateShipsWithinRadius, EnumerateMinesWithinRadius): pRadius
+	now has type double, as in PHost, to support exact computations.
+
 2008-09-15  Stefan Reuther  <Streu@gmx.de>
 
 	* vgapdat2.c (PutShipInterceptTarget, PutShipTowTarget): removed

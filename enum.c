@@ -49,7 +49,7 @@ FreeEnumerations(void)
 static void
 InitEnumerations(void)
 {
-  if (! newEnumIndex) {
+  if (! newEnumPointer) {
     /* later on, we assume that newEnumPointer is non-NULL */
     newEnumSize = SHIP_NR + 1;
     newEnumPointer = (Uns16 *) MemCalloc(newEnumSize, sizeof(Uns16));
@@ -83,26 +83,15 @@ PushEnum(Uns16 id)
     functions.
 
     Optimizations:
-      For the purpose of this routine, an approximate radius is good
-      enough. Thus, we don't really need a double-valued radius except that
-      it is related to a minefield radius hence is naturally double. So we
-      cast it to an unsigned and accept the roundoff error. This lets us
-      use the IsDistanceLTRadius() routine which requires no floating point
-      calculations. Also, we compare absolute distances along the X and Y
-      dimensions separately so we can quickly weed out most candidates.
-
-    Real Time Burden:
-      Using 500 random ship locations, running EnumerateShipsWithinRadius()
-      for all 500 ships (i.e., 500 invocations of this routine) uses an
-      average of 0.27 s on a 486/66 machine with coprocessor and 0.33 s
-      without a coprocessor. Each ship was randomly placed within the
-      region [1500,1500]-[2500,2500]. */
+      We use lSimplRadius to weed out far ships early. This routine no
+      longer rounds the radius; it now works exactly like PHost. */
 #ifndef MICROSQUISH
 Uns16 *
 EnumerateShipsWithinRadius(Int16 pX, Int16 pY, double pRadius)
 {
   Uns16 lShip;
-  Uns16 lRadius = (Uns16) (pRadius + 0.5);
+  Uns16 lSimplRadius = (Uns16)(pRadius + 1);
+  Int32 lRadiusSqr = (Int32)(pRadius * pRadius);
   Int16 lDistX, lDistY;
 
   InitEnumerations();
@@ -112,17 +101,15 @@ EnumerateShipsWithinRadius(Int16 pX, Int16 pY, double pRadius)
       continue;
 
     lDistX = abs(WrapDistX(ShipLocationX(lShip) - pX));
-    if (lDistX > lRadius)
+    if (lDistX > lSimplRadius)
       continue;
 
     lDistY = abs(WrapDistY(ShipLocationY(lShip) - pY));
-    if (lDistY > lRadius)
+    if (lDistY > lSimplRadius)
       continue;
 
-    if (((Int32) lDistX * lDistX + (Int32) lDistY * lDistY)
-          <= ((Uns32) lRadius * lRadius)) {
+    if (((Int32) lDistX * lDistX + (Int32) lDistY * lDistY) <= lRadiusSqr)
       PushEnum(lShip);
-    }
   }
   PushEnum(0);
   return newEnumPointer;
@@ -172,9 +159,11 @@ EnumerateShipsAt(Uns16 pX, Uns16 pY)
     \returns pointer to an array of Uns16 containing minefield Ids,
     zero-terminated. This pointer is shared between the EnumerateXXX
     functions.
+
+    Note that this function used to take an Uns16 pRadius. I have
+    modified it to take a double for better precision.
     
    Optimizations:
-        IsDistanceLTRadius is called to avoid taking unnecessary square roots.
         The absolute distance in X and Y directions is checked first to
         quickly weed out most of the candidates.
 
@@ -189,10 +178,10 @@ EnumerateShipsAt(Uns16 pX, Uns16 pY)
 
 #ifndef MICROSQUISH
 Uns16 *
-EnumerateMinesWithinRadius(Int16 pX, Int16 pY, Uns16 pRadius)
+EnumerateMinesWithinRadius(Int16 pX, Int16 pY, double pRadius)
 {
   Uns16 lMine;
-  Uns16 lRadius;
+  double lRadius;
   Int16 lDistX, lDistY;
   Uns16 lNum = GetNumMinefields();
 

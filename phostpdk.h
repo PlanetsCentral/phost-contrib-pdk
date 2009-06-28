@@ -772,10 +772,9 @@ Pconfig_Struct;
  * Enumeration functions
  */
 
-  extern Uns16 *EnumerateShipsWithinRadius(Int16 pX, Int16 pY,
-        double pRadius);
+  extern Uns16 *EnumerateShipsWithinRadius(Int16 pX, Int16 pY, double pRadius);
   extern Uns16 *EnumerateShipsAt(Uns16 pX, Uns16 pY);
-  extern Uns16 *EnumerateMinesWithinRadius(Int16 pX, Int16 pY, Uns16 pRadius);
+  extern Uns16 *EnumerateMinesWithinRadius(Int16 pX, Int16 pY, double pRadius);
   extern Uns16 FindPlanetAtShip(Uns16 lShip);
   extern Uns16 FindGravityPlanet(Int16 pX, Int16 pY);
   extern Uns16 *EnumeratePlanetsWithin(Int16 pX, Int16 pY, Uns16 pRadius);
@@ -787,12 +786,9 @@ Pconfig_Struct;
  * Interface to host messaging
  */
 
-  extern Boolean WriteExternalMessage(RaceType_Def pRace,
-        const char *pMessage);
-  extern Boolean WriteAUXHOSTMessage(RaceType_Def pRace,
-        const char *pMessage);
-  extern Boolean WriteMessageToRST(RaceType_Def pRace, int pArgc,
-        const char *pArgv[]);
+  extern Boolean WriteExternalMessage(RaceType_Def pRace, const char *pMessage);
+  extern Boolean WriteAUXHOSTMessage(RaceType_Def pRace, const char *pMessage);
+  extern Boolean WriteMessageToRST(RaceType_Def pRace, int pArgc, const char *pArgv[]);
 
 /*
  *  Reading and writing of PHOST data files

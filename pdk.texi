@@ -4138,11 +4138,13 @@ This routine returns a list of all ships that are located at the given
 (X,Y) position.
 
 @node EnumerateMinesWithinRadius, FindPlanetAtShip, EnumerateShipsAt, Enumeration Functions
-@subsection Uns16 *EnumerateMinesWithinRadius(Int16 pX, Int16 pY, Uns16 pRadius)
+@subsection Uns16 *EnumerateMinesWithinRadius(Int16 pX, Int16 pY, double pRadius)
 @findex EnumerateMinesWithinRadius
 
 This routine returns a list of all minefields that extend to within a given
 radius of a certain (X,Y) location.
+
+@emph{Note:} in earlier versions of the PDK, parameter @code{pRadius} had type @code{Uns16}.
 
 @node FindPlanetAtShip, FindGravityPlanet, EnumerateMinesWithinRadius, Enumeration Functions
 @subsection Uns16 FindPlanetAtShip(Uns16 lShip)

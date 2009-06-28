@@ -16,6 +16,8 @@ Version 4.5
 * Added PutMinefieldLocationX/Y() and PutMinefieldWeb() (Piotr Winiarczyk)
 * Added ability to create Explosions
 * Added access to tons
+* EnumerateXxx functions now use exact radii. Note that this means you must
+  recompile your source code.
 
 
 Version 4.4b
