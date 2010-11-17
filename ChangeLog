@@ -1,3 +1,20 @@
+2010-11-17  Stefan Reuther  <Streu@gmx.de>
+
+	* main.c (InitPHOSTLib): updated year...
+
+	* pconfig.c: updated from current PHost. Do not warn for unset
+	options; leave that to PHost.
+
+	* battle.c: updated from current PHost. Added experience support.
+
+	* phostpdk.h: changed definition of Int32 to anticipate x64
+
+	* config.hi4, phostpdk.h: updated configuration from PHost 4.1e
+
+	* hullfunc.c (shipHasSynthSpecial): added support for >64
+	functions, to match PHost. Fixed a typo that could have caused
+	shipHasSynthSpecial not to work correctly.
+
 2009-06-28  Stefan Reuther  <Streu@gmx.de>
 
 	* enum.c (InitEnumerations): typo fix causing too much memory to

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <limits.h>
 #include "version.h"
 
 #ifdef __cplusplus
@@ -77,9 +78,16 @@ extern "C" {
   typedef short Int16;
   typedef unsigned short Uns16;
 
-#ifdef __alpha                  /* Alpha AXP defines long as 64 bits */
+#if LONG_MAX != 2147483647L
+#  if INT_MAX != 2147483647L
+#    error Unable to find your 32-bit integer type
+#  else
+  /* This used to be inside an '#ifdef __alpha'. Writing it this way
+     enables it for all platforms where int has 32 bits and long
+     doesn't. */
   typedef int Int32;
   typedef unsigned int Uns32;
+#  endif
 #else
   typedef long Int32;
   typedef unsigned long Uns32;
@@ -331,7 +339,7 @@ typedef struct
 {
     /* Host config data */
 #define FirstConfigOption RecycleRate
-    Uns16    RecycleRate,           /*!< % of ore recovered from colonizing ships */
+    Uns16    RecycleRate[12],       /*!< % of ore recovered from colonizing ships */
              MeteorRate;            /*!< % chance of one large meteor */
     Boolean  Minefields,            /*!< allow minefields */
              Alchemy,               /*!< allow alchemy */
@@ -346,38 +354,38 @@ typedef struct
     Uns16    CloakFailure[12];      /*!< % chance of cloaking failure */
     Boolean  RobCloakedShips;       /*!< Privateers can rob cloaked ships */
     Uns16    ScanRange[12],         /*!< Enemy ship scan range */
-             DarksenseRange;        /*!< Dark sense range */
+             DarksenseRange[12];    /*!< Dark sense range */
     Boolean  Hiss,                  /*!< Allow hiss mission */
              RebelGroundAttack,     /*!< Allow RGA */
              SuperRefit,            /*!< Allow super refit */
              WebMines;              /*!< Allow web mines */
-    Uns16    CloakFuelBurn,         /*!< kt of fuel burn required to stay cloaked */
+    Uns16    CloakFuelBurn[12],     /*!< kt of fuel burn required to stay cloaked */
              SensorRange[12];       /*!< range of the sensor sweep mission */
 #if defined(PDK) || !defined(PHOST4)
     Boolean  NewNatives;            /*!< Allow new natives to appear */
 #endif
     Boolean  PlanetsAttack;         /*!< Allow planets to attack ships */
-    Uns16    AssimilationRate,      /*!< assimilation percentage */
-             WebDecay,              /*!< web decay rate percentage */
+    Uns16    AssimilationRate[12],  /*!< assimilation percentage */
+             WebDecay[12],          /*!< web decay rate percentage */
              MineDecay[12],         /*!< mines decay rate percentage */
              MaxMineRadius[12],     /*!< maximum minefield radius */
-             MaximumWebMinefieldRadius,  /*!< maximum size of a web */
+             MaximumWebMinefieldRadius[12],  /*!< maximum size of a web */
              TransuraniumRate,      /*!< new mineral formation rate */
              StructureDecay[12];    /*!< structure decay rate (0'th is StructureDecayOnUnowned) */
-    Boolean  EatSupplies,           /*!< overpopulated planets eat supplies */
+    Boolean  EatSupplies[12],       /*!< overpopulated planets eat supplies */
              NoFuelMove;            /*!< ships without fuel can move */
     Uns16    MineOdds[12],          /*!< percentage odds of hitting a mine */
              WebOdds[12],           /*!< percentage odds of hitting a web mine */
              MineScanRange[12];     /*!< range in which mines are visible */
     Boolean  MinesDestroyMines,     /*!< allow mines to destroy mines */
              EngShieldBonus;        /*!< allow engine bonus */
-    Uns16    ShieldBonusRate,       /*!< engine tech bonus rate */
+    Uns16    ShieldBonusRate[12],   /*!< engine tech bonus rate */
              FighterSweepRate[12];  /*!< Fighter sweep rate */
     Boolean  ColSweepWebs;          /*!< Allow Colonies to sweep web mines */
     Uns16    MineSweepRate[12],     /*!< rate of mine sweeping with beam weapons */
              WebSweepRate[12],      /*!< rate of web sweeping with beam weapons */
-             HissEffect,            /*!< hiss effect per ship */
-             RobFailRate;           /*!< percentage change that robbing fails */
+             HissEffect[12],        /*!< hiss effect per ship */
+             RobFailRate[12];       /*!< percentage change that robbing fails */
     Boolean  PlanetRebelAttack,     /*!< planets can attack Rebels */
              PlanetKlingonAttack;   /*!< planets can attack Klingons */
     Uns16    MineSweepRange[12],    /*!< mine sweep range */
@@ -395,12 +403,12 @@ typedef struct
 
     Boolean  OneTow,                /*!< allow one engine ships to tow */
              HyperDrives;           /*!< allow hyperdrive */
-    Uns16    ClimateDeathRate;      /*!< climate death rate */
+    Uns16    ClimateDeathRate[12];  /*!< climate death rate */
     Boolean  GravityWells,          /*!< allow gravity wells */
              CrystalsLikeDesert;    /*!< Crystals grow better on hot planets */
     Boolean  DestroyWebs,           /*!< allow normal mines to destroy web mines */
              ClimateLimitsPopulation; /*!< allow climate to limit population */
-    Uns32    MaxPlanetaryIncome;    /*!< max number of credits to earn per planet */
+    Uns32    MaxPlanetaryIncome[12]; /*!< max number of credits to earn per planet */
     Uns16    IonStormActivity;      /*!< chance of storms as a percentage */
     Boolean  AllowChunneling;       /*!< allow Firecloud chunneling */
     Boolean  AllowDeluxeSuperSpy;   /*!< allow Deluxe Super Spy mission */
@@ -421,6 +429,7 @@ typedef struct
 #define FirstNewConfigOption UseAccurateFuelModel
     Boolean  UseAccurateFuelModel;  /*!< mass of ship decreases as fuel burns */
     Uns16    DefenseForUndetectable; /*!< min defenses to make planet undetectable */
+    Uns16    DefenseToBlockBioscan;  /*!< min defenses to make planet undetectable by bioscan */
     Uns16    FactoriesForDetectable; /*!< min factories to make planet detectable */
     Uns16    MinesForDetectable;     /*!< min mines to make planet detectable */
     Uns16    FighterSweepRange[12];  /*!< range at which fighters can sweep */
@@ -463,7 +472,8 @@ typedef struct
     Tristate CPEnableGive;                   /*!< allow the 'give' CP command */
     Boolean  AllowTowCloakedShips;           /*!< allow cloaked ships to be towed */
     Uns16    RobCloakedChance;               /*!< percent chance that rob cloaked succeeds */
-    Uns16    PlanetaryTorpsPerTube;          /*!< number of free torps to give per tube */
+    Uns16    PlanetaryTorpsPerTube[12];      /*!< number of free torps to give per tube */
+    Boolean  UseBaseTorpsInCombat[12];       /*!< use starbase torpedoes in combat? */
     Uns16    UnitsPerTorpRate[12];           /*!< percent of normal units-per-torp rate */
     Uns16    UnitsPerWebRate[12];            /*!< percent of normal units-per-torp rate for web minefields */
     Boolean  ESBonusAgainstPlanets;          /*!< E-S bonus applies when fighting planets */
@@ -513,8 +523,8 @@ typedef struct
     Uns16    DamageLevelForTerraformFail;    /*!< Damage level at which terraforming fails */
     Uns16    DamageLevelForHyperjumpFail;    /*!< Damage level at which hyperjumping fails */
     Uns16    MinimumChunnelDistance;         /*!< Minimum distance for a chunnel */
-    Uns16    TowStrengthEngineScale;
-    Uns16    TowStrengthDistanceScale;
+    Uns16    TowStrengthEngineScale[12];
+    Uns16    TowStrengthDistanceScale[12];
 
     /* Build queue */
     BuildQueue_Def BuildQueue;       /*!< Build Queue Mode (BQ_xxx) */
@@ -524,6 +534,7 @@ typedef struct
     Uns32    SBQPointsForAging[12];  /*!< Constant offset for old build orders */
     Uns32    SBQBuildChangePenalty[12]; /*!< Constant offset for build changes */
     Uns16    SBQBoostExpX100[12];    /*!< Exponent for build order boosts X 100 */
+    Uns16    BuildChangeRelativePenalty[12]; /*!< Relative offset for build changes */
     Uns16    PBPCostPer100KT[12];    /*!< Cost for building a 100 kt hull */
     Uns16    PBPMinimumCost[12];     /*!< Minimum cost for building a ship */
     Uns16    PBPCloneCostRate[12];   /*!< Cost scaling for clone orders (%) */
@@ -541,6 +552,8 @@ typedef struct
     Uns16    PALBoardingPartyPer10Crew[12];   /*!< Priv/Crystal boarding party */
     Uns16    PALGroundAttackPer100Clans[12]; /*!< As it says */
     Uns16    PALGloryDevice[12];            /*!< Points for exploding a G.D. */
+    Uns16    PALGloryDevicePer10KT[12];     /*!< Points for exploding a G.D. */
+    Uns16    PALGloryKillPer10KT[12];       /*!< Points for enemy ships */
     Uns16    PALGloryDamagePer10KT[12];     /*!< Points for enemy ships */
     Uns16    PALImperialAssault[12];        /*!< Points for performing one */
     Uns16    PALRGA[12];                    /*!< Points for performing one */
@@ -560,11 +573,13 @@ typedef struct
     Uns16    ConfigLevel;       /*!< 0=normal, 1=gripe for optional options, 2=gripe for all options */
     Tristate BuildPointReport;
     Boolean  AlternativeMinesDestroyMines;
+    Int16    MinimumHappiness;
 
 #ifdef PHOST4
     Uns16    NumShips;
     Boolean  ExtendedSensorSweep;
-    Uns16    ColonistCombatSurvivalRate;
+    Uns16    ColonistCombatSurvivalRate[12];
+    Uns16    ColonistCombatCaptureRate[12];
 
     Uns16    NewNativesPerTurn;
     Uns32    NewNativesPopulationRange[2];
@@ -573,8 +588,8 @@ typedef struct
     Uns16    PlayerSpecialMission[12];       /*!< Player-to-special-mission map */
     Uns16    WrmScanRange[12];
 
-    Uns16    FuelUsagePerFightFor100KT;
-    Uns16    FuelUsagePerTurnFor100KT;
+    Uns16    FuelUsagePerFightFor100KT[12];
+    Uns16    FuelUsagePerTurnFor100KT[12];
     Tristate CPEnableEnemies;
     Tristate CPEnableShow;
     Tristate CPEnableRefit;
@@ -585,11 +600,15 @@ typedef struct
     Cost_Struct BaseFighterCost[12];
     Cost_Struct ShipFighterCost[12];
     Uns16    MaximumFightersOnBase[12];
+    Uns16    MaximumDefenseOnBase[12];
 
     Uns16    NumExperienceLevels;
     char     ExperienceLevelNames[255];
     Uns32    ExperienceLevels[10];
+    Uns32    ExperienceLimit;
     Uns16    EPRecrewScaling[12];
+    Uns16    EPShipBuild1000TorpUnits[12];
+    Uns16    EPShipBuild10Fighters[12];
     Uns16    EPShipAging;
     Uns16    EPPlanetAging;
     Uns16    EPPlanetGovernment;
@@ -603,6 +622,8 @@ typedef struct
     Uns16    EPCombatBoostRate[10];
     Int16    EPCombatBoostLevel[10];
     Uns16    EPTrainingScale[12];
+    Uns16    EPAcademyScale[12];
+    Boolean  ExactExperienceReports;
 
     Int16    EModBayRechargeRate[10];
     Int16    EModBayRechargeBonus[10];
@@ -626,6 +647,7 @@ typedef struct
     Int16    EModShieldKillScaling[10];
     Int16    EModHullDamageScaling[10];
     Int16    EModCrewKillScaling[10];
+    Int16    EModPlanetaryTorpsPerTube[10];
     Int16    EModMineHitOddsBonus[10];
 
     Tristate TowedShipsCooperate;
@@ -963,6 +985,8 @@ Pconfig_Struct;
     Uns16 NumFighters;          /*!< Number of fighters */
     Uns16 NumTorps;             /*!< Number of torps */
 
+    Uns16 Level;                /*!< Experience level */
+
     /*! The following fields will be filled in by Combat(). It is not
        necessary to fill them in prior to calling Combat(). */
 
@@ -970,7 +994,12 @@ Pconfig_Struct;
 
   } Combat_Struct;
 
+  enum {
+    Combat_Experience = 0x100   /*!< The "Level" field is valid. */
+  };
+
   extern void Combat(Combat_Struct * pShip1, Combat_Struct * pShip2);
+  extern void CombatEx(Combat_Struct * pShip1, Combat_Struct * pShip2, Uns16 pFlags);
 
 /*! If the Combat() routine is called by user code, then the following
    functions must also be defined in the user's code.

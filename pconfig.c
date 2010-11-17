@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *****************************************************************************/
 
 #include <ctype.h>
+#include <errno.h>
 #include "phostpdk.h"
 #include "private.h"
 #include "battle.h"
@@ -36,8 +37,6 @@ static void ClearConfig();
 static void DoDefaultAssignments(void);
 static Boolean DoAssignment(const char *name, char *val,
                             const char *pInputLine);
-static const char *languageName(Language_Def pLanguage);
-static int MatchLanguage(const char* pLanguage);
 
 Boolean gUsingTHost = False;    /*!< True if we are running in THost mode.
                                      This is the case when we loaded the
@@ -342,9 +341,9 @@ typedef Boolean (*ConfigReader_Func)(const struct ConfigItem_Struct*, char* valu
 
 typedef struct ConfigItem_Struct {
     const char* mName;          /* Name of config item */
-    size_t      mOffset;        /* Position in gConfigInfo */
-    Uns16       mCount;         /* Number of entries (for strings: length) */
-    CFType      mType;          /* Type */
+    size_t      mOffset : 16;   /* Position in gConfigInfo */
+    Uns16       mCount : 8;     /* Number of entries (for strings: length) */
+    CFType      mType : 8;      /* Type */
     Int32       mMin, mMax;     /* Range */
     Uns16       mFlags;         /* Options (arrayized, obsolete, ...) */
     Uns16       mDepend;        /* Dependency */
@@ -382,6 +381,23 @@ enum {
 #undef IFYES
 #undef IFNO
 };
+/*
+   Some more checking. The 'ofs' values are generally either 'Name' or
+   'Name[1]'. Thus, the size of 'ofs' should either be the size of the
+   option type times count (first case) or just size of the option
+   type. In case an option is arrayized and we forget to change the
+   config.hi4 definition, this will fail with an "array size negative"
+   error.
+ */
+#define CFDefine4(name, ofs, count, typ, min, max, flags, dep, def) \
+    typedef int SIZECK_##name[(sizeof(gConfigInfo->ofs) == sizeof(typ) \
+                              || sizeof(gConfigInfo->ofs) == sizeof(typ) * (count)) ? 2 : -2];
+#define String char
+#define Cost Cost_Struct
+#include "config.hi4"
+#undef String
+#undef Cost
+#undef CFDefine4
 
 enum {
     CFOPT_Arrayized    = 1,
@@ -429,6 +445,7 @@ lookupOptionByName(const char* pName)
             return i;
 #define CFAlias(old,new) if (stricmp(pName, #old) == 0) return CF_##new;
 #include "config.hi4"
+#undef CFAlias
     return -1;
 }
 
@@ -521,7 +538,7 @@ parseInteger(const ConfigItem_Struct* pItem,
     char* p;
 
     i = strtol(pValue, &p, 10);
-    if (*pValue == 0 || *p != 0) {
+    if (*pValue == 0 || *p != 0 || ((i == LONG_MIN || i == LONG_MAX) && errno == ERANGE)) {
         Error("%s: invalid value '%s' in assignment to '%s'", CONFIG_FILE,
               pValue, pItem->mName);
         return False;
@@ -653,16 +670,17 @@ static Boolean
 parseLanguage(const ConfigItem_Struct* pItem,
               char* pValue, int pIndex, void* pData)
 {
-    /* The order of languages in the following list is important and
-       must match the order of definitions in strlang.h */
-    int match = MatchLanguage(pValue);
-    if (match < 0) {
-        Error("%s: invalid language '%s'", CONFIG_FILE, pValue);
-        return False;
-    } else {
-        ((Language_Def*) pData)[pIndex] = match;
-        return True;
-    }
+    int match = ListMatch(pValue,
+                          "ENglish German French Spanish Italian Dutch Russian EStonian"
+                          " NEWENglish Polish");
+
+    /* PHost 3.5/4.1 allows other languages than our hardwired set.
+       Thus, if we don't know it, assume it's NewEnglish. */
+    if (match < 0)
+        match = LANG_NewEnglish;
+
+    ((Language_Def*) pData)[pIndex] = match;
+    return True;
 }
 
 /** Parse score method into an array of ScoreMethod_Def. For use with
@@ -757,44 +775,20 @@ readInt16(const struct ConfigItem_Struct* pItem, char* pValue)
     return True;
 }
 
-static const char *
-languageName(Language_Def pLanguage)
-{
-    static const char *lLang[] = {
-        "English",
-        "German",
-        "French",
-        "Spanish",
-        "Italian",
-        "Dutch",
-        "Russian",
-        "Estonian",
-        "NewEnglish",
-        "Polish"
-    };
-    return lLang[pLanguage];
-}
-
-static int
-MatchLanguage(const char* pLanguage)
-{
-    return ListMatch(pLanguage,
-          "ENglish German French Spanish Italian Dutch Russian EStonian"
-          " NEWENglish Polish"
-          );
-}
-
 static void DoDefaultAssignment(int pOpt);
 
 /** Assign one option. */
 static Boolean
 DoAssignOption(int pOptInd, char* pValue, Boolean pDefault)
 {
-    static const char SEPARATORS[] = " \t\r\032";
     const ConfigItem_Struct* lItem = &sConfigDef[pOptInd];
 
-    pValue += strspn(pValue, SEPARATORS);
-    if (*pValue == '$') {
+    pValue += strspn(pValue, WHITESPACE);
+    /* Check for reference. We check the second character as well to
+       do the right thing in case a CFType_Cost options starts with
+       '$'. No parameter name starts with a digit, so this cannot
+       legally be a reference. */
+    if (*pValue == '$' && (pValue[1] < '0' || pValue[1] > '9')) {
         /* It is a reference */
         char* lEnd = ++pValue;
         char* p;
@@ -803,7 +797,7 @@ DoAssignOption(int pOptInd, char* pValue, Boolean pDefault)
 
         while (*lEnd && isalnum(*lEnd))
             ++lEnd;
-        p = lEnd + strspn(lEnd, SEPARATORS);
+        p = lEnd + strspn(lEnd, WHITESPACE);
         if (*p && *p != '#') {
             Error("%s: syntax error in reference for option '%s'",
                   CONFIG_FILE, lItem->mName);
@@ -881,36 +875,20 @@ DoAssignOption(int pOptInd, char* pValue, Boolean pDefault)
 static void
 DoDefaultAssignment(int pOpt)
 {
-    int j;
     char defstr[1024];
 
     strcpy(defstr, sConfigDef[pOpt].mDefault);
     DoAssignOption(pOpt, defstr, True);
     sOptionSet[pOpt] = 1;
 
-    if (sConfigDef[pOpt].mFlags & CFOPT_Obsolete)
-        return;
-    if (gConfigInfo->ConfigLevel == 0 && (sConfigDef[pOpt].mFlags & CFOPT_Optional))
-        return;
-    if (!gConfigWarnings)
-        return;
-
-    if ((j = sConfigDef[pOpt].mDepend) != 0) {
-        /* omit warning for some cases */
-        int lDepOpt = j / 2;
-        if (lDepOpt == 0) {
-            /* should no longer happen */
-            if (gConfigInfo->ConfigLevel == 0)
-                return;
-        } else {
-            if (gConfigInfo->ConfigLevel <= 1
-                && sOptionSet[lDepOpt-1]
-                && *(Boolean*)((char*)gConfigInfo + sConfigDef[lDepOpt-1].mOffset) == (j & 1))
-                return;
-        }
-    }
-    Warning("%s: default value used: '%s = %s'",
-            CONFIG_FILE, sConfigDef[pOpt].mName, sConfigDef[pOpt].mDefault);
+    /* No warnings! Leave that to PHost.
+       For reference, PHost's conditions are:
+       - no warning for obsolete
+       - no warning for optional settings if ConfigLevel=0
+         - experience options count as optional if NumExperienceLevels=0
+       - no warning for incompatible options if AllowIncompatibleConfiguration=0
+       - no warning for conditional settings if their controlling option
+         has the other value */
 }
 
 /** Assign default values to all config options that were not assigned

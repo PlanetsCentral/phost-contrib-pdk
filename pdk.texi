@@ -19,7 +19,7 @@
 @author Stefan Reuther
 @end titlepage
 
-@node Top, Manifest Constants, (dir), (dir)
+@node Top, General Concepts, (dir), (dir)
 @center THE PORTABLE HOST DEVELOPMENT KIT
 @center Application Programming Interface Reference
 @center Version 4.5
@@ -39,17 +39,19 @@ section is further subdivided into logical functional groups. The sections
 in this file are as follows:
 
 @menu
-* Manifest Constants::
-* Common Types::
-* Data Structures::
-* Global Variables::
-* Function Call Interface::
-* Variables Index::
-* Functions Index::
+* General Concepts::            
+* Manifest Constants::          
+* Common Types::                
+* Data Structures::             
+* Global Variables::            
+* Function Call Interface::     
+* Variables Index::             
+* Functions Index::             
 @end menu
 
 @iftex
 @itemize @minus
+@item General Concepts
 @item Manifest Constants
 @item Common Types
 @item Data Structures
@@ -60,7 +62,35 @@ in this file are as follows:
 @end itemize
 @end iftex
 
-@node Manifest Constants, Common Types, Top, Top
+@node General Concepts, Manifest Constants, Top, Top
+@chapter General Concepts
+
+The Portable Host Development Kit (PDK) is distributed as a C library.
+It can be compiled into a "libpdk.a" or "pdk.lib" file, which you can
+link statically to your application.
+
+New versions of the PDK are intended to be source-code compatible where
+possible. We do not attempt ABI compatibility (which were required for
+making a dynamic library (DLL)). We can not ensure source-code
+compatibility in all cases, too: the host configuration interface changes
+to keep up with PHost's configuration changes. For example, when an
+option is arrayized, we cannot offer a scalar and an array option at the
+same time. The function call interface, however, is expected to remain
+stable.
+
+This version of the PDK is intended to be compatible to
+@itemize @minus
+@item all PHost 3.x versions
+@item all PHost 4.x versions
+@item all HOST ("Tim host") versions, including HOST999
+@end itemize
+Files are written in the same format they were read in.
+
+Note that support for 999 ships ("HOST999") and support for PHost 4
+can be configured out in @code{version.h}. We do not recommend that,
+though.
+
+@node Manifest Constants, Common Types, General Concepts, Top
 @chapter Manifest Constants
 @vindex RACE_NR
 @vindex SHIP_NR
@@ -265,14 +295,14 @@ at several places, even with "identical" configuration.
 The PDK defines and uses the following global variables.
 
 @menu
-* gRootDirectory::
-* gGameDirectory::
-* gLogFile::
-* gNewlyMastered::
-* gPconfigInfo::
-* poptarg::
-* gNonPHOSTWarnings::
-* gUsingTHost::
+* gRootDirectory::              
+* gGameDirectory::              
+* gLogFile::                    
+* gNewlyMastered::              
+* gPconfigInfo::                
+* poptarg::                     
+* gNonPHOSTWarnings::           
+* gUsingTHost::                 
 @end menu
 
 @iftex
@@ -387,56 +417,56 @@ endings inconsistently; the "canonical" name now is the one ending with
 @code{FCode}.
 
 @menu
-* PDK Initialization and Cleanup::
-* Data File Input/Output::
-* Data File Mastering::
-* Player Status::
-* Ship Accessors::
-* Planet Accessors::
-* Starbase Accessors::
-* Minefield Accessors::
-* Ion Storm Accessors::
-* Wormhole Accessors::
-* Hull Accessors::
-* Engine Accessors::
-* Torpedo Accessors::
-* Beam Weapon Accessors::
-* Race Name Accessors::
-* Host Run Time Accessors::
-* Enumeration Functions::
-* External Message Interface::
-* AUXHOST Message Interface::
-* RST Message Interface::
-* Build Queue Interface::
-* Player Activity Level::
-* Alliance Management::
-* Game Status Interface::
-* File Utility Functions::
-* Memory Management::
-* Messaging and Logging::
-* Random Number Generation::
-* Cross-Platform Portability::
-* Cross-Platform Portability Part II::
-* Command-Line Option Processing::
-* Combat Interface::
-* Remote Control Interface::
-* Config File Reader Interface::
-* Special Ship Function Accessors::
-* Wraparound Map Functions::
-* UTILx.DAT Functions::
-* Score Functions::
-* FCode Functions::
-* Command Message Functions::
-* Auxiliary Data & Experience::
-* Tons::
+* PDK Initialization and Cleanup::  
+* Data File Input/Output::      
+* Data File Mastering::         
+* Player Status::               
+* Ship Accessors::              
+* Planet Accessors::            
+* Starbase Accessors::          
+* Minefield Accessors::         
+* Ion Storm Accessors::         
+* Wormhole Accessors::          
+* Hull Accessors::              
+* Engine Accessors::            
+* Torpedo Accessors::           
+* Beam Weapon Accessors::       
+* Race Name Accessors::         
+* Host Run Time Accessors::     
+* Enumeration Functions::       
+* External Message Interface::  
+* AUXHOST Message Interface::   
+* RST Message Interface::       
+* Build Queue Interface::       
+* Player Activity Level::       
+* Alliance Management::         
+* Game Status Interface::       
+* File Utility Functions::      
+* Memory Management::           
+* Messaging and Logging::       
+* Random Number Generation::    
+* Cross-Platform Portability::  
+* Cross-Platform Portability Part II::  
+* Command-Line Option Processing::  
+* Combat Interface::            
+* Remote Control Interface::    
+* Config File Reader Interface::  
+* Special Ship Function Accessors::  
+* Wraparound Map Functions::    
+* UTILx.DAT Functions::         
+* Score Functions::             
+* FCode Functions::             
+* Command Message Functions::   
+* Auxiliary Data & Experience::  
+* Tons::                        
 @end menu
 
 
 @node PDK Initialization and Cleanup, Data File Input/Output, Function Call Interface, Function Call Interface
 @section PDK Initialization and Cleanup
 @menu
-* InitPHOSTLib::
-* FreePHOSTLib::
+* InitPHOSTLib::                
+* FreePHOSTLib::                
 @end menu
 
 @iftex
@@ -503,26 +533,26 @@ Calling FreePHOSTLib() prior to re-reading the data solves the problem:
 @end example
 
 @menu
-* ReadGlobalData::
-* ReadHostData::
-* IsCLOAKCFound::
-* Write_Planets_File::
-* Write_Ships_File::
-* Write_Bases_File::
-* Write_Mines_File::
-* Write_HostGen_File::
-* Write_AuxData_File::
-* Write_Racenames_File::
-* WriteWormholeFile::
-* Write_Truehull_File::
-* Write_Hullspec_File::
-* Write_Engspec_File::
-* Write_Beamspec_File::
-* Write_Torpspec_File::
-* Write_Planetname_File::
-* Write_Xyplan_File::
-* Write_Ion_File::
-* WriteHostData::
+* ReadGlobalData::              
+* ReadHostData::                
+* IsCLOAKCFound::               
+* Write_Planets_File::          
+* Write_Ships_File::            
+* Write_Bases_File::            
+* Write_Mines_File::            
+* Write_HostGen_File::          
+* Write_AuxData_File::          
+* Write_Racenames_File::        
+* WriteWormholeFile::           
+* Write_Truehull_File::         
+* Write_Hullspec_File::         
+* Write_Engspec_File::          
+* Write_Beamspec_File::         
+* Write_Torpspec_File::         
+* Write_Planetname_File::       
+* Write_Xyplan_File::           
+* Write_Ion_File::              
+* WriteHostData::               
 @end menu
 
 @iftex
@@ -808,11 +838,11 @@ portable MASTER program since they allow a Write_XXX_File() routine to be
 called without a corresponding call to ReadHostData().
 
 @menu
-* InitializePlanets::
-* InitializeShips::
-* InitializeBases::
-* InitializeMines::
-* InitializeHostGen::
+* InitializePlanets::           
+* InitializeShips::             
+* InitializeBases::             
+* InitializeMines::             
+* InitializeHostGen::           
 @end menu
 
 @iftex
@@ -866,17 +896,17 @@ Basic player status functions are defined here. Player kill functions are implem
 The following functions require a prior call to ReadHostData().
 
 @menu
-* PlayerIsActive::
-* PutPlayerIsActive::
-* PlayerPassword::
-* PutPlayerPassword::
-* KillPlayerConfigure::
-* PutKillPlayerConfigure::
-* KillPlayer::
-* KillPlayerShips::
-* KillPlayerPlanets::
-* KillPlayerBases::
-* KillPlayerMinefields::
+* PlayerIsActive::              
+* PutPlayerIsActive::           
+* PlayerPassword::              
+* PutPlayerPassword::           
+* KillPlayerConfigure::         
+* PutKillPlayerConfigure::      
+* KillPlayer::                  
+* KillPlayerShips::             
+* KillPlayerPlanets::           
+* KillPlayerBases::             
+* KillPlayerMinefields::        
 @end menu
 
 @iftex
@@ -985,75 +1015,75 @@ from disk using the ReadHostData() function. Your program will likely
 crash if this assumption isn't met.
 
 @menu
-* IsShipExist::
-* DeleteShip::
-* IsShipCloaked::
-* MarkShipCloaking::
-* ShipCombatShieldLevel::
-* SetShipCombatShieldLevel::
-* ShipOwner::
-* ShipSpeed::
-* ShipLocationX::
-* ShipLocationY::
-* ShipWaypointX::
-* ShipWaypointY::
-* ShipRelWaypointX::
-* ShipRelWaypointY::
-* ShipHull::
-* ShipEngine::
-* ShipBeamType::
-* ShipBeamNumber::
-* ShipTorpType::
-* ShipTubeNumber::
-* ShipBays::
-* ShipAmmunition::
-* ShipMission::
-* ShipEnemy::
-* ShipTowTarget::
-* ShipInterceptTarget::
-* ShipDamage::
-* ShipCrew::
-* ShipDump::
-* ShipDumpPlanet::
-* ShipTransfer::
-* ShipTransferShip::
-* ShipName::
-* ShipFC::
-* ShipCargo::
-* CreateShip::
-* ShipTotalMass::
-* ShipTravelMass::
-* ShipCargoMass::
-* ShipMissionName::
-* PutShipCargo::
-* PutShipName::
-* PutShipOwner::
-* PutShipFC::
-* PutShipSpeed::
-* PutShipWaypointX::
-* PutShipWaypointY::
-* PutShipRelWaypointX::
-* PutShipRelWaypointY::
-* PutShipLocationX::
-* PutShipLocationY::
-* PutShipHull::
-* PutShipEngine::
-* PutShipBeamType::
-* PutShipBeamNumber::
-* PutShipTorpType::
-* PutShipTubeNumber::
-* PutShipBays::
-* PutShipAmmunition::
-* PutShipMission::
-* PutShipEnemy::
-* PutShipTowTarget::
-* PutShipInterceptTarget::
-* PutShipDamage::
-* PutShipCrew::
-* PutShipDump::
-* PutShipDumpPlanet::
-* PutShipTransfer::
-* PutShipTransferShip::
+* IsShipExist::                 
+* DeleteShip::                  
+* IsShipCloaked::               
+* MarkShipCloaking::            
+* ShipCombatShieldLevel::       
+* SetShipCombatShieldLevel::    
+* ShipOwner::                   
+* ShipSpeed::                   
+* ShipLocationX::               
+* ShipLocationY::               
+* ShipWaypointX::               
+* ShipWaypointY::               
+* ShipRelWaypointX::            
+* ShipRelWaypointY::            
+* ShipHull::                    
+* ShipEngine::                  
+* ShipBeamType::                
+* ShipBeamNumber::              
+* ShipTorpType::                
+* ShipTubeNumber::              
+* ShipBays::                    
+* ShipAmmunition::              
+* ShipMission::                 
+* ShipEnemy::                   
+* ShipTowTarget::               
+* ShipInterceptTarget::         
+* ShipDamage::                  
+* ShipCrew::                    
+* ShipDump::                    
+* ShipDumpPlanet::              
+* ShipTransfer::                
+* ShipTransferShip::            
+* ShipName::                    
+* ShipFC::                      
+* ShipCargo::                   
+* CreateShip::                  
+* ShipTotalMass::               
+* ShipTravelMass::              
+* ShipCargoMass::               
+* ShipMissionName::             
+* PutShipCargo::                
+* PutShipName::                 
+* PutShipOwner::                
+* PutShipFC::                   
+* PutShipSpeed::                
+* PutShipWaypointX::            
+* PutShipWaypointY::            
+* PutShipRelWaypointX::         
+* PutShipRelWaypointY::         
+* PutShipLocationX::            
+* PutShipLocationY::            
+* PutShipHull::                 
+* PutShipEngine::               
+* PutShipBeamType::             
+* PutShipBeamNumber::           
+* PutShipTorpType::             
+* PutShipTubeNumber::           
+* PutShipBays::                 
+* PutShipAmmunition::           
+* PutShipMission::              
+* PutShipEnemy::                
+* PutShipTowTarget::            
+* PutShipInterceptTarget::      
+* PutShipDamage::               
+* PutShipCrew::                 
+* PutShipDump::                 
+* PutShipDumpPlanet::           
+* PutShipTransfer::             
+* PutShipTransferShip::         
 @end menu
 
 @iftex
@@ -1680,63 +1710,63 @@ have been read from disk using the ReadHostData() and ReadGlobalData()
 functions. Your program will likely crash if this assumption isn't met.
 
 @menu
-* IsPlanetExist::
-* PlanetLocationX::
-* PlanetLocationY::
-* PlanetOwner::
-* PlanetMines::
-* PlanetFactories::
-* PlanetDefense::
-* PlanetCargo::
-* PlanetCore::
-* PlanetDensity::
-* PlanetColTax::
-* PlanetNatTax::
-* PlanetColHappy::
-* PlanetNatHappy::
-* PlanetNatType::
-* PlanetNatGovm::
-* PlanetNativePopulation::
-* PlanetTemp::
-* PlanetBuildBase::
-* PlanetHasNatives::
-* PlanetNatString::
-* PlanetNatGovmString::
-* PlanetMaxFactories::
-* PlanetMaxDefense::
-* PlanetMaxMines::
-* PlanetMining::
-* PlanetGovTaxRate::
-* NumberOfShipsHissingPlanet::
-* PlanetNatHappyChange::
-* PlanetColHappyChange::
-* PlanetColIncome::
-* PlanetNatIncome::
-* PlanetSuppIncome::
-* PlanetName::
-* PlanetFCode::
-* PlanetTempString::
-* PutPlanetLocationX::
-* PutPlanetLocationY::
-* PutPlanetName::
-* PutPlanetOwner::
-* ChangePlanetOwner::
-* PutPlanetFC::
-* PutPlanetMines::
-* PutPlanetFactories::
-* PutPlanetDefense::
-* PutPlanetCargo::
-* PutPlanetCore::
-* PutPlanetDensity::
-* PutPlanetColTax::
-* PutPlanetNatTax::
-* PutPlanetColHappy::
-* PutPlanetNatHappy::
-* PutPlanetNatGovm::
-* PutPlanetNativePopulation::
-* PutPlanetNatType::
-* PutPlanetTemp::
-* PutPlanetBuildBase::
+* IsPlanetExist::               
+* PlanetLocationX::             
+* PlanetLocationY::             
+* PlanetOwner::                 
+* PlanetMines::                 
+* PlanetFactories::             
+* PlanetDefense::               
+* PlanetCargo::                 
+* PlanetCore::                  
+* PlanetDensity::               
+* PlanetColTax::                
+* PlanetNatTax::                
+* PlanetColHappy::              
+* PlanetNatHappy::              
+* PlanetNatType::               
+* PlanetNatGovm::               
+* PlanetNativePopulation::      
+* PlanetTemp::                  
+* PlanetBuildBase::             
+* PlanetHasNatives::            
+* PlanetNatString::             
+* PlanetNatGovmString::         
+* PlanetMaxFactories::          
+* PlanetMaxDefense::            
+* PlanetMaxMines::              
+* PlanetMining::                
+* PlanetGovTaxRate::            
+* NumberOfShipsHissingPlanet::  
+* PlanetNatHappyChange::        
+* PlanetColHappyChange::        
+* PlanetColIncome::             
+* PlanetNatIncome::             
+* PlanetSuppIncome::            
+* PlanetName::                  
+* PlanetFCode::                 
+* PlanetTempString::            
+* PutPlanetLocationX::          
+* PutPlanetLocationY::          
+* PutPlanetName::               
+* PutPlanetOwner::              
+* ChangePlanetOwner::           
+* PutPlanetFC::                 
+* PutPlanetMines::              
+* PutPlanetFactories::          
+* PutPlanetDefense::            
+* PutPlanetCargo::              
+* PutPlanetCore::               
+* PutPlanetDensity::            
+* PutPlanetColTax::             
+* PutPlanetNatTax::             
+* PutPlanetColHappy::           
+* PutPlanetNatHappy::           
+* PutPlanetNatGovm::            
+* PutPlanetNativePopulation::   
+* PutPlanetNatType::            
+* PutPlanetTemp::               
+* PutPlanetBuildBase::          
 @end menu
 
 @iftex
@@ -2226,41 +2256,41 @@ from disk using the ReadHostData() function. Your program will likely
 crash if this assumption isn't met.
 
 @menu
-* IsBasePresent::
-* IsBaseExist::
-* CreateBase::
-* DeleteBase::
-* BaseOwner::
-* BaseDefense::
-* BaseDamage::
-* BaseFighters::
-* BaseOrder::
-* BaseFixOrder::
-* BaseFixingShip::
-* BaseTech::
-* BaseHulls::
-* BaseEngines::
-* BaseBeams::
-* BaseTubes::
-* BaseTorps::
-* BaseBuildOrder::
-* BaseOrderString::
-* PutBaseOwner::
-* PutBaseDefense::
-* PutBaseDamage::
-* PutBaseFighters::
-* PutBaseOrder::
-* PutBaseFixOrder::
-* PutBaseFixingShip::
-* PutBaseTech::
-* PutBaseHulls::
-* PutBaseEngines::
-* PutBaseBeams::
-* PutBaseTubes::
-* PutBaseTorps::
-* PutBaseBuildOrder::
-* ClearBaseBuildOrder::
-* ClearBaseHulls::
+* IsBasePresent::               
+* IsBaseExist::                 
+* CreateBase::                  
+* DeleteBase::                  
+* BaseOwner::                   
+* BaseDefense::                 
+* BaseDamage::                  
+* BaseFighters::                
+* BaseOrder::                   
+* BaseFixOrder::                
+* BaseFixingShip::              
+* BaseTech::                    
+* BaseHulls::                   
+* BaseEngines::                 
+* BaseBeams::                   
+* BaseTubes::                   
+* BaseTorps::                   
+* BaseBuildOrder::              
+* BaseOrderString::             
+* PutBaseOwner::                
+* PutBaseDefense::              
+* PutBaseDamage::               
+* PutBaseFighters::             
+* PutBaseOrder::                
+* PutBaseFixOrder::             
+* PutBaseFixingShip::           
+* PutBaseTech::                 
+* PutBaseHulls::                
+* PutBaseEngines::              
+* PutBaseBeams::                
+* PutBaseTubes::                
+* PutBaseTorps::                
+* PutBaseBuildOrder::           
+* ClearBaseBuildOrder::         
+* ClearBaseHulls::              
 @end menu
 
 @iftex
@@ -2577,20 +2607,20 @@ from disk using the ReadHostData() function. Your program will likely
 crash if this assumption isn't met.
 
 @menu
-* GetNumMinefields::
-* IsMinefieldExist::
-* MinefieldRadius::
-* MinefieldPositionX::
-* MinefieldPositionY::
-* MinefieldOwner::
-* MinefieldUnits::
-* IsMinefieldWeb::
-* PutMinefieldUnits::
-* PutMinefieldOwner::
-* PutMinefieldPositionX::
-* PutMinefieldPositionY::
-* PutMinefieldWeb::
-* CreateMinefield::
+* GetNumMinefields::            
+* IsMinefieldExist::            
+* MinefieldRadius::             
+* MinefieldPositionX::          
+* MinefieldPositionY::          
+* MinefieldOwner::              
+* MinefieldUnits::              
+* IsMinefieldWeb::              
+* PutMinefieldUnits::           
+* PutMinefieldOwner::           
+* PutMinefieldPositionX::       
+* PutMinefieldPositionY::       
+* PutMinefieldWeb::             
+* CreateMinefield::             
 @end menu
 
 @iftex
@@ -2728,23 +2758,23 @@ storms in a wrong format. The PDK only works with files in the correct
 format, as generated by Tim's host, and PHost 4.1a or later.
 
 @menu
-* IsStormExist::
-* StormLocationX::
-* StormLocationY::
-* StormRadius::
-* StormHeading::
-* IsStormGrowing::
-* StormVoltage::
-* StormName::
-* StormClass::
-* PutStormLocationX::
-* PutStormLocationY::
-* PutStormRadius::
-* PutStormHeading::
-* PutStormVoltage::
-* CreateStorm::
-* DeleteStorm::
-* GetStormCount::
+* IsStormExist::                
+* StormLocationX::              
+* StormLocationY::              
+* StormRadius::                 
+* StormHeading::                
+* IsStormGrowing::              
+* StormVoltage::                
+* StormName::                   
+* StormClass::                  
+* PutStormLocationX::           
+* PutStormLocationY::           
+* PutStormRadius::              
+* PutStormHeading::             
+* PutStormVoltage::             
+* CreateStorm::                 
+* DeleteStorm::                 
+* GetStormCount::               
 @end menu
 
 @iftex
@@ -2901,30 +2931,30 @@ all of the non-DOS distributions.
 
 
 @menu
-* NumWormholes::
-* CreateWormhole::
-* DeleteWormhole::
-* WormholeStabilityCode::
-* WormholeStartX::
-* WormholeStartY::
-* WormholeEndX::
-* WormholeEndY::
-* WormholeMass::
-* WormholeInstability::
-* WormholeWaypointStartX::
-* WormholeWaypointStartY::
-* WormholeWaypointEndX::
-* WormholeWaypointEndY::
-* PutWormholeStartX::
-* PutWormholeStartY::
-* PutWormholeEndX::
-* PutWormholeEndY::
-* PutWormholeMass::
-* PutWormholeInstability::
-* PutWormholeWaypointStartX::
-* PutWormholeWaypointStartY::
-* PutWormholeWaypointEndX::
-* PutWormholeWaypointEndY::
+* NumWormholes::                
+* CreateWormhole::              
+* DeleteWormhole::              
+* WormholeStabilityCode::       
+* WormholeStartX::              
+* WormholeStartY::              
+* WormholeEndX::                
+* WormholeEndY::                
+* WormholeMass::                
+* WormholeInstability::         
+* WormholeWaypointStartX::      
+* WormholeWaypointStartY::      
+* WormholeWaypointEndX::        
+* WormholeWaypointEndY::        
+* PutWormholeStartX::           
+* PutWormholeStartY::           
+* PutWormholeEndX::             
+* PutWormholeEndY::             
+* PutWormholeMass::             
+* PutWormholeInstability::      
+* PutWormholeWaypointStartX::   
+* PutWormholeWaypointStartY::   
+* PutWormholeWaypointEndX::     
+* PutWormholeWaypointEndY::     
 @end menu
 
 
@@ -3134,38 +3164,38 @@ ReadGlobalData() routine has been called. All hull number parameters
 specified to these routines must be in the range 1 through HULL_NR.
 
 @menu
-* HullPicnumber::
-* HullTritCost::
-* HullDurCost::
-* HullMolyCost::
-* HullFuelCapacity::
-* HullCrewComplement::
-* HullEngineNumber::
-* HullMass::
-* HullTechLevel::
-* HullCargoCapacity::
-* HullBays::
-* HullTubeNumber::
-* HullBeamNumber::
-* HullMoneyCost::
-* TrueHull::
-* HullName::
-* PutHullPicnumber::
-* PutHullTritCost::
-* PutHullDurCost::
-* PutHullMolyCost::
-* PutHullFuelCapacity::
-* PutHullCrewComplement::
-* PutHullEngineNumber::
-* PutHullMass::
-* PutHullTechLevel::
-* PutHullCargoCapacity::
-* PutHullBays::
-* PutHullTubeNumber::
-* PutHullBeamNumber::
-* PutHullMoneyCost::
-* PutTrueHull::
-* PutHullName::
+* HullPicnumber::               
+* HullTritCost::                
+* HullDurCost::                 
+* HullMolyCost::                
+* HullFuelCapacity::            
+* HullCrewComplement::          
+* HullEngineNumber::            
+* HullMass::                    
+* HullTechLevel::               
+* HullCargoCapacity::           
+* HullBays::                    
+* HullTubeNumber::              
+* HullBeamNumber::              
+* HullMoneyCost::               
+* TrueHull::                    
+* HullName::                    
+* PutHullPicnumber::            
+* PutHullTritCost::             
+* PutHullDurCost::              
+* PutHullMolyCost::             
+* PutHullFuelCapacity::         
+* PutHullCrewComplement::       
+* PutHullEngineNumber::         
+* PutHullMass::                 
+* PutHullTechLevel::            
+* PutHullCargoCapacity::        
+* PutHullBays::                 
+* PutHullTubeNumber::           
+* PutHullBeamNumber::           
+* PutHullMoneyCost::            
+* PutTrueHull::                 
+* PutHullName::                 
 @end menu
 
 @iftex
@@ -3434,20 +3464,20 @@ ReadGlobalData() routine has been called. All engine number parameters
 specified to these routines must be in the range 1 through ENGINE_NR.
 
 @menu
-* EngineName::
-* EngMoneyCost::
-* EngTritCost::
-* EngDurCost::
-* EngMolyCost::
-* EngTechLevel::
-* EngFuelConsumption::
-* PutEngineName::
-* PutEngMoneyCost::
-* PutEngTritCost::
-* PutEngDurCost::
-* PutEngMolyCost::
-* PutEngTechLevel::
-* PutEngFuelConsumption::
+* EngineName::                  
+* EngMoneyCost::                
+* EngTritCost::                 
+* EngDurCost::                  
+* EngMolyCost::                 
+* EngTechLevel::                
+* EngFuelConsumption::          
+* PutEngineName::               
+* PutEngMoneyCost::             
+* PutEngTritCost::              
+* PutEngDurCost::               
+* PutEngMolyCost::              
+* PutEngTechLevel::             
+* PutEngFuelConsumption::       
 @end menu
 
 
@@ -3584,26 +3614,26 @@ ReadGlobalData() routine has been called. All torpedo number parameters
 specified to these routines must be in the range 1 through TORP_NR.
 
 @menu
-* TorpName::
-* TorpTorpCost::
-* TorpTubeCost::
-* TorpTritCost::
-* TorpDurCost::
-* TorpMolyCost::
-* TorpTubeMass::
-* TorpTechLevel::
-* TorpKillPower::
-* TorpDestructivePower::
-* PutTorpName::
-* PutTorpTorpCost::
-* PutTorpTubeCost::
-* PutTorpTritCost::
-* PutTorpDurCost::
-* PutTorpMolyCost::
-* PutTorpTubeMass::
-* PutTorpTechLevel::
-* PutTorpKillPower::
-* PutTorpDestructivePower::
+* TorpName::                    
+* TorpTorpCost::                
+* TorpTubeCost::                
+* TorpTritCost::                
+* TorpDurCost::                 
+* TorpMolyCost::                
+* TorpTubeMass::                
+* TorpTechLevel::               
+* TorpKillPower::               
+* TorpDestructivePower::        
+* PutTorpName::                 
+* PutTorpTorpCost::             
+* PutTorpTubeCost::             
+* PutTorpTritCost::             
+* PutTorpDurCost::              
+* PutTorpMolyCost::             
+* PutTorpTubeMass::             
+* PutTorpTechLevel::            
+* PutTorpKillPower::            
+* PutTorpDestructivePower::     
 @end menu
 
 @iftex
@@ -3785,24 +3815,24 @@ ReadGlobalData() routine has been called. All beam number parameters
 specified to these routines must be in the range 1 through BEAM_NR.
 
 @menu
-* BeamName::
-* BeamMoneyCost::
-* BeamTritCost::
-* BeamDurCost::
-* BeamMolyCost::
-* BeamMass::
-* BeamTechLevel::
-* BeamKillPower::
-* BeamDestructivePower::
-* PutBeamName::
-* PutBeamMoneyCost::
-* PutBeamTritCost::
-* PutBeamDurCost::
-* PutBeamMolyCost::
-* PutBeamMass::
-* PutBeamTechLevel::
-* PutBeamKillPower::
-* PutBeamDestructivePower::
+* BeamName::                    
+* BeamMoneyCost::               
+* BeamTritCost::                
+* BeamDurCost::                 
+* BeamMolyCost::                
+* BeamMass::                    
+* BeamTechLevel::               
+* BeamKillPower::               
+* BeamDestructivePower::        
+* PutBeamName::                 
+* PutBeamMoneyCost::            
+* PutBeamTritCost::             
+* PutBeamDurCost::              
+* PutBeamMolyCost::             
+* PutBeamMass::                 
+* PutBeamTechLevel::            
+* PutBeamKillPower::            
+* PutBeamDestructivePower::     
 @end menu
 
 @iftex
@@ -3966,12 +3996,12 @@ RACE.NM file. These routines should not be invoked unless the
 ReadGlobalData() routine has been called.
 
 @menu
-* RaceLongName::
-* RaceShortName::
-* RaceNameAdjective::
-* PutRaceLongName::
-* PutRaceShortName::
-* PutRaceNameAdjective::
+* RaceLongName::                
+* RaceShortName::               
+* RaceNameAdjective::           
+* PutRaceLongName::             
+* PutRaceShortName::            
+* PutRaceNameAdjective::        
 @end menu
 
 @iftex
@@ -4044,8 +4074,8 @@ number. These routines should not be invoked unless the ReadHostData()
 routine has been called.
 
 @menu
-* TurnNumber::
-* HostTimeStamp::
+* TurnNumber::                  
+* HostTimeStamp::               
 @end menu
 
 @iftex
@@ -4096,15 +4126,15 @@ to ReadHostData() must have been performed for wraparound map support to be
 enabled.
 
 @menu
-* EnumerateShipsWithinRadius::
-* EnumerateShipsAt::
-* EnumerateMinesWithinRadius::
-* FindPlanetAtShip::
-* FindGravityPlanet::
-* EnumeratePlanetsWithin::
-* EnumerateShipsAtPlanet::
-* EnumerateMinesCovering::
-* EnumerateOverlappingMines::
+* EnumerateShipsWithinRadius::  
+* EnumerateShipsAt::            
+* EnumerateMinesWithinRadius::  
+* FindPlanetAtShip::            
+* FindGravityPlanet::           
+* EnumeratePlanetsWithin::      
+* EnumerateShipsAtPlanet::      
+* EnumerateMinesCovering::      
+* EnumerateOverlappingMines::   
 @end menu
 
 
@@ -4199,7 +4229,7 @@ these two files to store host-to-player messages. These routines, then, are
 suitable for programs that run BEFORE RST files are generated.
 
 @menu
-* WriteExternalMessage::
+* WriteExternalMessage::        
 @end menu
 
 @iftex
@@ -4227,7 +4257,7 @@ These routines, then, are suitable for programs that run DURING host
 processing.
 
 @menu
-* WriteAUXHOSTMessage::
+* WriteAUXHOSTMessage::         
 @end menu
 
 @iftex
@@ -4255,7 +4285,7 @@ messages directly to the player's RST files. These routines, then, are
 suitable for programs that run AFTER host processing.
 
 @menu
-* WriteMessageToRST::
+* WriteMessageToRST::           
 @end menu
 
 @iftex
@@ -4297,23 +4327,23 @@ only additions to the queue are performed). These routines have no effect
 on games using HOST.
 
 @menu
-* BuildQueuePeek::
-* BuildQueuePush::
-* BuildQueueInvalidate::
-* ShipsInBuildQueue::
-* SortBuildQueue::
-* BuildQueueBaseID::
-* BuildQueuePriority::
-* BuildQueueIsCloning::
-* BuildQueueShipOwner::
-* BuildQueueOwner::
-* BuildQueueHullType::
-* BuildQueueEngineType::
-* BuildQueueBeamType::
-* BuildQueueTorpType::
-* BuildQueueBeamNumber::
-* BuildQueueTorpNumber::
-* PutBuildQueuePriority::
+* BuildQueuePeek::              
+* BuildQueuePush::              
+* BuildQueueInvalidate::        
+* ShipsInBuildQueue::           
+* SortBuildQueue::              
+* BuildQueueBaseID::            
+* BuildQueuePriority::          
+* BuildQueueIsCloning::         
+* BuildQueueShipOwner::         
+* BuildQueueOwner::             
+* BuildQueueHullType::          
+* BuildQueueEngineType::        
+* BuildQueueBeamType::          
+* BuildQueueTorpType::          
+* BuildQueueBeamNumber::        
+* BuildQueueTorpNumber::        
+* PutBuildQueuePriority::       
 @end menu
 
 @iftex
@@ -4482,10 +4512,10 @@ visible as PAL. They will be included in the PAL status message as "Old
 value". They can be immediately used for ship building with a PBP queue.
 
 @menu
-* GetActivityLevel::
-* SetActivityLevel::
-* AddToActivityLevel::
-* GetTotalActivityLevel::
+* GetActivityLevel::            
+* SetActivityLevel::            
+* AddToActivityLevel::          
+* GetTotalActivityLevel::       
 @end menu
 
 @iftex
@@ -4544,18 +4574,18 @@ PHost 4.0h added the @code{enemies} command to set up permanent primary
 enemies. These can be accessed from the PDK as well.
 
 @menu
-* AllyAddRequest::
-* AllyDropRequest::
-* PlayerOffersAlliance::
-* PlayersAreAllies::
-* IsAllyOfferAny::
-* IsAllyOfferConditional::
-* PlayerAllowsAlly::
-* PutPlayerAllowsAlly::
-* ShipHasEnemy::
-* PlayerHasEnemy::
-* PutPlayerHasEnemy::
-* IsPlayerEnemyAllowed::
+* AllyAddRequest::              
+* AllyDropRequest::             
+* PlayerOffersAlliance::        
+* PlayersAreAllies::            
+* IsAllyOfferAny::              
+* IsAllyOfferConditional::      
+* PlayerAllowsAlly::            
+* PutPlayerAllowsAlly::         
+* ShipHasEnemy::                
+* PlayerHasEnemy::              
+* PutPlayerHasEnemy::           
+* IsPlayerEnemyAllowed::        
 @end menu
 
 @iftex
@@ -4714,8 +4744,8 @@ PHost version 4.0h and later supports that feature, older ones don't.
 These routines return information about the game data itself.
 
 @menu
-* GameFilesVersion::
-* SetNewMajorVersion::
+* GameFilesVersion::            
+* SetNewMajorVersion::          
 @end menu
 
 @iftex
@@ -4789,14 +4819,14 @@ These functions are not directly related to host processing but instead are
 utility functions that programmers may find useful in managing game files.
 
 @menu
-* OpenInputFile::
-* OpenOutputFile::
-* OpenUpdateFile::
-* RemoveGameFile::
-* CopyFileToFile::
-* CopyGameFile::
-* RenameGameFile::
-* FileLength::
+* OpenInputFile::               
+* OpenOutputFile::              
+* OpenUpdateFile::              
+* RemoveGameFile::              
+* CopyFileToFile::              
+* CopyGameFile::                
+* RenameGameFile::              
+* FileLength::                  
 @end menu
 
 
@@ -4930,10 +4960,10 @@ These routines are not directly related to host processing but are provided
 for convenience.
 
 @menu
-* MemAlloc::
-* MemCalloc::
-* MemRealloc::
-* MemFree::
+* MemAlloc::                    
+* MemCalloc::                   
+* MemRealloc::                  
+* MemFree::                     
 @end menu
 
 
@@ -4992,17 +5022,17 @@ are sent to the standard output (stdout). If the 'gLogFile' global variable
 points to a valid file, then the same message is also sent to this file.
 
 @menu
-* Error::
-* VError::
-* ErrorExit::
-* VErrorExit::
-* ErrorAssert::
-* VErrorAssert::
-* Warning::
-* VWarning::
-* Info::
-* VInfo::
-* passert::
+* Error::                       
+* VError::                      
+* ErrorExit::                   
+* VErrorExit::                  
+* ErrorAssert::                 
+* VErrorAssert::                
+* Warning::                     
+* VWarning::                    
+* Info::                        
+* VInfo::                       
+* passert::                     
 @end menu
 
 @iftex
@@ -5125,9 +5155,9 @@ sequence will be obtained from a given starting seed regardless of which
 platform is being used.
 
 @menu
-* SetRandomSeed::
-* RandomRange::
-* RandomReal::
+* SetRandomSeed::               
+* RandomRange::                 
+* RandomReal::                  
 @end menu
 
 
@@ -5170,12 +5200,12 @@ for convenience. These routines are meant to aid in writing portable
 programs.
 
 @menu
-* WordSwapLong::
-* WordSwapShort::
-* DOSRead16::
-* DOSRead32::
-* DOSWrite16::
-* DOSWrite32::
+* WordSwapLong::                
+* WordSwapShort::               
+* DOSRead16::                   
+* DOSRead32::                   
+* DOSWrite16::                  
+* DOSWrite32::                  
 @end menu
 
 @iftex
@@ -5316,15 +5346,15 @@ You can also abbreviate this by using the supplied macros:
 The following are the functions you can now use:
 
 @menu
-* DOSWriteStruct::
-* DOSReadStruct::
-* DOSStructSize::
-* DOSStructConvert::
-* UnixConvertStruct::
-* ReadDOSUns16::
-* ReadDOSUns32::
-* WriteDOSUns16::
-* WriteDOSUns32::
+* DOSWriteStruct::              
+* DOSReadStruct::               
+* DOSStructSize::               
+* DOSStructConvert::            
+* UnixConvertStruct::           
+* ReadDOSUns16::                
+* ReadDOSUns32::                
+* WriteDOSUns16::               
+* WriteDOSUns32::               
 @end menu
 
 @iftex
@@ -5428,7 +5458,7 @@ Stores the 32-bit quantity @code{pVal} in the four bytes pointed to by
 @section Command-Line Option Processing
 
 @menu
-* pgetopt::
+* pgetopt::                     
 @end menu
 
 @iftex
@@ -5532,7 +5562,7 @@ see the EX*.C files (for example, EX6.C).
 @section Combat Interface
 
 The PDK library contains a 'combat module' which implements combat in
-exactly the same way as PHOST. Any code that calls the Combat() API routine
+exactly the same way as PHOST. Any code that calls the CombatEx() API routine
 (see below) automatically links in this combat module. By linking in the
 combat module, however, the PDK expects the user code to define several
 functions that take action depending upon certain combat events. The
@@ -5540,41 +5570,43 @@ example source file EX6.C is a good introduction to interfacing with the
 combat module.
 
 @menu
-* Combat::
-* DrawInitBeams::
-* DrawInitTubes::
-* DrawBeamRecharge::
-* DrawTubeRecharge::
-* DrawBayRecharge::
-* DrawFighterAttack::
-* DrawEraseFighterAttack::
-* DrawFighterReturn::
-* DrawEraseFighterReturn::
-* DrawShipShields::
-* DrawShipDamage::
-* DrawShipCaptured::
-* DrawShipDestroyed::
-* DrawStalemateResult::
-* DrawShipCrew::
-* DrawTorpNumber::
-* DrawFighterNumber::
-* DrawFighterHit::
-* DrawFighterHitFighter::
-* DrawTorpHit::
-* DrawTorpMiss::
-* DrawBeamHitFighter::
-* DrawBeamMissedFighter::
-* DrawBeamHitShip::
-* DrawBeamMissedShip::
-* DrawShip::
-* DrawEraseShip::
-* DrawDistance::
+* CombatEx::                    
+* Combat::                      
+* DrawInitBeams::               
+* DrawInitTubes::               
+* DrawBeamRecharge::            
+* DrawTubeRecharge::            
+* DrawBayRecharge::             
+* DrawFighterAttack::           
+* DrawEraseFighterAttack::      
+* DrawFighterReturn::           
+* DrawEraseFighterReturn::      
+* DrawShipShields::             
+* DrawShipDamage::              
+* DrawShipCaptured::            
+* DrawShipDestroyed::           
+* DrawStalemateResult::         
+* DrawShipCrew::                
+* DrawTorpNumber::              
+* DrawFighterNumber::           
+* DrawFighterHit::              
+* DrawFighterHitFighter::       
+* DrawTorpHit::                 
+* DrawTorpMiss::                
+* DrawBeamHitFighter::          
+* DrawBeamMissedFighter::       
+* DrawBeamHitShip::             
+* DrawBeamMissedShip::          
+* DrawShip::                    
+* DrawEraseShip::               
+* DrawDistance::                
 @end menu
 
 
 @iftex
 Functions in this section:
 @itemize @minus
+@item CombatEx
 @item Combat
 @item DrawInitBeams
 @item DrawInitTubes
@@ -5608,40 +5640,49 @@ Functions in this section:
 @end iftex
 
 
-@node Combat, DrawInitBeams, Combat Interface, Combat Interface
-@subsection void Combat(Combat_Struct *pShip1, Combat_Struct *pShip2)
-@findex Combat
+@node CombatEx, Combat, Combat Interface, Combat Interface
+@subsection void CombatEx(Combat_Struct *pShip1, Combat_Struct *pShip2, Uns16 pFlags)
+@findex CombatEx
 
-The Combat() routine is the main component of the combat module. It
+The CombatEx() routine is the main component of the combat module. It
 performs a battle between two ships or between a ship and planet (in which
 case the planet must always be represented by the second parameter to this
-routine, 'pship2'). Prior to calling Combat(), the calling code must fill
+routine, 'pship2'). Prior to calling CombatEx(), the calling code must fill
 in the values of two Combat_Struct structures (see PHOSTPDK.H for more info
 on the contents of these structures).
 
-Combat() has no return value but the outcome of the battle for each
+The @code{pFlags} parameter contains additional options:
+@itemize @minus
+@item The bit @code{Combat_Experience} is set if the @code{Level}
+  members of the Combat_Structs are filled. Older programs not aware
+  of these members may leave them uninitialized. Presence of this flag
+  tells the combat module that the program was updated to support
+  these new fields.
+@end itemize
+
+CombatEx() has no return value but the outcome of the battle for each
 ship/planet is stored in the 'Outcome' field of the corresponding
 Combat_Struct structure.
 
-Combat() correctly handles the 3X kill bonus of the Privateers and the 150%
+CombatEx() correctly handles the 3X kill bonus of the Privateers and the 150%
 damage limit for the Lizards, but other factors that affect pre-combat
 conditions (such as the Fed crew bonus effect on mass, shields, etc.) are
 not considered. These effects must be computed and reflected in the values
-passed to Combat() via the Combat_Struct structures.
+passed to CombatEx() via the Combat_Struct structures.
 
 @example
                        *** NOTE ***
 @end example
 
 A prior call to ReadGlobalData() and ReadHostData()
-must be performed prior to calling Combat().
+must be performed prior to calling CombatEx().
 
 
 The following routines are not included in the PDK. Rather, they define
 routines that the user must provide in any code that uses the combat module
 (in Windows parlance, they are "callback" routines). If only the results of
 combat are of interest, then these routines can all be defined to do
-nothing; Combat() does not require these routines to do anything. The EX6.C
+nothing; CombatEx() does not require these routines to do anything. The EX6.C
 example program shows how to define these routines to display a textual
 commentary on a running battle, for example.
 
@@ -5650,11 +5691,11 @@ The following conventions apply to the following routines:
 @itemize @bullet
 
 @item The 'pShip' parameter is either 0 or 1. The value 0 represents the ship
-described by the first parameter to Combat(), while the value 1 represents the
-ship or planet described by the second parameter to Combat().
+described by the first parameter to CombatEx(), while the value 1 represents the
+ship or planet described by the second parameter to CombatEx().
 
 @item Distance and positions of objects is measured in meters. Ship 0 (i.e., the
-ship described by the first parameter to Combat()) begins battle at the position -
+ship described by the first parameter to CombatEx()) begins battle at the position -
 29000 meters while ship 1 begins battle at position 29000. If ship 1 is actually
 a planet, it does not move from its initial position, of course. Distance is
 always a positive 32-bit measure, but position may be positive or negative (also
@@ -5668,11 +5709,19 @@ routines is in the range [0,NumBeams-1].
 
 @end itemize
 
+@node Combat, DrawInitBeams, CombatEx, Combat Interface
+@subsection void Combat(Combat_Struct *pShip1, Combat_Struct *pShip2)
+@findex Combat
+
+In previous PDK versions, @code{Combat} was the main entry point to the
+combat module. It is equivalent to calling @code{CombatEx} with a
+@code{pFlags} parameter of 0.
+
 @node DrawInitBeams, DrawInitTubes, Combat, Combat Interface
 @subsection void DrawInitBeams(Uns16 pShip, Uns16 pNumBeams, Uns16 pCharge)
 @findex DrawInitBeams
 
-This routine is called by Combat() before combat begins to indicate the
+This routine is called by CombatEx() before combat begins to indicate the
 charge status of a ship's beams. The 'pNumBeams' parameter indicates the
 number of beams, the 'pCharge' parameter indicates the initial charge (0
 means fully discharged, 100 means fully charged).
@@ -5681,7 +5730,7 @@ means fully discharged, 100 means fully charged).
 @subsection void DrawInitTubes(Uns16 pShip, Uns16 pNumTubes, Uns16 pCharge)
 @findex DrawInitTubes
 
-This routine is called by Combat() before combat begins to indicate the
+This routine is called by CombatEx() before combat begins to indicate the
 charge status of a ship's torpedo tubes. The 'pNumTubes' parameter
 indicates the number of tubes, the 'pCharge' parameter indicates the
 initial charge (0 means fully discharged, 100 means fully charged).
@@ -5690,7 +5739,7 @@ initial charge (0 means fully discharged, 100 means fully charged).
 @subsection void DrawBeamRecharge(Uns16 pShip, Uns16 pBeam, Uns16 pCharge)
 @findex DrawBeamRecharge
 
-This routine is called by Combat() during a battle to indicate a new charge
+This routine is called by CombatEx() during a battle to indicate a new charge
 level for a given beam 'pBeam'. The new charge level is in the range 0
 (fully discharged) to 100 (fully charged). This routine is called very
 often; optimizing the code in this routine is highly recommended.
@@ -5699,7 +5748,7 @@ often; optimizing the code in this routine is highly recommended.
 @subsection void DrawTubeRecharge(Uns16 pShip, Uns16 pTube, Uns16 pCharge)
 @findex DrawTubeRecharge
 
-This routine is called by Combat() during a battle to indicate a new charge
+This routine is called by CombatEx() during a battle to indicate a new charge
 level for a given torpedo tube 'pTube'. The new charge level is in the
 range 0 (fully discharged) to 100 (fully charged). This routine is called
 very often; optimizing the code in this routine is highly recommended.
@@ -5708,7 +5757,7 @@ very often; optimizing the code in this routine is highly recommended.
 @subsection void DrawBayRecharge(Uns16 pShip, Uns16 pBay, Uns16 pCharge)
 @findex DrawBayRecharge
 
-This routine is called by Combat() during a battle to indicate a new charge
+This routine is called by CombatEx() during a battle to indicate a new charge
 level for a given fighter bay 'pBay'. The new charge level is in the range
 0 (fully discharged) to 100 (fully charged). This routine is called very
 often; optimizing the code in this routine is highly recommended.
@@ -5717,7 +5766,7 @@ often; optimizing the code in this routine is highly recommended.
 @subsection void DrawFighterAttack(Uns16 pShip, Uns16 pFighter, Int32 pPos)
 @findex DrawFighterAttack
 
-This routine is called by Combat() to indicate that fighter 'pFighter'
+This routine is called by CombatEx() to indicate that fighter 'pFighter'
 belonging to ship 'pShip' has advanced to position 'pPos'. A fighter is
 "attacking" when it is moving towards the enemy. This means that attacking
 fighters move in different directions depending upon which ship they belong
@@ -5730,9 +5779,9 @@ in this routine is highly recommended.
 @subsection void DrawEraseFighterAttack(Uns16 pShip, Uns16 pFighter, Int32 pPos)
 @findex DrawEraseFighterAttack
 
-This routine is called by Combat() to indicate that fighter 'pFighter'
+This routine is called by CombatEx() to indicate that fighter 'pFighter'
 belonging to ship 'pShip' is no longer at the given position. The fighter
-is still "attacking" however (see DrawFighterAttack() above). Combat()
+is still "attacking" however (see DrawFighterAttack() above). CombatEx()
 moves a fighter by repeatedly calling DrawEraseFighterAttack() with its old
 position followed by DrawFighterAttack() with its new position. This
 routine is called very often; optimizing the code in this routine is highly
@@ -5742,7 +5791,7 @@ recommended.
 @subsection void DrawFighterReturn(Uns16 pShip, Uns16 pFighter, Int32 pPos)
 @findex DrawFighterReturn
 
-This routine is called by Combat() to indicate that fighter 'pFighter'
+This routine is called by CombatEx() to indicate that fighter 'pFighter'
 belonging to ship 'pShip' has advanced to position 'pPos'. A fighter is
 "returning" when it is moving away from the enemy and back to the owner
 ship. This means that returning fighters move in different directions
@@ -5755,9 +5804,9 @@ very often; optimizing the code in this routine is highly recommended.
 @subsection void DrawEraseFighterReturn(Uns16 pShip, Uns16 pFighter, Int32 pPos)
 @findex DrawEraseFighterReturn
 
-This routine is called by Combat() to indicate that fighter 'pFighter'
+This routine is called by CombatEx() to indicate that fighter 'pFighter'
 belonging to ship 'pShip' is no longer at the given position. The fighter
-is still "returning" however (see DrawFighterReturn() above). Combat()
+is still "returning" however (see DrawFighterReturn() above). CombatEx()
 moves a fighter by repeatedly calling DrawEraseFighterReturn() with its old
 position followed by DrawFighterReturn() with its new position. This
 routine is called very often; optimizing the code in this routine is highly
@@ -5767,7 +5816,7 @@ recommended.
 @subsection void DrawShipShields(Uns16 pShip, Int32 pPos, double pShields)
 @findex DrawShipShields
 
-This routine is called by Combat() when a ship's shield level has changed.
+This routine is called by CombatEx() when a ship's shield level has changed.
 The 'pPos' parameter indicates the current ship's position, while
 'pShields' indicates the new shield level.
 
@@ -5775,7 +5824,7 @@ The 'pPos' parameter indicates the current ship's position, while
 @subsection void DrawShipDamage(Uns16 pShip, double pDamage)
 @findex DrawShipDamage
 
-This routine is called by Combat() when a ship's damage level has changed.
+This routine is called by CombatEx() when a ship's damage level has changed.
 The 'pPos' parameter indicates the current ship's position, while 'pDamage'
 indicates the new damage level.
 
@@ -5783,21 +5832,21 @@ indicates the new damage level.
 @subsection void DrawShipCaptured(Uns16 pShip)
 @findex DrawShipCaptured
 
-This routine is called by Combat() when a ship's crew has fallen to 0 and
+This routine is called by CombatEx() when a ship's crew has fallen to 0 and
 the battle ends since the given ship has been captured.
 
 @node DrawShipDestroyed, DrawStalemateResult, DrawShipCaptured, Combat Interface
 @subsection void DrawShipDestroyed(Uns16 pShip, Int32 pPos, Boolean pIsPlanet)
 @findex DrawShipDestroyed
 
-This routine is called by Combat() when a ship's damage level is
+This routine is called by CombatEx() when a ship's damage level is
 sufficiently high so that the ship explodes.
 
 @node DrawStalemateResult, DrawShipCrew, DrawShipDestroyed, Combat Interface
 @subsection void DrawStalemateResult(Boolean pIsPlanet2)
 @findex DrawStalemateResult
 
-This routine is called by Combat() when both ships have run out of
+This routine is called by CombatEx() when both ships have run out of
 ammunition (i.e., both ships have no beams, no torpedoes, and no fighters
 left).
 
@@ -5805,27 +5854,27 @@ left).
 @subsection void DrawShipCrew(Uns16 pShip, double pCrew)
 @findex DrawShipCrew
 
-This routine is called by Combat() when a ship's crew count has changed.
+This routine is called by CombatEx() when a ship's crew count has changed.
 
 @node DrawTorpNumber, DrawFighterNumber, DrawShipCrew, Combat Interface
 @subsection void DrawTorpNumber(Uns16 pShip, Uns16 pTorps)
 @findex DrawTorpNumber
 
-This routine is called by Combat() when the number of torpedoes on a ship
+This routine is called by CombatEx() when the number of torpedoes on a ship
 changes.
 
 @node DrawFighterNumber, DrawFighterHit, DrawTorpNumber, Combat Interface
 @subsection void DrawFighterNumber(Uns16 pShip, Uns16 pFighters)
 @findex DrawFighterNumber
 
-This routine is called by Combat() when the number of fighters on a ship
+This routine is called by CombatEx() when the number of fighters on a ship
 changes.
 
 @node DrawFighterHit, DrawFighterHitFighter, DrawFighterNumber, Combat Interface
 @subsection void DrawFighterHit(Uns16 pShip, Uns16 pFighter, Int32 pPos, Int32 pEnemyPos)
 @findex DrawFighterHit
 
-This routine is called by Combat() when a fighter belonging to ship 'pShip'
+This routine is called by CombatEx() when a fighter belonging to ship 'pShip'
 scores a hit on the enemy ship. The fighter itself is at position 'pPos',
 the enemy ship is at position 'pEnemyPos'. The fighter number is given by
 'pFighter'.
@@ -5834,7 +5883,7 @@ the enemy ship is at position 'pEnemyPos'. The fighter number is given by
 @subsection void DrawFighterHitFighter(Int32 pPos, Uns16 pFighter1, Uns16 pFighter2)
 @findex DrawFighterHitFighter
 
-This routine is called by Combat() when a fighter destroys another (enemy)
+This routine is called by CombatEx() when a fighter destroys another (enemy)
 fighter. The two fighters are both at or near position 'pPos'. The fighter
 that is destroyed is given by 'pFighter2', while 'pFighter1' gives the
 fighter that has destroyed the other. A call to DrawEraseFighter...() will
@@ -5917,18 +5966,18 @@ The remote control interface functions give the application access to PHOST
 documentation file that comes with PHOST 3.
 
 @menu
-* BeginShipRemoteControl::
-* EndShipRemoteControl::
-* IsShipRemoteControlled::
-* IsShipRemoteForbidden::
-* ResetShipRemoteControl::
-* AssignDefaultForbidState::
-* AllowShipRemoteControl::
-* ForbidShipRemoteControl::
-* ShipRemoteController::
-* ShipRemoteOwner::
-* SetDefaultRemoteState::
-* DefaultRemoteState::
+* BeginShipRemoteControl::      
+* EndShipRemoteControl::        
+* IsShipRemoteControlled::      
+* IsShipRemoteForbidden::       
+* ResetShipRemoteControl::      
+* AssignDefaultForbidState::    
+* AllowShipRemoteControl::      
+* ForbidShipRemoteControl::     
+* ShipRemoteController::        
+* ShipRemoteOwner::             
+* SetDefaultRemoteState::       
+* DefaultRemoteState::          
 @end menu
 
 @iftex
@@ -6064,8 +6113,8 @@ effort. This frees programmers from having to "reinvent the wheel" and
 incorporate a text-file parser into every new application.
 
 @menu
-* ConfigFileReaderEx::
-* ConfigFileReader::
+* ConfigFileReaderEx::          
+* ConfigFileReader::            
 @end menu
 
 @iftex
@@ -6167,7 +6216,8 @@ These functions come in two flavors.
 @itemize @bullet
 @item ShipDoesXXX(pShipId) returns true if the ship can perform the
   special function. These functions also handle hull functions assigned
-  to individual ships in PHost 4.x.
+  to individual ships, inhibited functions, and level-restricted
+  functions in PHost 4.x.
 @item HullDoesXXX(pHullId, pPlayerNumber) returns true if a ship of
   the given type and owner can perform the special function. This does
   not handle functions assigned to individual ships, nor does it handle
@@ -6177,51 +6227,55 @@ This manual only documents the ShipDoesXXX versions, the HullDoesXXX
 versions are obtained by replacing @code{Ship} by @code{Hull} and using
 two parameters instead of one.
 
+There is currently no interface for adding or inhibiting per-ship
+functions. You can use PHost's @code{addfunction} and @code{inhibitfunction}
+commands through the @code{auxcmds.txt} interface if you want to.
+
 @menu
-* Special Ship Function Notes::
-* ShipDoesAlchemy::
-* ShipDoesRefinery::
-* ShipHeatsTo50::
-* ShipCoolsTo50::
-* ShipHeatsTo100::
-* ShipHeats::
-* ShipCools::
-* ShipCanHyperwarp::
-* ShipIsGravitonic::
-* ShipScansAllWormholes::
-* ShipCanCloak::
-* ShipDoesAdvancedRefinery::
-* ShipIsGamblingShip::
-* ShipIsAntiCloaking::
-* ShipDoesImperialAssault::
-* ShipDoesChunneling::
-* ShipHasRamScoop::
-* ShipDoesBioscan::
-* ShipDoesFullBioscan::
-* ShipHasAdvancedCloak::
-* ShipHasGloryDevice::
-* ShipHasHEGloryDevice::
-* ShipIsUnclonable::
-* ShipIsCloneableOnce::
-* ShipIsUngiveable::
-* ShipIsGiveableOnce::
-* ShipHasLevel2Tow::
-* ShipCanTow::
-* ShipCanChunnelItself::
-* ShipCanChunnelOthers::
-* ShipCanBeChunnelMate::
-* ShipIsImmuneToPlanetAttacks::
-* ShipIsOreCondenser::
-* ShipCanBoard::
-* ShipIsImmuneToAntiCloak::
-* ShipIsCrewAcademy::
-* ShipCanRepairOthers::
-* ShipHasFullWeaponry::
-* ShipHasHardenedEngines::
-* ShipIsCommander::
-* ShipHasIonShield::
-* ShipHasHardenedCloak::
-* ShipHasAdvancedAntiCloak::
+* Special Ship Function Notes::  
+* ShipDoesAlchemy::             
+* ShipDoesRefinery::            
+* ShipHeatsTo50::               
+* ShipCoolsTo50::               
+* ShipHeatsTo100::              
+* ShipHeats::                   
+* ShipCools::                   
+* ShipCanHyperwarp::            
+* ShipIsGravitonic::            
+* ShipScansAllWormholes::       
+* ShipCanCloak::                
+* ShipDoesAdvancedRefinery::    
+* ShipIsGamblingShip::          
+* ShipIsAntiCloaking::          
+* ShipDoesImperialAssault::     
+* ShipDoesChunneling::          
+* ShipHasRamScoop::             
+* ShipDoesBioscan::             
+* ShipDoesFullBioscan::         
+* ShipHasAdvancedCloak::        
+* ShipHasGloryDevice::          
+* ShipHasHEGloryDevice::        
+* ShipIsUnclonable::            
+* ShipIsCloneableOnce::         
+* ShipIsUngiveable::            
+* ShipIsGiveableOnce::          
+* ShipHasLevel2Tow::            
+* ShipCanTow::                  
+* ShipCanChunnelItself::        
+* ShipCanChunnelOthers::        
+* ShipCanBeChunnelMate::        
+* ShipIsImmuneToPlanetAttacks::  
+* ShipIsOreCondenser::          
+* ShipCanBoard::                
+* ShipIsImmuneToAntiCloak::     
+* ShipIsCrewAcademy::           
+* ShipCanRepairOthers::         
+* ShipHasFullWeaponry::         
+* ShipHasHardenedEngines::      
+* ShipIsCommander::             
+* ShipHasIonShield::            
+* ShipHasHardenedCloak::        
+* ShipHasAdvancedAntiCloak::    
 @end menu
 
 @iftex
@@ -6672,15 +6726,15 @@ depend upon the gPconfigInfo->AllowWraparoundMap setting hence a prior call
 to ReadHostData() must have been performed.
 
 @menu
-* DistanceSquared::
-* Distance::
-* IsDistanceLTRadius::
-* WrapMapX::
-* WrapMapY::
-* WrapDistX::
-* WrapDistY::
-* IsPointOnWrapMap::
-* RewrapShipsAndMines::
+* DistanceSquared::             
+* Distance::                    
+* IsDistanceLTRadius::          
+* WrapMapX::                    
+* WrapMapY::                    
+* WrapDistX::                   
+* WrapDistY::                   
+* IsPointOnWrapMap::            
+* RewrapShipsAndMines::         
 @end menu
 
 @iftex
@@ -6784,11 +6838,11 @@ an external (AUXHOST) program returns control to PHOST.
 The following functions allow programs to write UTILx.DAT records.
 
 @menu
-* SetUtilMode::
-* PutUtilRecordSimple::
-* PutUtilRecordStruct::
-* PutUtilRecord::
-* PutUtilFileTransfer::
+* SetUtilMode::                 
+* PutUtilRecordSimple::         
+* PutUtilRecordStruct::         
+* PutUtilRecord::               
+* PutUtilFileTransfer::         
 * PutUtilExplosion::            new - 4.5
 * PutExplosion::                new - 4.5
 @end menu
@@ -6925,76 +6979,76 @@ with PTSCORE v1.4 program. THost scores can be evaluated too.
 Basic global count functions are implemented.
 
 @menu
-* PointsFor::
-* PutPointsFor::
-* PointsForFighter::
-* PointsForBaseDefensePost::
-* PointsForMineralMine::
-* PointsForFactory::
-* PointsForDefencePost::
-* PointsForBaseOnPlanet::
-* PointsForHull::
-* PointsForEngine::
-* PointsForBeam::
-* PointsForTube::
-* PointsForTorpedo::
-* PointsForShipParts::
-* PointsForShipCargo::
-* PointsForShipAmmo::
-* PointsForPlanetStructures::
-* PointsForPlanetMinerals::
-* PointsForBaseTechLevels::
-* PointsForBaseDefense::
-* PointsForBaseStorage::
-* PointsForBaseTorpedos::
-* PointsForShip::
-* PointsForPlanet::
-* PointsForBase::
-* PointsForMinefield::
-* RaceScoreForShips::
-* RaceScoreForPlanets::
-* RaceScoreForBases::
-* RaceScoreForMinefields::
-* RaceShipsNumber::
-* RacePlanetsNumber::
-* RaceBasesNumber::
-* RaceFightersNumber::
-* RaceTorpedosNumber::
-* RaceBeamsNumber::
-* RaceFactoriesNumber::
-* RaceMineralMinesNumber::
-* RaceDefencePostsNumber::
-* RaceBaseDefenceNumber::
-* RaceCargoNumber::
-* RaceMinefieldUnitsNumber::
-* MineralsForFighter::
-* MineralsForBaseDefensePost::
-* MineralsForMineralMine::
-* MineralsForFactory::
-* MineralsForDefencePost::
-* MineralsForBaseOnPlanet::
-* MineralsForHull::
-* MineralsForEngine::
-* MineralsForBeam::
-* MineralsForTube::
-* MineralsForTorpedo::
-* MineralsForShipParts::
-* MineralsForShipCargo::
-* MineralsForShipAmmo::
-* MineralsForPlanetStructures::
-* MineralsForPlanetMinerals::
-* MineralsForBaseTechLevels::
-* MineralsForBaseDefense::
-* MineralsForBaseStorage::
-* MineralsForBaseTorpedos::
-* MineralsForShip::
-* MineralsForPlanet::
-* MineralsForBase::
-* MineralsForMinefield::
-* RaceMineralsForShips::
-* RaceMineralsForPlanets::
-* RaceMineralsForBases::
-* RaceMineralsForMinefields::
+* PointsFor::                   
+* PutPointsFor::                
+* PointsForFighter::            
+* PointsForBaseDefensePost::    
+* PointsForMineralMine::        
+* PointsForFactory::            
+* PointsForDefencePost::        
+* PointsForBaseOnPlanet::       
+* PointsForHull::               
+* PointsForEngine::             
+* PointsForBeam::               
+* PointsForTube::               
+* PointsForTorpedo::            
+* PointsForShipParts::          
+* PointsForShipCargo::          
+* PointsForShipAmmo::           
+* PointsForPlanetStructures::   
+* PointsForPlanetMinerals::     
+* PointsForBaseTechLevels::     
+* PointsForBaseDefense::        
+* PointsForBaseStorage::        
+* PointsForBaseTorpedos::       
+* PointsForShip::               
+* PointsForPlanet::             
+* PointsForBase::               
+* PointsForMinefield::          
+* RaceScoreForShips::           
+* RaceScoreForPlanets::         
+* RaceScoreForBases::           
+* RaceScoreForMinefields::      
+* RaceShipsNumber::             
+* RacePlanetsNumber::           
+* RaceBasesNumber::             
+* RaceFightersNumber::          
+* RaceTorpedosNumber::          
+* RaceBeamsNumber::             
+* RaceFactoriesNumber::         
+* RaceMineralMinesNumber::      
+* RaceDefencePostsNumber::      
+* RaceBaseDefenceNumber::       
+* RaceCargoNumber::             
+* RaceMinefieldUnitsNumber::    
+* MineralsForFighter::          
+* MineralsForBaseDefensePost::  
+* MineralsForMineralMine::      
+* MineralsForFactory::          
+* MineralsForDefencePost::      
+* MineralsForBaseOnPlanet::     
+* MineralsForHull::             
+* MineralsForEngine::           
+* MineralsForBeam::             
+* MineralsForTube::             
+* MineralsForTorpedo::          
+* MineralsForShipParts::        
+* MineralsForShipCargo::        
+* MineralsForShipAmmo::         
+* MineralsForPlanetStructures::  
+* MineralsForPlanetMinerals::   
+* MineralsForBaseTechLevels::   
+* MineralsForBaseDefense::      
+* MineralsForBaseStorage::      
+* MineralsForBaseTorpedos::     
+* MineralsForShip::             
+* MineralsForPlanet::           
+* MineralsForBase::             
+* MineralsForMinefield::        
+* RaceMineralsForShips::        
+* RaceMineralsForPlanets::      
+* RaceMineralsForBases::        
+* RaceMineralsForMinefields::   
 @end menu
 
 @iftex
@@ -7591,14 +7645,14 @@ Special friendly codes are considered special everywhere, that is,
 PHost.
 
 @menu
-* InitFCodes::
-* ShutdownFCodes::
-* DumpExtraFCodes::
-* DefineSpecialFCode::
-* IsFCodeSpecial::
-* IsShipFCodeSpecial::
-* IsPlanetFCodeSpecial::
-* IsFCodeMatch::
+* InitFCodes::                  
+* ShutdownFCodes::              
+* DumpExtraFCodes::             
+* DefineSpecialFCode::          
+* IsFCodeSpecial::              
+* IsShipFCodeSpecial::          
+* IsPlanetFCodeSpecial::        
+* IsFCodeMatch::                
 @end menu
 
 @iftex
@@ -7689,12 +7743,12 @@ commands", @code{xterncmd.ext}). It will do all file reading and error
 handling, all you have to do is to implement the actual functionality.
 
 @menu
-* Command Message Concepts::
-* CommandReader_Func::
-* CommandComplain_Func::
-* CommandFileReader::
-* CommandFileReaderFP::
-* GetToken::
+* Command Message Concepts::    
+* CommandReader_Func::          
+* CommandComplain_Func::        
+* CommandFileReader::           
+* CommandFileReaderFP::         
+* GetToken::                    
 @end menu
 
 @node Command Message Concepts, CommandReader_Func, Command Message Functions, Command Message Functions
@@ -7940,8 +7994,8 @@ The following functions access the new auxiliary data introduced with
 PHost 4. They are only dummies in PHost 3.x mode.
 
 @menu
-* Auxdata Chunk Functions::
-* Experience Functions::
+* Auxdata Chunk Functions::     
+* Experience Functions::        
 @end menu
 
 @node Auxdata Chunk Functions, Experience Functions, Auxiliary Data & Experience, Auxiliary Data & Experience
@@ -8072,10 +8126,10 @@ functions, the others are available for special-purpose programs and are
 generally not needed.
 
 @menu
-* AddToTonsScore::
-* GetTons::
-* PutTons::
-* ClearThisTurnTons::
+* AddToTonsScore::              
+* GetTons::                     
+* PutTons::                     
+* ClearThisTurnTons::           
 @end menu
 
 @node AddToTonsScore, GetTons, Tons, Tons

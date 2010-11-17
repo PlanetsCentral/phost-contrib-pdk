@@ -133,10 +133,11 @@ static const char *gSpecialNames[] = {
 
 #define NumSpecialNames (sizeof(gSpecialNames)/sizeof(gSpecialNames[0]))
 
+/** Definition of a synthetic (level-modified) hull function. */
 typedef struct {
-  Int16 mFunction;
-  Int16 mHostBit;
-  Uns16 mLevelMask;
+  Int16 mFunction;              /**< Basic function number. */
+  Int16 mHostBit;               /**< Number of this function in host data. -1 if none. */
+  Uns16 mLevelMask;             /**< Level mask. */
 } Special_Struct;
 
 /* This is where we implement HULLFUNC lookup using an array of arrays. The
@@ -220,10 +221,15 @@ static SpecialInfo_Struct gDefaultSpecials[] = {
 
 #define NumDefaultSpecials (sizeof(gDefaultSpecials)/sizeof(gDefaultSpecials[0]))
 
-#define NumSynthSpecials 64
+/* Definition of synthetic hull functions.
+   We support a maximum of 256 (=NumSynthSpecials) functions, like PHost.
+   We may have to distinguish between standard and synthesized functions.
+   Therefore, we identify synthetic functions by adding FirstSynthSpecial
+   to their number. This does never appear in the user interface. */
+#define NumSynthSpecials 256
 #define FirstSynthSpecial 128
 static Special_Struct sSynthSpecials[NumSynthSpecials];
-static unsigned sNumSynthSpecials;
+static Uns16 sNumSynthSpecials;
 static Uns16 sAllLevelsMask = (1 << 11) - 1;
 
 static void clearAllSpecials(void);
@@ -258,6 +264,12 @@ InitHullfunc(void)
   RegisterCleanupFunction(ShutdownHullfunc);
 }
 
+/** Given a function, return an integer usable to identify it.
+    Returns [0,NumSpecials) if it is a regular function.
+    Returns [FirstSynthSpecial,FirstSynthSpecial+NumSynthSpecials]
+    if it is a synthetic function. In that case, it also assimilates
+    the information from pSpecial into the mapping table.
+    Returns -1 if we don't know this function. */
 static int
 getFunctionFromDef(const Special_Struct* pSpecial)
 {
@@ -277,6 +289,8 @@ getFunctionFromDef(const Special_Struct* pSpecial)
     if (sSynthSpecials[i].mFunction == pSpecial->mFunction
         && (sSynthSpecials[i].mLevelMask & sAllLevelsMask) == (pSpecial->mLevelMask & sAllLevelsMask))
     {
+      /* found a function. If the new definition comes with a mHostBit
+         and the previous one doesn't yet have one, remember it. */
       if (sSynthSpecials[i].mHostBit < 0)
         sSynthSpecials[i].mHostBit = pSpecial->mHostBit;
       return i + FirstSynthSpecial;
@@ -299,6 +313,11 @@ getFunctionFromDef(const Special_Struct* pSpecial)
   return i + FirstSynthSpecial;
 }
 
+/** Set races for a special function.
+    \param pHull    hull to process
+    \param pSpecial function to assign
+    \param pAdd     add for these races
+    \param pRemove  remove for these races */
 static void
 setSpecialRaces(Uns16 pHull, const Special_Struct* pSpecial, Uns16 pAdd, Uns16 pRemove)
 {
@@ -313,11 +332,13 @@ setSpecialRaces(Uns16 pHull, const Special_Struct* pSpecial, Uns16 pAdd, Uns16 p
   passert(gSynthHullfunc);
 
   if (lFunc >= 0 && lFunc < NumSpecials) {
+    /* standard function */
     if (gHullfunc[pHull] EQ 0) {
       gHullfunc[pHull] = (Uns16 *) MemCalloc(NumSpecials, sizeof(Uns16));
     }
     lEntry = &gHullfunc[pHull][lFunc];
   } else if (lFunc >= FirstSynthSpecial && lFunc < FirstSynthSpecial + NumSynthSpecials) {
+    /* synthetic function */
     if (gSynthHullfunc[pHull] EQ 0) {
       gSynthHullfunc[pHull] = (Uns16*) MemCalloc(NumSynthSpecials, sizeof(Uns16));
     }
@@ -330,6 +351,7 @@ setSpecialRaces(Uns16 pHull, const Special_Struct* pSpecial, Uns16 pAdd, Uns16 p
   *lEntry = (*lEntry & ~pRemove) | pAdd;
 }
 
+/** Free all hull functions. */
 static void
 clearAllSpecials(void)
 {
@@ -346,6 +368,10 @@ clearAllSpecials(void)
   }
 }
 
+/** Give all ships a particular function.
+    \param pFunc     race query function
+    \param pRace     process races where pFunc returns pRace
+    \param pSpecial  basic function to assign */
 static void
 giveAllShips(Uns16 (*pFunc)(Uns16), RaceType_Def pRace, Special_Def pSpecial)
 {
@@ -366,6 +392,7 @@ giveAllShips(Uns16 (*pFunc)(Uns16), RaceType_Def pRace, Special_Def pSpecial)
   }
 }
 
+/** Add all default specials. */
 static void
 addDefaultSpecials(void)
 {
@@ -405,6 +432,9 @@ addDefaultSpecials(void)
   }
 }
 
+/** Check whether ship has basic special function. Checks per-ship and regular specials.
+    \param pShip    ship
+    \param pSpecial special function */
 static Boolean
 shipHasBasicSpecial(Uns16 pShip, Special_Def pSpecial)
 {
@@ -431,6 +461,9 @@ shipHasBasicSpecial(Uns16 pShip, Special_Def pSpecial)
   return False;
 }
 
+/** Check whether ship has synthetic function. Checks per-ship and regular specials.
+    \param pShip ship
+    \param pIndex index, WITHOUT FirstSynthSpecial added */
 static Boolean
 shipHasSynthSpecial(Uns16 pShip, int pIndex)
 {
@@ -438,20 +471,35 @@ shipHasSynthSpecial(Uns16 pShip, int pIndex)
   Uns16 lOwner;
   Uns16* lPtr;
   Uns16 lBit;
+  size_t lChunkSize;
 
   /* sanity check */
   if (pIndex < 0 || pIndex >= sNumSynthSpecials)
     return False;
-  pIndex -= FirstSynthSpecial;
 
-  /* may be per-ship special */
+  /* may be per-ship special. It can be one only if host knows about it. */
   if (sSynthSpecials[pIndex].mHostBit >= 0) {
     lBit = sSynthSpecials[pIndex].mHostBit;
-    lChunk = GetAuxdataChunkById(aux_ShipExtraSpecial);
-    if (AuxdataChunkSize(lChunk) >= 8 * pShip) {
+
+    /* check old record (8 bytes per ship) */
+    lChunk = GetAuxdataChunkById(aux_ShipExtraSpecialOld);
+    if (lBit < 64 && AuxdataChunkSize(lChunk) >= 8 * pShip) {
       unsigned char* lEle = AuxdataChunkData(lChunk);
       if (lEle[8 * (pShip-1) + lBit / 8] & (1 << (lBit & 7)))
         return True;
+    }
+
+    /* check new record (variable size) */
+    lChunk = GetAuxdataChunkById(aux_ShipExtraSpecialNew);
+    lChunkSize = AuxdataChunkSize(lChunk);
+    if (lChunkSize > 2) {
+      Uns16 lRecordSize = ReadDOSUns16(AuxdataChunkData(lChunk));
+      if (lBit < lRecordSize*8 && lChunkSize >= 2 + lRecordSize * pShip) {
+        unsigned char* lEle = AuxdataChunkData(lChunk);
+        lEle += 2;
+        if (lEle[lRecordSize * (pShip-1) + lBit / 8] & (1 << (lBit & 7)))
+          return True;
+      }
     }
   }
 
@@ -466,6 +514,10 @@ shipHasSynthSpecial(Uns16 pShip, int pIndex)
   return False;
 }
 
+/** Check whether ship has a special function. All-in-one function
+    that checks all data sources.
+    \param pShip the ship
+    \param pSpecial special function */
 static Boolean
 shipHasSpecial(Uns16 pShip, Special_Def pSpecial)
 {
@@ -500,6 +552,8 @@ shipHasSpecial(Uns16 pShip, Special_Def pSpecial)
   return False;
 }
 
+/** Check whether hull has a special function. Checks for regular
+    functions only. */
 static Boolean
 hullHasSpecial(Uns16 pHull, Special_Def pSpecial, Uns16 Owner)
 {
@@ -1117,7 +1171,7 @@ initReader(void)
     char* lPtr = AuxdataChunkData(lChunk);
     unsigned lSize = AuxdataChunkSize(lChunk);
     unsigned lIndex = 0;
-    while (lSize >= 4 && lIndex < NumSynthSpecials) {
+    while (lSize >= 4) {
       memcpy(lData, lPtr, 4);
       lPtr += 4;
       lSize -= 4;

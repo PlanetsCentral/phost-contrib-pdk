@@ -53,9 +53,17 @@ typedef struct {
   Int16 ExtraFighterBays;
   Uns32 BeamHitFighterRange;
   Uns32 FighterFiringRange;
+#ifdef PHOST4
+  Uns16 ShieldKillScaling;
+#endif
 } CombatConfig_Struct;
 
 #ifndef MICROSQUISH
+
+/* For the time being, we hardwire NEW_BEAMS to 1.
+   The correct definition would be '((gUsedCapabilities & vcrc_Beams) != 0)'
+   which would mean we have to manage VCR capabilities. */
+#define NEW_BEAMS 1
 
 /* This is the configurable version of MAX_FIGHTER_LIMIT. We must always have
     MAX_FIGHTER_OUT <= MAX_FIGHTER_LIMIT
@@ -83,7 +91,6 @@ static const Int16 STARTING_POSITION[2] = { -29000, 29000 }; /* meters */
 #define MIN_BEAM_CHARGE_FOR_FIGHTERS(x) (gCombatConfig[x]->BeamHitFighterCharge)
 #define MIN_BEAM_CHARGE_FOR_SHIPS(x)    (gCombatConfig[x]->BeamHitShipCharge)
 static const Uns16 MIN_TUBE_CHARGE = 1000; /* tubes only fire when fully
-
                                               charged */
 
 /* This defines the minimum distances for ships to fire beams/torps and
@@ -136,6 +143,31 @@ static CombatConfig_Struct *gCombatConfig[2] = { 0, 0 };
 
 /* This is the clock tick of the battle. */
 static Uns32 gBattleTick = 0;
+
+/** Inactivity detection: saved status. */
+typedef struct {
+    double mShields, mDamage, mCrew;
+    Uns16  mFighters, mTorps;
+} DetStatus_Struct;
+
+/** Inactivity detection: saved status. */
+static DetStatus_Struct gDetStatus[2];
+/** Inactivity detection: timer for next check. */
+static Uns32 gDetTimer;
+/** Inactivity detection: saved status is valid. */
+static char gDetValid;
+
+/** Inactivity detection: interval for movement checks. */
+#define DET_MOVEMENT_TIMER 100
+/** Inactivity detection: interval for status comparison. Must be
+    reasonably large that it does not hit if there is slow progress. 
+    If a weapon charges with recharge rate 2, it takes on average 2000
+    cycles to fully charge.
+
+    Note that fighters moving really slow can take longer than 5000
+    cycles for progress, we'd have to separately check that (or sweep
+    the problem under the carpet). */
+#define DET_INACTIVITY_TIMER 5000
 
 /* This function returns the probability (in the range [0,100+]) that a beam
    weapon hits its target. */
@@ -236,14 +268,21 @@ TubeRechargeRate(Uns16 pTubeTech, const CombatConfig_Struct * pConfig)
    a result of a combat hit */
 
 static double
-ShieldDamage(Uns16 pBoom, Uns16 pMass, const CombatConfig_Struct * pConfig)
+ShieldDamage(Uns16 pBoom, Uns16 pKill, Uns16 pMass, const CombatConfig_Struct * pConfig)
 {
   double lShieldDamage;
 
   passert(pConfig NEQ 0);
 
-  lShieldDamage = (double) pBoom * (double) (pConfig->ShieldDamageScaling)
-        / (double) (pMass + 1);
+#ifdef PHOST4
+  lShieldDamage = ((double) pBoom * pConfig->ShieldDamageScaling
+                   + (double) pKill * pConfig->ShieldKillScaling) / (pMass+1);
+#else
+  (void) pKill;
+  lShieldDamage =   (double) pBoom
+                  * (double) (pConfig->ShieldDamageScaling)
+                  / (double) (pMass + 1);
+#endif
 
   /* Limiting for sanity */
   if (lShieldDamage > 10000)
@@ -272,7 +311,7 @@ HullDamage(Uns16 pBoom, Uns16 pMass, const CombatConfig_Struct * pConfig)
     lDamage = (double) pBoom;
   }
   else {
-    lDamage = ShieldDamage(pBoom, pMass, pConfig);
+    lDamage = ShieldDamage(pBoom, 0, pMass, pConfig);
   }
 
   lDamage = lDamage * (double) (pConfig->HullDamageScaling)
@@ -295,7 +334,7 @@ HullDamage(Uns16 pBoom, Uns16 pMass, const CombatConfig_Struct * pConfig)
    hit */
 
 static double
-CrewKilled(Uns16 pKill, Uns16 pMass, const CombatConfig_Struct * pConfig)
+CrewKilled(Uns16 pKill, Uns16 pMass, Boolean pDeathRay, const CombatConfig_Struct * pConfig)
 {
   double lCrewKill;
 
@@ -305,9 +344,11 @@ CrewKilled(Uns16 pKill, Uns16 pMass, const CombatConfig_Struct * pConfig)
         / (double) (pMass + 1);
 
   if (!gConfigInfo->AlternativeCombat) {
-    return (Uns16) (lCrewKill + 0.5); /* Tim's formula */
-  }
-  else {
+    Uns16 lResult = (Uns16)(lCrewKill + 0.5);  /* Tim's formula */
+    if (pDeathRay && lResult==0)
+      lResult = 1;
+    return lResult;
+  } else {
     return lCrewKill;
   }
 }
@@ -511,7 +552,7 @@ doMoveFighters(void)
    or captured, this routine returns True, otherwise False. */
 
 static Boolean
-doDamageShip(Uns16 pShip, Uns16 pKill, Uns16 pBoom)
+doDamageShip(Uns16 pShip, Uns16 pKill, Uns16 pBoom, Boolean pDeathRay)
 {
   /* This variable indicates how much of the kill and destructive power
      actually causes damage as opposed to just lowering shields. It is 100 if 
@@ -527,9 +568,17 @@ doDamageShip(Uns16 pShip, Uns16 pKill, Uns16 pBoom)
   if (pBoom EQ 0)
     pBoom = 1;
 
+  /* FIXME: we should only honor death rays when we're actually playing
+     combat for a host version that supports it. However, that would mean
+     we have to pass this information into the VCR. Because I don't assume
+     anyone actually using settings that would contain death rays with
+     PHost 3, we can probably live without that. */
+  if (pDeathRay)
+    goto death_ray;
+
   /* First, lower shields if any */
   if (lShipPtr->mShields > 0) {
-    double lShieldDamage = ShieldDamage(pBoom, lShipPtr->mInfo->Mass,
+    double lShieldDamage = ShieldDamage(pBoom, pKill, lShipPtr->mInfo->Mass,
           gCombatConfig[pShip]);
 
     if (lShieldDamage >= lShipPtr->mShields) {
@@ -576,10 +625,11 @@ doDamageShip(Uns16 pShip, Uns16 pKill, Uns16 pBoom)
   }
 
   /* Now kill us some crew */
+ death_ray:
   if (lShipPtr->mInfo->IsPlanet)
     return False;
 
-  lCrewKill = CrewKilled(pKill, lShipPtr->mInfo->Mass, gCombatConfig[pShip]);
+  lCrewKill = CrewKilled(pKill, lShipPtr->mInfo->Mass, pDeathRay, gCombatConfig[pShip]);
   lCrewKill = lCrewKill * lDamagePercent / 100;
 
   if (lShipPtr->mCrew - lCrewKill < 0.5) {
@@ -763,8 +813,16 @@ doFighterDamage(void)
           }
 
           if (doDamageShip(1 - lCount, FIGHTER_KILL_POWER(lCount),
-                      FIGHTER_DAMAGE_POWER(lCount))) {
+                      FIGHTER_DAMAGE_POWER(lCount), False)) {
             return True;
+          }
+        } else if (NEW_BEAMS) {
+          /* If fighter has passed the enemy, retreat. */
+          if (((lCurrPtr->mFPos[lFighter] - lOtherPtr->mPos) * lCurrPtr->mDir) > (Int32) MIN_FIGHTER_SHIP_HIT_DISTANCE(lCount)) {
+            lCurrPtr->mFStrike[lFighter] = 0;
+            lCurrPtr->mFStatus[lFighter] = F_RETURNING;
+            DrawEraseFighterAttack(lCount, lFighter, lCurrPtr->mFPos[lFighter]);
+            DrawFighterReturn(lCount, lFighter, lCurrPtr->mFPos[lFighter]);
           }
         }
         break;
@@ -825,8 +883,8 @@ doTorpLaunch(void)
 
           if (doDamageShip(1 - lCount,
                       lTorpPower * TorpKillPower(lCurrPtr->mInfo->TorpTech),
-                      lTorpPower *
-                      TorpDestructivePower(lCurrPtr->mInfo->TorpTech))
+                      lTorpPower * TorpDestructivePower(lCurrPtr->mInfo->TorpTech),
+                      TorpDestructivePower(lCurrPtr->mInfo->TorpTech) == 0)
                 ) {
             return True;
           }
@@ -976,8 +1034,14 @@ doBeamFire(void)
          there are enemy fighters launched, do not waste beam weapons firing
          on a ship. Save them up until they reach the charge level necessary
          to fire on fighters. */
-      if (lOtherPtr->mFLaunched > 0)
-        continue;
+      /* 20060817: This check only changes the result if either
+         BeamFiringRange > BeamHitFighterRange, or BeamHitShip-
+         Charge > BeamHitFighterCharge. But in this case, the
+         user expects the beam to fire at the ship first. See
+         also GetNewVcrCapabilityFlags in vcr.c. */
+      if (!NEW_BEAMS)
+        if (lOtherPtr->mFLaunched > 0)
+          continue;
 
      no_fighters:
       
@@ -1012,7 +1076,7 @@ doBeamFire(void)
         DrawBeamRecharge(lCount, lBeam, 0);
 
         /* doDamageShip() returns True if other ship destroyed/captured */
-        if (!lMissed AND doDamageShip(1 - lCount, lKill, lBoom)) {
+        if (!lMissed AND doDamageShip(1 - lCount, lKill, lBoom, BeamDestructivePower(lCurrPtr->mInfo->BeamTech) == 0)) {
           return True;
         }
         goto next_ship;         /* NEW */
@@ -1031,7 +1095,7 @@ static void
 doMoveShips(void)
 {
   Uns16 lCount;
-  Uns32 lDistance;
+  Uns32 lDistance = 0;
 
   for (lCount = 0; lCount < 2; lCount++) {
     BattleStatus_Struct *lCurrPtr;
@@ -1070,10 +1134,33 @@ doMoveShips(void)
    COMBAT_NOAMMO to indicate that it is not a threat */
 
 static Boolean
-checkShipHasAmmo(Uns16 pShip)
+checkShipHasAmmo(Uns16 pShip, Boolean pOpponentIsPlanet)
 {
   Combat_Struct *lInfo = gStatus[pShip]->mInfo;
 
+#ifdef PHOST4
+  /* true iff a ship with death rays can continue the fight */
+  /* Death rays always active independant of version, see comment in doDamageShip. */
+  Boolean lDR = !pOpponentIsPlanet;
+
+  if (lInfo->NumFighters > 0 || gStatus[pShip]->mFLaunched > 0) {
+    /* it still has fighters */
+      return True;
+  }
+  if (lInfo->NumTorps > 0 && (lDR || TorpDestructivePower(lInfo->TorpTech) != 0)) {
+    /* it has torpedoes, and
+       - its opponent is a ship OR,
+       - torpedoes have *bang* (i.e. no death rays) */
+    return True;
+  }
+  if (lInfo->NumBeams > 0 && (lDR || BeamDestructivePower(lInfo->BeamTech) != 0)) {
+    /* same reasoning as above */
+    return True;
+  }
+
+  lInfo->Outcome = COMBAT_NOAMMO;
+  return False;
+#else
   if ((lInfo->NumBeams > 0)
         OR(lInfo->NumFighters > 0)
         OR(lInfo->NumTorps > 0)
@@ -1085,6 +1172,98 @@ checkShipHasAmmo(Uns16 pShip)
     lInfo->Outcome = COMBAT_NOAMMO;
     return False;
   }
+#endif
+}
+
+/** Compare two BattleStatus_Struct for equivalence. */
+static Boolean
+compareDetStatus(const DetStatus_Struct* a, const BattleStatus_Struct* b)
+{
+    return a->mShields  == b->mShields
+        && a->mDamage   == b->mDamage
+        && a->mCrew     == b->mCrew
+        && a->mTorps    == b->mInfo->NumTorps
+        && a->mFighters == b->mInfo->NumFighters + b->mFLaunched;
+}
+
+static void
+fillInDetStatus(DetStatus_Struct* a, const BattleStatus_Struct* b)
+{
+    a->mShields  = b->mShields;
+    a->mDamage   = b->mDamage;
+    a->mCrew     = b->mCrew;
+    a->mTorps    = b->mInfo->NumTorps;
+    a->mFighters = b->mInfo->NumFighters + b->mFLaunched;
+}
+
+/** Check whether there still is possible activity. We want to avoid
+    getting combat into an infinite loop, which can be forced by
+    pathological configurations. Simply checking for "interesting
+    things" happening is not enough, because it can happen that
+    interesting things do actually happen in the infinite loop, but do
+    not advance the battle. For example, a ship might launch fighters
+    against its enemy, which never do any damage because the
+    FighterFiringRange is so small but the FighterMovementSpeed so
+    large that they always pass by their enemy.
+
+    Therefore, we take a pragmatic approach:
+    - as long as StandoffDistance is not reached, there will be
+      progress (namely, ships moving towards each other)
+    - after that, we periodically take a snapshot of the current
+      status. */
+static Boolean
+checkCombatActivity(void)
+{
+    Uns32 lDistance;
+    Uns32 lCheckInterval;
+    int i;
+
+    /* Check timer. If still running, we assume progress, and don't
+       check any further. */
+    if (gDetTimer > gBattleTick)
+        return True;
+
+    /* Check Distance */
+    lDistance = gStatus[1]->mPos - gStatus[0]->mPos;
+    if (lDistance > STANDOFF_DISTANCE) {
+        /* StandoffDistance not yet reached, so there's potential for
+           progress. */
+        gDetTimer = gBattleTick + DET_MOVEMENT_TIMER;
+        return True;
+    }
+
+    /* Movement has stopped */
+    if (gDetValid) {
+        if (compareDetStatus(&gDetStatus[0], gStatus[0]) && compareDetStatus(&gDetStatus[1], gStatus[1])) {
+            /* No reasonable progress -- exit */
+            return False;
+        }
+    }
+    fillInDetStatus(&gDetStatus[0], gStatus[0]);
+    fillInDetStatus(&gDetStatus[1], gStatus[1]);
+    gDetValid = True;
+
+    /* Compute next timer event */
+    lCheckInterval = DET_INACTIVITY_TIMER;
+    for (i = 0; i < 2; ++i) {
+        if (gDetStatus[i].mFighters != 0) {
+            Uns32 lInterval = TICKS_PER_FIGHTER_LAUNCH(i) + 100; /* 100 = fuzz factor for safety */
+            if (FIGHTER_MOVEMENT_SPEED(i) > 0)
+                lInterval += 2*STANDOFF_DISTANCE / FIGHTER_MOVEMENT_SPEED(i);
+            if (lCheckInterval < lInterval)
+                lCheckInterval = lInterval;
+        }
+    }
+    gDetTimer = gBattleTick + lCheckInterval;
+
+    return True;
+}
+
+static void
+checkCombatActivityInit(void)
+{
+    gDetValid = False;
+    gDetTimer = DET_MOVEMENT_TIMER;
 }
 
 /* This routine performs all necessary actions during one battle tick.
@@ -1120,7 +1299,9 @@ DoBattleTick(BattleStatus_Struct * pS1, BattleStatus_Struct * pS2)
   doMoveShips();
 
   DrawDistance(gStatus[1]->mPos - gStatus[0]->mPos);
-  return (!checkShipHasAmmo(0)) AND(!checkShipHasAmmo(1));
+
+  return (! checkShipHasAmmo(0, gStatus[1]->mInfo->IsPlanet))
+      && (! checkShipHasAmmo(1, gStatus[0]->mInfo->IsPlanet));
 }
 
 /* This routine runs an entire battle. It calls DoBattleTick
@@ -1141,10 +1322,62 @@ DisplayBattle(BattleStatus_Struct * pS1, BattleStatus_Struct * pS2)
   do {
     gBattleTick++;
     lBattleDone = DoBattleTick(pS1, pS2);
+    if (!checkCombatActivity()) {
+      gStatus[1]->mInfo->Outcome = gStatus[0]->mInfo->Outcome = COMBAT_NOAMMO;
+      lBattleDone = True;
+    }
   } while (!lBattleDone);
 
   return False;
 }
+
+#ifdef PHOST4
+static void
+AddWithSaturation(Int16* pValue, Int16 pAdd, int pMin, int pMax)
+{
+    long l = *pValue + (long) pAdd;
+    if (l < pMin)
+        *pValue = pMin;
+    else if (l > pMax)
+        *pValue = pMax;
+    else
+        *pValue = l;
+}
+
+/** Add experience bonus for level pLevel to combat configuration
+    in pConfig. */
+static void
+AddExperienceBonus(Uns16 pLevel, CombatConfig_Struct* pConfig)
+{
+    if (pLevel >= gConfigInfo->NumExperienceLevels)
+        pLevel = gConfigInfo->NumExperienceLevels;
+    if (pLevel == 0)
+        return;
+
+    /* I don't know why but this works even without the (Int16) cast. */
+#define ADD_BONUS(opt, min, max) AddWithSaturation((Int16*) &pConfig->opt, gConfigInfo->EMod##opt[pLevel-1], min, max)
+    ADD_BONUS(BayRechargeRate,       0, 16384);
+    ADD_BONUS(BayRechargeBonus,   -500, 500);
+    ADD_BONUS(BeamRechargeRate,      0, 16384);
+    ADD_BONUS(BeamRechargeBonus, -4095, 4095);
+    ADD_BONUS(TubeRechargeRate,      0, 16384);
+    ADD_BONUS(BeamHitFighterCharge,  0, 1000);
+    ADD_BONUS(TorpHitOdds,           0, 100);
+    ADD_BONUS(BeamHitOdds,           0, 100);
+    ADD_BONUS(BeamHitBonus,      -4095, 4095);
+    ADD_BONUS(StrikesPerFighter,     1, 100);
+    ADD_BONUS(FighterBeamExplosive,  1, 1000);
+    ADD_BONUS(FighterBeamKill,       1, 1000);
+    ADD_BONUS(FighterMovementSpeed,  1, 10000);
+    ADD_BONUS(MaxFightersLaunched,   0, MAX_FIGHTER_LIMIT);
+    ADD_BONUS(TorpHitBonus,      -4095, 4095);
+    ADD_BONUS(TubeRechargeBonus, -4095, 4095);
+    ADD_BONUS(ShieldDamageScaling,   0, 32767);
+    ADD_BONUS(CrewKillScaling,       0, 32767);
+    ADD_BONUS(ShieldKillScaling,     0, 32767);
+    ADD_BONUS(HullDamageScaling,     0, 32767);
+}
+#endif
 
 static void
 getPlayerCombatConfig(Uns16 pPlayer, CombatConfig_Struct * pConfig)
@@ -1183,6 +1416,9 @@ getPlayerCombatConfig(Uns16 pPlayer, CombatConfig_Struct * pConfig)
   pConfig->TorpHitBonus = gConfigInfo->TorpHitBonus[pPlayer];
   pConfig->TubeRechargeBonus = gConfigInfo->TubeRechargeBonus[pPlayer];
   pConfig->ShieldDamageScaling = gConfigInfo->ShieldDamageScaling[pPlayer];
+#ifdef PHOST4
+  pConfig->ShieldKillScaling = gConfigInfo->ShieldKillScaling[pPlayer];
+#endif
   pConfig->HullDamageScaling = gConfigInfo->HullDamageScaling[pPlayer];
   pConfig->CrewKillScaling = gConfigInfo->CrewKillScaling[pPlayer];
   pConfig->ExtraFighterBays = gConfigInfo->ExtraFighterBays[pPlayer];
@@ -1200,8 +1436,20 @@ getPlayerCombatConfig(Uns16 pPlayer, CombatConfig_Struct * pConfig)
 void
 Combat(Combat_Struct * pShip1, Combat_Struct * pShip2)
 {
+  CombatEx(pShip1, pShip2, 0);
+}
+
+void
+CombatEx(Combat_Struct * pShip1, Combat_Struct * pShip2, Uns16 pFlags)
+{
   Uns16 lCount;
   Boolean lTerminate;           /* True if user wants to immediately quit */
+
+  /* Fill in missing fields */
+  if ((pFlags & Combat_Experience) == 0) {
+    pShip1->Level = 0;
+    pShip2->Level = 0;
+  }
 
   /* Allocate our status structures if necessary */
   if (gInitialStatus[0] EQ 0) {
@@ -1221,6 +1469,10 @@ Combat(Combat_Struct * pShip1, Combat_Struct * pShip2)
   /* Fill combat config structures with player-dependent configs */
   getPlayerCombatConfig(pShip1->Race, gCombatConfig[0]);
   getPlayerCombatConfig(pShip2->Race, gCombatConfig[1]);
+#ifdef PHOST4
+  AddExperienceBonus(pShip1->Level, gCombatConfig[0]);
+  AddExperienceBonus(pShip2->Level, gCombatConfig[1]);
+#endif
 
   passert(MAX_FIGHTER_OUT(0) <= MAX_FIGHTER_LIMIT);
   passert(MAX_FIGHTER_OUT(1) <= MAX_FIGHTER_LIMIT);
@@ -1318,6 +1570,9 @@ Combat(Combat_Struct * pShip1, Combat_Struct * pShip2)
   DrawShip(0, gInitialStatus[0]->mPos);
   DrawShip(1, gInitialStatus[1]->mPos);
 
+  gStatus[0] = gInitialStatus[0];
+  gStatus[1] = gInitialStatus[1];
+  checkCombatActivityInit();
   lTerminate = DisplayBattle(gInitialStatus[0], gInitialStatus[1]);
 
   /* Festivities are over, now we have to sort out the results. */
@@ -1363,8 +1618,8 @@ Combat(Combat_Struct * pShip1, Combat_Struct * pShip2)
          warranted */
 
       if (lCurrPtr->mInfo->Outcome EQ COMBAT_VICTOR) {
-        (void) checkShipHasAmmo(lCount); /* sets NOAMMO result if appropriate 
-                                          */
+        /* sets NOAMMO result if appropriate */
+        checkShipHasAmmo(lCount, gInitialStatus[1 - lCount]->mInfo->IsPlanet);
       }
 
       /* Reincorporate fighters back into the ship */

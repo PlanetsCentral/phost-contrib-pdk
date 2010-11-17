@@ -24,8 +24,9 @@ enum {
     aux_ShipExperience   = 9,
     aux_PlanetExperience = 10,
     aux_Enemies          = 11,
-    aux_ShipExtraSpecial = 12,
+    aux_ShipExtraSpecialOld = 12,        /* 64 bits/ship */
     aux_ShipExtraDef     = 13,
+    aux_ShipExtraSpecialNew = 14,        /* 999 variable-length records, preceded by Uns16 containing bytes/record */
 
     /* 100+ are transient records */
     aux_ShipFlags        = 101,

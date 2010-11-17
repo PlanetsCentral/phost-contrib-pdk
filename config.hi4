@@ -58,16 +58,16 @@ CFDefine4(PlayerRace,                   PlayerRace[1],                  11, Uns1
 
 #if defined(PHOST) || defined(PDK)
 /* Standard VGAP configuration items */
-CFDefine4(RecycleRate,                  RecycleRate,                     1, Uns16,      0,      100, 0,                           0,                            "75")
+CFDefine4(RecycleRate,                  RecycleRate[1],                 11, Uns16,      0,      100, RACEARRAY|ARRAYIZED,         0,                            "75")
 CFDefine4(RandomMeteorRate,             MeteorRate,                      1, Uns16,      0,      100, OPTIONAL,                    0,                            "2")
 CFDefine4(AllowMinefields,              Minefields,                      1, Boolean,    0,        1, 0,                           0,                            "True")
 CFDefine4(AllowAlchemy,                 Alchemy,                         1, Boolean,    0,        1, OPTIONAL,                    0,                            "True")
-CFDefine4(DeleteOldMessages,            DeleteOldMessages,               1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
+CFDefine4(DeleteOldMessages,            DeleteOldMessages,               1, Boolean,    0,        1, OBSOLETE,                    0,                            "Yes")
 CFDefine4(DisablePasswords,             DisablePasswd,                   1, Boolean,    0,        1, OPTIONAL,                    0,                            "False")
 /* NOTE: Changed this to THost defaults in 3.4d */
 CFDefine4(GroundKillFactor,             GroundKill[1],                  11, Uns16,      1,    32767, ARRAYIZED|RACEARRAY,         0,                            "1,30,1,15,1,1,1,1,1,1,1")
 CFDefine4(GroundDefenseFactor,          GroundDefense[1],               11, Uns16,      1,    32767, ARRAYIZED|RACEARRAY,         0,                            "1,10,1,5,1,1,1,1,1,1,1")
-CFDefine4(FreeFighters,                 FreeFighters[1],                11, Uns16,      0,       60, ARRAYIZED|RACEARRAY,         0,                            "0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0")
+CFDefine4(FreeFighters,                 FreeFighters[1],                11, Uns16,      0,     1000, ARRAYIZED|RACEARRAY,         0,                            "0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0")
 CFDefine4(RaceMiningRate,               MiningRate[1],                  11, Uns16,      0,     1638, ARRAYIZED|RACEARRAY,         0,                            "70, 200, 100, 100, 100, 100, 100, 100, 100, 100, 100")
 #if defined(PHOST4) || defined(PDK)
 CFDefine4(AllowBuildFighters,           AllowBuildFighters[1],          11, Boolean,    0,        1, ARRAYIZED|RACEARRAY,         0,                            "No,No,No,No,No,No,No,No,Yes,Yes,Yes")
@@ -81,43 +81,43 @@ CFDefine4(CloakFailureRate,             CloakFailure[1],                11, Uns1
 CFDefine4(RobCloakedShips,              RobCloakedShips,                 1, Boolean,    0,        1, 0,                           0,                            "False")
 CFDefine4(ScanRange,                    ScanRange[1],                   11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY,         0,                            "300")
 CFDefine4(SensorRange,                  SensorRange[1],                 11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY,         0,                            "200")
-CFDefine4(DarkSenseRange,               DarksenseRange,                  1, Uns16,      0,    32767, OPTIONAL,                    0,                            "$SensorRange")
+CFDefine4(DarkSenseRange,               DarksenseRange[1],              11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY|OPTIONAL, 0,                           "$SensorRange")
 CFDefine4(AllowHiss,                    Hiss,                            1, Boolean,    0,        1, 0,                           0,                            "True")
 CFDefine4(AllowRebelGroundAttack,       RebelGroundAttack,               1, Boolean,    0,        1, 0,                           0,                            "True")
 CFDefine4(AllowSuperRefit,              SuperRefit,                      1, Boolean,    0,        1, 0,                           0,                            "True")
 CFDefine4(AllowWebMines,                WebMines,                        1, Boolean,    0,        1, OPTIONAL,                    0,                            "$AllowMinefields")
-CFDefine4(CloakFuelBurn,                CloakFuelBurn,                   1, Uns16,      0,     1000, 0,                           0,                            "5")
+CFDefine4(CloakFuelBurn,                CloakFuelBurn[1],               11, Uns16,      0,     1000, ARRAYIZED|RACEARRAY,         0,                            "5")
 #if defined(PDK) || !defined(PHOST4)
 CFDefine4(AllowNewNatives,              NewNatives,                      1, Boolean,    0,        1, 0,                           0,                            "True")
 #endif
 CFDefine4(AllowPlanetAttacks,           PlanetsAttack,                   1, Boolean,    0,        1, 0,                           0,                            "True")
-CFDefine4(BorgAssimilationRate,         AssimilationRate,                1, Uns16,      0,      100, 0,                           0,                            "100")
+CFDefine4(BorgAssimilationRate,         AssimilationRate[1],            11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "100")
 CFDefine4(MineDecayRate,                MineDecay[1],                   11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         IFYES(AllowMinefields),       "5")
-CFDefine4(WebMineDecayRate,             WebDecay,                        1, Uns16,      0,      100, OPTIONAL,                    IFYES(AllowWebMines),         "$MineDecayRate")
+CFDefine4(WebMineDecayRate,             WebDecay[1],                    11, Uns16,      0,      100, ARRAYIZED|RACEARRAY|OPTIONAL, IFYES(AllowWebMines),        "$MineDecayRate")
 /* NOTE: changed to 150 in 3.4c; was 300 */
 CFDefine4(MaximumMinefieldRadius,       MaxMineRadius[1],               11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY,         IFYES(AllowMinefields),       "150")
-CFDefine4(MaximumWebMinefieldRadius,    MaximumWebMinefieldRadius,       1, Uns16,      0,    32767, OPTIONAL,                    IFYES(AllowMinefields),       "$MaximumMinefieldRadius")
+CFDefine4(MaximumWebMinefieldRadius,    MaximumWebMinefieldRadius[1],   11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY|OPTIONAL, IFYES(AllowMinefields),      "$MaximumMinefieldRadius")
 CFDefine4(TransuraniumDecayRate,        TransuraniumRate,                1, Uns16,      0,      100, OPTIONAL,                    0,                            "5")
 CFDefine4(StructureDecayPerTurn,        StructureDecay[1],              11, Uns16,      0,     1000, ARRAYIZED|RACEARRAY,         0,                            "1")
 CFDefine4(StructureDecayOnUnowned,      StructureDecay[0],               1, Uns16,      0,     1000, 0,                           0,                            "1")
 CFDefine4(ClimateLimitsPopulation,      ClimateLimitsPopulation,         1, Boolean,    0,        1, 0,                           0,                            "True")
 /* NOTE: changed to No in 3.4c, was Yes */
-CFDefine4(AllowEatingSupplies,          EatSupplies,                     1, Boolean,    0,        1, 0,                           IFYES(ClimateLimitsPopulation),"No")
+CFDefine4(AllowEatingSupplies,          EatSupplies[1],                 11, Boolean,    0,        1, ARRAYIZED|RACEARRAY,         IFYES(ClimateLimitsPopulation),"No")
 CFDefine4(AllowNoFuelMovement,          NoFuelMove,                      1, Boolean,    0,        1, 0,                           0,                            "True")
 CFDefine4(MineHitOdds,                  MineOdds[1],                    11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         IFYES(AllowMinefields),       "1")
 CFDefine4(WebMineHitOdds,               WebOdds[1],                     11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         IFYES(AllowWebMines),         "5")
 CFDefine4(MineScanRange,                MineScanRange[1],               11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "$SensorRange")
 CFDefine4(AllowMinesDestroyMines,       MinesDestroyMines,               1, Boolean,    0,        1, 0,                           IFYES(AllowMinefields),       "True")
 CFDefine4(AllowEngineShieldBonus,       EngShieldBonus,                  1, Boolean,    0,        1, 0,                           0,                            "False")
-CFDefine4(EngineShieldBonusRate,        ShieldBonusRate,                 1, Uns16,      0,      100, 0,                           IFYES(AllowEngineShieldBonus),"0")
+CFDefine4(EngineShieldBonusRate,        ShieldBonusRate[1],             11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         IFYES(AllowEngineShieldBonus),"0")
 /* NOTE: changed to 0,0,0,...,20; was 20 */
 CFDefine4(FighterSweepRate,             FighterSweepRate[1],            11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY,         0,                            "0,0,0,0,0,0,0,0,0,0,20")
 CFDefine4(AllowColoniesSweepWebs,       ColSweepWebs,                    1, Boolean,    0,        1, 0,                           0,                            "False")
 CFDefine4(MineSweepRate,                MineSweepRate[1],               11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY,         0,                            "4")
 /* NOTE: changed to 3 in 3.4d, was 4 */
 CFDefine4(WebMineSweepRate,             WebSweepRate[1],                11, Uns16,      0,    32767, ARRAYIZED|RACEARRAY,         0,                            "3")
-CFDefine4(HissEffectRate,               HissEffect,                      1, Uns16,      0,      100, OPTIONAL,                    IFYES(AllowHiss),             "5")
-CFDefine4(RobFailureOdds,               RobFailRate,                     1, Uns16,      0,      100, 0,                           0,                            "1")
+CFDefine4(HissEffectRate,               HissEffect[1],                  11, Uns16,      0,      100, ARRAYIZED|RACEARRAY|OPTIONAL, IFYES(AllowHiss),            "5")
+CFDefine4(RobFailureOdds,               RobFailRate[1],                 11, Uns16,      0,      100, ARRAYIZED|RACEARRAY|OPTIONAL, 0,                           "1")
 CFDefine4(PlanetsAttackRebels,          PlanetRebelAttack,               1, Boolean,    0,        1, OPTIONAL,                    IFYES(AllowPlanetAttacks),    "False")
 CFDefine4(PlanetsAttackKlingons,        PlanetKlingonAttack,             1, Boolean,    0,        1, OPTIONAL,                    IFYES(AllowPlanetAttacks),    "False")
 /* NOTE: changed these two to 10/5 for 3.4c; were both 25 */
@@ -134,16 +134,16 @@ CFDefine4(LargeMeteorOreRanges,         LargeOre,                        8, Uns3
 CFDefine4(AllowMeteorMessages,          MeteorMessages,                  1, Boolean,    0,        1, OBSOLETE,                    0,                            "True")
 CFDefine4(AllowOneEngineTowing,         OneTow,                          1, Boolean,    0,        1, 0,                           0,                            "False")
 CFDefine4(AllowHyperWarps,              HyperDrives,                     1, Boolean,    0,        1, OPTIONAL,                    0,                            "True")
-CFDefine4(ClimateDeathRate,             ClimateDeathRate,                1, Uns16,      0,      100, 0,                           IFYES(ClimateLimitsPopulation),"10")
+CFDefine4(ClimateDeathRate,             ClimateDeathRate[1],            11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         IFYES(ClimateLimitsPopulation),"10")
 CFDefine4(AllowGravityWells,            GravityWells,                    1, Boolean,    0,        1, OPTIONAL,                    0,                            "True")
 CFDefine4(CrystalsPreferDeserts,        CrystalsLikeDesert,              1, Boolean,    0,        1, OPTIONAL,                    0,                            "True")
 CFDefine4(AllowMinesDestroyWebs,        DestroyWebs,                     1, Boolean,    0,        1, OPTIONAL,                    0,                            "False")
 /* NOTE: changed to 5000 in 3.4d, was 3000 */
-CFDefine4(MaxPlanetaryIncome,           MaxPlanetaryIncome,              1, Uns32,      0,0x7FFFFFFFUL,0,                         0,                            "5000")
+CFDefine4(MaxPlanetaryIncome,           MaxPlanetaryIncome[1],          11, Uns32,      0,0x7FFFFFFFUL,ARRAYIZED|RACEARRAY,       0,                            "5000")
 /* NOTE: this is 5 in HOST */
 CFDefine4(IonStormActivity,             IonStormActivity,                1, Uns16,      0,       50, OPTIONAL,                    0,                            "0")
 CFDefine4(AllowChunneling,              AllowChunneling,                 1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
-CFDefine4(AllowDeluxeSuperSpy,          AllowDeluxeSuperSpy,             1, Boolean,    0,        1, 0,                           0,                            "Yes")
+CFDefine4(AllowDeluxeSuperSpy,          AllowDeluxeSuperSpy,             1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
 CFDefine4(IonStormsHideMines,           IonStormsHideMines,              1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
 CFDefine4(AllowGloryDevice,             AllowGloryDevice,                1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
 CFDefine4(AllowAntiCloakShips,          AllowAntiCloakShips,             1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
@@ -161,6 +161,7 @@ CFDefine4(HullTechNotSlowedByMines,     HullTechNotSlowedByMines,        1, Uns1
 CFDefine4(UseAccurateFuelModel,         UseAccurateFuelModel,            1, Boolean,    0,        1, OPTIONAL,                    0,                            "False")
 /* NOTE: THost compatible values would be 15/16/21 */
 CFDefine4(DefenseForUndetectable,       DefenseForUndetectable,          1, Uns16,      0,    32767, OPTIONAL,                    0,                            "15")
+CFDefine4(DefenseToBlockBioscan,        DefenseToBlockBioscan,           1, Uns16,      0,    32767, OPTIONAL,                    0,                            "20")
 CFDefine4(FactoriesForDetectable,       FactoriesForDetectable,          1, Uns16,      0,    32767, OPTIONAL,                    0,                            "15")
 CFDefine4(MinesForDetectable,           MinesForDetectable,              1, Uns16,      0,    32767, OPTIONAL,                    0,                            "20")
 /* NOTE: changed to 0,0,0,0,0,0,0,0,0,0,100; was 100 */
@@ -254,8 +255,8 @@ CFDefine4(DamageLevelForAntiCloakFail,  DamageLevelForAntiCloakFail,     1, Uns1
 CFDefine4(DamageLevelForChunnelFail,    DamageLevelForChunnelFail,       1, Uns16,      0,      100, OPTIONAL,                    IFYES(AllowChunneling),       "100")
 CFDefine4(DamageLevelForHyperjumpFail,  DamageLevelForHyperjumpFail,     1, Uns16,      0,      100, OPTIONAL,                    IFYES(AllowHyperWarps),       "100")
 CFDefine4(MinimumChunnelDistance,       MinimumChunnelDistance,          1, Uns16,      0,     5000, OPTIONAL,                    IFYES(AllowChunneling),       "100")
-CFDefine4(TowStrengthEngineScale,       TowStrengthEngineScale,          1, Uns16,      0,     1000, IFPHOST3,                    IFYES(AllowAlternativeTowing),"1")
-CFDefine4(TowStrengthDistanceScale,     TowStrengthDistanceScale,        1, Uns16,      0,     1000, IFPHOST3,                    IFYES(AllowAlternativeTowing),"19")
+CFDefine4(TowStrengthEngineScale,       TowStrengthEngineScale[1],      11, Uns16,      0,     1000, ARRAYIZED|RACEARRAY|IFPHOST3, IFYES(AllowAlternativeTowing),"1")
+CFDefine4(TowStrengthDistanceScale,     TowStrengthDistanceScale[1],    11, Uns16,      0,     1000, ARRAYIZED|RACEARRAY|IFPHOST3, IFYES(AllowAlternativeTowing),"19")
 
 CFDefine4(AllowPriorityBuild,           AllowPriorityBuild,              1, Boolean,    0,        1, 0,                           0,                            "Yes")
 /* NOTE: these were 10,10,500, changed to Degi's defaults in 3.4d */
@@ -265,6 +266,7 @@ CFDefine4(SBQPointsForAging,            SBQPointsForAging[1],           11, Uns3
 CFDefine4(SBQBuildChangePenalty,        SBQBuildChangePenalty[1],       11, Uns32,-2147483647L,2147483647L,ARRAYIZED|RACEARRAY,   0,                            "2147483647")
 CFDefine4(SBQBoostExpX100,              SBQBoostExpX100[1],             11, Uns16,   -200,      200, ARRAYIZED|RACEARRAY,         0,                            "0")
 /* NOTE: PALDecayPerTurn was 10; changed to Degi's defaults in 3.4d. */
+CFDefine4(BuildChangeRelativePenalty,   BuildChangeRelativePenalty[1],  11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "100")
 CFDefine4(PALDecayPerTurn,              PALDecayPerTurn[1],             11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "20")
 CFDefine4(PALPlayerRate,                PALPlayerRate[1],               11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "100")
 CFDefine4(PALCombatAggressor,           PALCombatAggressor[1],          11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "0") /* was 1 */
@@ -279,7 +281,9 @@ CFDefine4(PALRecyclingPer10KT,          PALRecyclingPer10KT[1],         11, Uns1
 CFDefine4(PALBoardingPartyPer10Crew,    PALBoardingPartyPer10Crew[1],   11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "3")
 CFDefine4(PALGroundAttackPer100Clans,   PALGroundAttackPer100Clans[1],  11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "100") /* was 4 */
 CFDefine4(PALGloryDevice,               PALGloryDevice[1],              11, Uns16,      0,     1000, ARRAYIZED|RACEARRAY,         0,                            "100") /* was 5 */
+CFDefine4(PALGloryDevicePer10KT,        PALGloryDevicePer10KT[1],       11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "0")
 CFDefine4(PALGloryDamagePer10KT,        PALGloryDamagePer10KT[1],       11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "2")
+CFDefine4(PALGloryKillPer10KT,          PALGloryKillPer10KT[1],         11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "0")
 CFDefine4(PALImperialAssault,           PALImperialAssault[1],          11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "100") /* was 5 */
 CFDefine4(PALRGA,                       PALRGA[1],                      11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "10") /* was 5 */
 CFDefine4(PALPillage,                   PALPillage[1],                  11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         0,                            "10") /* was 5 */
@@ -301,13 +305,15 @@ CFDefine4(PBPCloneCostRate,             PBPCloneCostRate[1],            11, Uns1
 CFDefine4(AllowShipNames,               AllowShipnames,                  1, Tristate,   0,        2, OPTIONAL,                    0,                            "Yes")
 CFDefine4(BuildPointReport,             BuildPointReport,                1, Tristate,   0,        2, OPTIONAL,                    0,                            "Allies")
 CFDefine4(AlternativeMinesDestroyMines, AlternativeMinesDestroyMines,    1, Boolean,    0,        1, OPTIONAL,                    IFYES(AllowMinesDestroyMines), "False")
+CFDefine4(MinimumHappiness,             MinimumHappiness,                1, Int16,   -300,      100, OPTIONAL,                    0,                            "20")
 #endif /* PHOST */
 
 #if defined(PHOST4)
 #ifndef PVCR
 CFDefine4(NumShips,                     NumShips,                        1, Uns16,    100,  SHIP_NR, 0,                           0,                            "500")
 CFDefine4(ExtendedSensorSweep,          ExtendedSensorSweep,             1, Boolean,    0,        1, OPTIONAL,                    0,                            "Yes")
-CFDefine4(ColonistCombatSurvivalRate,   ColonistCombatSurvivalRate,      1, Uns16,      0,      100, OPTIONAL,                    0,                            "0")
+CFDefine4(ColonistCombatSurvivalRate,   ColonistCombatSurvivalRate[1],  11, Uns16,      0,      100, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "0")
+CFDefine4(ColonistCombatCaptureRate,    ColonistCombatCaptureRate[1],   11, Uns16,      0,      100, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "100")
 CFDefine4(NewNativesPerTurn,            NewNativesPerTurn,               1, Uns16,      0,PLANET_NR, OPTIONAL,                    0,                            "1")
 CFDefine4(NewNativesPopulationRange,    NewNativesPopulationRange,       2, Uns32,      0,   250000, OPTIONAL,                    0,                            "2500,5000")
 CFDefine4(NewNativesRaceRate,           NewNativesRaceRate,              9, Uns16,      0,      100, ARRAYIZED|OPTIONAL,          0,                            "1")
@@ -315,8 +321,8 @@ CFDefine4(NewNativesGovernmentRate,     NewNativesGovernmentRate,        9, Uns1
 CFDefine4(PlayerSpecialMission,         PlayerSpecialMission[1],        11, Uns16,      1,       12, RACEARRAY|OPTIONAL,          0,                            "$PlayerRace")
 CFDefine4(TowedShipsCooperate,          TowedShipsCooperate,             1, Tristate,   0,        2, OPTIONAL,                    0,                            "Yes")
 CFDefine4(WrmScanRange,                 WrmScanRange[1],                11, Uns16,      0,    10000, ARRAYIZED|RACEARRAY|OPTIONAL,IFYES(AllowWormholes),        "100")
-CFDefine4(FuelUsagePerFightFor100KT,    FuelUsagePerFightFor100KT,       1, Uns16,      0,      100, OPTIONAL,                    0,                            "0")
-CFDefine4(FuelUsagePerTurnFor100KT,     FuelUsagePerTurnFor100KT,        1, Uns16,      0,      100, OPTIONAL,                    0,                            "0")
+CFDefine4(FuelUsagePerFightFor100KT,    FuelUsagePerFightFor100KT[1],   11, Uns16,      0,      100, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "0")
+CFDefine4(FuelUsagePerTurnFor100KT,     FuelUsagePerTurnFor100KT[1],    11, Uns16,      0,      100, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "0")
 CFDefine4(CPEnableEnemies,              CPEnableEnemies,                 1, Tristate,   0,        3, OPTIONAL,                    0,                            "Yes")
 CFDefine4(CPEnableShow,                 CPEnableShow,                    1, Tristate,   0,        3, OPTIONAL,                    0,                            "Yes")
 CFDefine4(CPEnableRefit,                CPEnableRefit,                   1, Tristate,   0,        3, OPTIONAL,                    0,                            "Yes")
@@ -327,15 +333,19 @@ CFDefine4(StarbaseCost,                 StarbaseCost[1],                11, Cost
 CFDefine4(BaseFighterCost,              BaseFighterCost[1],             11, Cost,       0,        0, ARRAYIZED|OPTIONAL|INCOMPATIBLE, 0,                        "T3 M2 $100")
 CFDefine4(ShipFighterCost,              ShipFighterCost[1],             11, Cost,       0,        0, ARRAYIZED|OPTIONAL,          0,                            "T3 M2 S5")
 CFDefine4(MaximumFightersOnBase,        MaximumFightersOnBase[1],       11, Uns16,      0,     1000, ARRAYIZED|OPTIONAL|INCOMPATIBLE, 0,                        "60")
+CFDefine4(MaximumDefenseOnBase,         MaximumDefenseOnBase[1],        11, Uns16,      0,     2000, ARRAYIZED|OPTIONAL|INCOMPATIBLE, 0,                        "200")
 #endif /* !PVCR */
 
 /* Experience */
 CFDefine4(NumExperienceLevels,          NumExperienceLevels,             1, Uns16,      0,       10, OPTIONAL,                    0,                            "0")
 #define FirstExperienceOption CF_ExperienceLevels
 /* NOTE: was: 1500,4000,10000,20000, changed in 4.0f */
-CFDefine4(ExperienceLevels,             ExperienceLevels,               10, Uns32,      0, 1000000000, ARRAYIZED|OPTIONAL,        0,                            "750,1500,3000,6000")
+CFDefine4(ExperienceLevels,             ExperienceLevels,               10, Uns32,      0,  1000000, ARRAYIZED|OPTIONAL,        0,                            "750,1500,3000,6000")
 CFDefine4(ExperienceLevelNames,         ExperienceLevelNames,          255, String,     0,        0, OPTIONAL,                    0,                            "Recruit,Soldier,Experienced,Elite,Ultra Elite")
-CFDefine4(EPRecrewScaling,              EPRecrewScaling[1],             11, Uns16,      0,      100, ARRAYIZED|RACEARRAY|OPTIONAL,0,                           "30")
+CFDefine4(ExperienceLimit,              ExperienceLimit,                 1, Uns32,      0,  1000000, OPTIONAL,                    0,                            "1000000")
+CFDefine4(EPRecrewScaling,              EPRecrewScaling[1],             11, Uns16,      0,      100, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "30")
+CFDefine4(EPShipBuild1000TorpUnits,     EPShipBuild1000TorpUnits[1],    11, Uns16,      0,    10000, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "0")
+CFDefine4(EPShipBuild10Fighters,        EPShipBuild10Fighters[1],       11, Uns16,      0,    10000, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "0")
 CFDefine4(EPShipAging,                  EPShipAging,                     1, Uns16,      0,    10000, OPTIONAL,                    0,                            "15")
 CFDefine4(EPPlanetAging,                EPPlanetAging,                   1, Uns16,      0,    10000, OPTIONAL,                    0,                            "25")
 CFDefine4(EPPlanetGovernment,           EPPlanetGovernment,              1, Uns16,      0,    10000, OPTIONAL,                    0,                            "0")
@@ -349,6 +359,8 @@ CFDefine4(EPShipAlchemy100KT,           EPShipAlchemy100KT,              1, Uns1
 CFDefine4(EPCombatBoostRate,            EPCombatBoostRate,              10, Uns16,      0,     1000, ARRAYIZED|OPTIONAL,          0,                            "100")
 CFDefine4(EPCombatBoostLevel,           EPCombatBoostLevel,             10, Int16,   -100,      100, ARRAYIZED|OPTIONAL,          0,                            "0")
 CFDefine4(EPTrainingScale,              EPTrainingScale[1],             11, Uns16,      0,     1000, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "70")
+CFDefine4(EPAcademyScale,               EPAcademyScale[1],              11, Uns16,      0,    10000, ARRAYIZED|RACEARRAY|OPTIONAL,0,                            "400")
+CFDefine4(ExactExperienceReports,       ExactExperienceReports,          1, Boolean,    0,        1, OPTIONAL,                    0,                            "No")
 CFDefine4(EModBayRechargeRate,          EModBayRechargeRate,            10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "1,2,3,4")
 CFDefine4(EModBayRechargeBonus,         EModBayRechargeBonus,           10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "0,0,0,0")
 CFDefine4(EModBeamRechargeRate,         EModBeamRechargeRate,           10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "0,0,0,0")
@@ -356,8 +368,8 @@ CFDefine4(EModBeamRechargeBonus,        EModBeamRechargeBonus,          10, Int1
 CFDefine4(EModTubeRechargeRate,         EModTubeRechargeRate,           10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "1,2,3,8")
 CFDefine4(EModBeamHitFighterCharge,     EModBeamHitFighterCharge,       10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "0,0,0,0")
 CFDefine4(EModTorpHitOdds,              EModTorpHitOdds,                10, Int16,   -100,      100, ARRAYIZED,                   0,                            "9,18,27,35")
-CFDefine4(EModBeamHitOdds,              EModBeamHitOdds,                10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "0,0,0,0")
-CFDefine4(EModBeamHitBonus,             EModBeamHitBonus,               10, Int16,   -100,      100, ARRAYIZED,                   0,                            "0,0,0,0")
+CFDefine4(EModBeamHitOdds,              EModBeamHitOdds,                10, Int16,   -100,      100, ARRAYIZED,                   0,                            "0,0,0,0")
+CFDefine4(EModBeamHitBonus,             EModBeamHitBonus,               10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "0,0,0,0")
 CFDefine4(EModStrikesPerFighter,        EModStrikesPerFighter,          10, Int16,   -100,      100, ARRAYIZED,                   0,                            "1,2,3,4")
 CFDefine4(EModFighterBeamExplosive,     EModFighterBeamExplosive,       10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "0,0,0,0")
 CFDefine4(EModFighterBeamKill,          EModFighterBeamKill,            10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "0,0,0,0")
@@ -371,6 +383,7 @@ CFDefine4(EModShieldDamageScaling,      EModShieldDamageScaling,        10, Int1
 CFDefine4(EModShieldKillScaling,        EModShieldKillScaling,          10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "0,0,0,0")
 CFDefine4(EModHullDamageScaling,        EModHullDamageScaling,          10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "0,0,0,0")
 CFDefine4(EModCrewKillScaling,          EModCrewKillScaling,            10, Int16,  -1000,     1000, ARRAYIZED,                   0,                            "-5,-10,-15,-20")
+CFDefine4(EModPlanetaryTorpsPerTube,    EModPlanetaryTorpsPerTube,      10, Int16,   -100,      100, ARRAYIZED,                   IFYES(PlanetsHaveTubes),      "0,0,0,0")
 /* I made this one optional because it doesn't really fit into shiplist.txt,
    but I don't want to bother everyone with it */
 CFDefine4(EModMineHitOddsBonus,         EModMineHitOddsBonus,           10, Int16,  -1000,     1000, OPTIONAL|ARRAYIZED,          0,                            "5,10,15,20")
@@ -404,7 +417,8 @@ CFDefine4(MaxFightersLaunched,          MaxFightersLaunched[1],         11, Uns1
 CFDefine4(AllowAlternativeCombat,       AlternativeCombat,               1, Boolean,    0,        1, 0,                           0,                            "No")
 CFDefine4(StandoffDistance,             StandoffDistance,                1, Uns32,   3000,   60000L, 0,                           0,                            "3000")
 CFDefine4(PlanetsHaveTubes,             PlanetsHaveTubes,                1, Boolean,    0,        1, 0,                           0,                            "No")
-CFDefine4(PlanetaryTorpsPerTube,        PlanetaryTorpsPerTube,           1, Uns16,      0,      100, 0,                           IFYES(PlanetsHaveTubes),      "3")
+CFDefine4(UseBaseTorpsInCombat,         UseBaseTorpsInCombat[1],        11, Boolean,    0,        1, ARRAYIZED|RACEARRAY,         IFYES(PlanetsHaveTubes),      "Yes")
+CFDefine4(PlanetaryTorpsPerTube,        PlanetaryTorpsPerTube[1],       11, Uns16,      0,      100, ARRAYIZED|RACEARRAY,         IFYES(PlanetsHaveTubes),      "3")
 CFDefine4(FireOnAttackFighters,         FireOnAttackFighters,            1, Boolean,    0,        1, 0,                           0,                            "No")
 CFDefine4(TorpHitBonus,                 TorpHitBonus[1],                11, Int16,  -4095,     4095, ARRAYIZED|RACEARRAY,         0,                            "0")
 CFDefine4(TubeRechargeBonus,            TubeRechargeBonus[1],           11, Int16,  -4095,     4095, ARRAYIZED|RACEARRAY,         0,                            "0")
