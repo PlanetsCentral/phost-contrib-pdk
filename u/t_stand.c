@@ -10,7 +10,7 @@
 
 /** Test behaviour of types. */
 static void
-TestTypes()
+TestTypes(void)
 {
     size_t enumSize;
 
@@ -46,7 +46,7 @@ TestTypes()
 
 /** Test constants. */
 static void
-TestConstants()
+TestConstants(void)
 {
     assert(RACE_NR == 11);
     assert(SHIP_NR == 500 || SHIP_NR == 999);
@@ -69,24 +69,32 @@ TestConstants()
 
 /** Test allocator. */
 static void
-TestAlloc()
+TestAlloc(void)
 {
     void *p, *q;
     int i;
 
+#if 0
     /* Test "allocate 0 bytes" case. Must return two null pointers, or
-       different pointers. */
+       different pointers.
+       -- NOT: if system malloc returns 0, MemAlloc thinks allocation
+          failed and bombs out. */
     p = MemAlloc(0);
     q = MemAlloc(0);
     assert((p == 0 && q == 0) || (p != q));
     MemFree(p);
     MemFree(q);
+#endif
 
     /* Test "free null pointer" case. Must not crash. */
     MemFree(0);
 
-    /* Test "allocate 0 bytes" with MemRealloc. */
+#if 0
+    /* Test "allocate 0 bytes" with MemRealloc.
+       -- NOT: if system malloc returns 0, MemAlloc thinks allocation
+          failed and bombs out. */
     MemFree(MemRealloc(0, 0));
+#endif
 
     /* Test basic allocation */
     p = MemCalloc(10, 1);
@@ -119,7 +127,7 @@ TestAlloc()
 
 /** Test endian conversion. */
 static void
-TestEndian()
+TestEndian(void)
 {
     typedef union Union16 { unsigned char bytes[2]; Uns16 u16; Int16 i16; } Union16;
     typedef union Union32 { unsigned char bytes[4]; Uns32 u32; Int32 i32; } Union32;
@@ -246,7 +254,7 @@ TestEndian()
 
 /** Test Random Number Generator. */
 static void
-TestRandom()
+TestRandom(void)
 {
     enum { N = 1000 };
     int data[N];
