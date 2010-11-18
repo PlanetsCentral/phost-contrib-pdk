@@ -1,3 +1,12 @@
+2010-11-18  Stefan Reuther  <Streu@gmx.de>
+
+	* conf.h: merged platform definitions from PHost
+
+	* u/: added humble beginnings of a testsuite
+
+	* phostpdk.h (MAX_BASE_DEFENSE, MAX_BASE_FIGHTERS) [PDK_PHOST4_SUPPORT]:
+	increased to support MaximumDefenseOnBase, MaximumFightersOnBase
+
 2010-11-17  Stefan Reuther  <Streu@gmx.de>
 
 	* main.c (InitPHOSTLib): updated year...

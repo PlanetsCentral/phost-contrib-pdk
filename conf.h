@@ -5,7 +5,11 @@
 #undef __MSDOS__
 #endif
 
+#define HAVE_UNISTD
+#define HAVE_RUSAGE
+
 #ifdef __DJGPP__
+#undef __MSDOS__
 #define SYSTEM_ID "DJGPP 2.0/i386"
 #define SYSTEM_CODE 19
 #define HAVE_MEMMOVE
@@ -18,7 +22,9 @@
 #define PHOST_LITTLE_ENDIAN
 #define HAVE_ANSI_INCLUDES
 #define FILES_HAVE_CRLF
-#undef __MSDOS__
+#define FILESYSTEM_TYPE FS_DOS
+#undef HAVE_UNISTD
+#undef HAVE_RUSAGE
 #endif
 
 #ifdef _SCO_COFF
@@ -107,7 +113,7 @@
 #endif
 
 #ifdef __FreeBSD__
-# define SYSTEM_ID "i386 FreeBSD 2.0"
+# define SYSTEM_ID "i386 FreeBSD"
 # define SYSTEM_CODE 13
 # define HAVE_MEMMOVE
 # undef  HAVE_BCOPY
@@ -122,6 +128,7 @@
 # define PHOST_LITTLE_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef  FILES_HAVE_CRLF
+# define FILESYSTEM_TYPE FS_UNIX
 #endif
 
 #if defined(__bsdi__) || defined(__386BSD__)
@@ -170,6 +177,8 @@
 # define PHOST_LITTLE_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # define FILES_HAVE_CRLF
+# undef HAVE_UNISTD
+# undef HAVE_RUSAGE
 #endif
 
 #ifdef __ultrix
@@ -188,28 +197,35 @@
 #endif
 
 #ifdef __linux__
-#ifdef __sparc__
-#define SYSTEM_ID "Linux/SPARC"
-#else
-#define SYSTEM_ID "PC Linux"
-#endif
-#define SYSTEM_CODE 8
-#define HAVE_MEMMOVE
-#undef  HAVE_BCOPY
-#define HAVE_STRERROR
-#define HAVE_STRICMP
-#define stricmp strcasecmp
-#undef  HAVE_STRUPR
-# define HAVE_STRDUP
-#undef  PHOST_LITTLE_ENDIAN
-#undef  PHOST_BIG_ENDIAN
-#ifdef __sparc__
-#define PHOST_BIG_ENDIAN
-#else
-#define PHOST_LITTLE_ENDIAN
-#endif
-#define HAVE_ANSI_INCLUDES
-# undef  FILES_HAVE_CRLF
+#  undef  PHOST_LITTLE_ENDIAN
+#  undef  PHOST_BIG_ENDIAN
+#  ifdef __sparc__
+#    define SYSTEM_ID "Linux/SPARC"
+#    define PHOST_BIG_ENDIAN
+#  else
+#    ifdef __powerpc__
+#      define SYSTEM_ID "Linux/PowerPC"
+#      define PHOST_BIG_ENDIAN
+#    else
+#      ifdef __i386__
+#        define SYSTEM_ID "PC Linux"
+#        define PHOST_LITTLE_ENDIAN
+#      else
+#        error Unknown processor type
+#      endif
+#    endif
+#  endif
+#  define SYSTEM_CODE 8
+#  define HAVE_MEMMOVE
+#  undef  HAVE_BCOPY
+#  define HAVE_STRERROR
+#  define HAVE_STRICMP
+#  define stricmp strcasecmp
+#  undef  HAVE_STRUPR
+#  define HAVE_STRDUP
+#  define HAVE_ANSI_INCLUDES
+#  undef  FILES_HAVE_CRLF
+#  define FILESYSTEM_TYPE FS_UNIX
 #endif
 
 #ifdef __alpha
@@ -227,22 +243,39 @@
 # undef  FILES_HAVE_CRLF
 #endif
 
-#ifdef __sun
+#ifdef __sun__
 # ifdef __svr4__
-#   define SYSTEM_ID "Sun Solaris"
-#   define SYSTEM_CODE 6
-#   define HAVE_MEMMOVE
-#   undef HAVE_BCOPY
-#   undef HAVE_STRERROR
-#   undef HAVE_SGN
-#   undef HAVE_STRICMP
-#   undef HAVE_STRUPR
-#   define HAVE_STRDUP
-#   define PHOST_BIG_ENDIAN
-#   define HAVE_ANSI_INCLUDES
-#   define SOLARIS 1
-#   undef  FILES_HAVE_CRLF
+#   ifdef __i386__
+#     define SYSTEM_ID "i386 Solaris"
+#     define SYSTEM_CODE 21
+#     define HAVE_MEMMOVE
+#     undef HAVE_BCOPY
+#     undef HAVE_STRERROR
+#     undef HAVE_SGN
+#     undef HAVE_STRICMP
+#     undef HAVE_STRUPR
+#     define HAVE_STRDUP
+#     define PHOST_LITTLE_ENDIAN
+#     define HAVE_ANSI_INCLUDES
+#     define SOLARIS 1
+#     undef  FILES_HAVE_CRLF
+#   else
+#     define SYSTEM_ID "SPARC Solaris"
+#     define SYSTEM_CODE 6
+#     define HAVE_MEMMOVE
+#     undef HAVE_BCOPY
+#     define HAVE_STRERROR
+#     undef HAVE_SGN
+#     undef HAVE_STRICMP
+#     undef HAVE_STRUPR
+#     define HAVE_STRDUP
+#     define PHOST_BIG_ENDIAN
+#     define HAVE_ANSI_INCLUDES
+#     define SOLARIS 1
+#     undef  FILES_HAVE_CRLF
+#   endif
 # endif
+# define FILESYSTEM_TYPE FS_UNIX
 #endif
 
 #ifdef _AIX
@@ -307,6 +340,9 @@
 #define PHOST_LITTLE_ENDIAN
 #define HAVE_ANSI_INCLUDES
 #define FILES_HAVE_CRLF
+#undef HAVE_UNISTD
+#undef HAVE_RUSAGE
+#define FILESYSTEM_TYPE FS_DOS
 #endif
 
 #if defined(__WIN32__) && defined(__DPMI32__)
@@ -322,6 +358,8 @@
 #define PHOST_LITTLE_ENDIAN
 #define HAVE_ANSI_INCLUDES
 #define FILES_HAVE_CRLF
+#undef HAVE_UNISTD
+#undef HAVE_RUSAGE
 #endif
 
 #ifdef __MSDOS__
@@ -337,6 +375,9 @@
 #define PHOST_LITTLE_ENDIAN
 #define HAVE_ANSI_INCLUDES
 #define FILES_HAVE_CRLF
+#undef HAVE_UNISTD
+#undef HAVE_RUSAGE
+#define FILESYSTEM_TYPE FS_DOS
 #endif
 
 #if defined(__APPLE__) && defined(__ppc__) && defined(__MACH__)
@@ -352,6 +393,9 @@
 # define PHOST_BIG_ENDIAN
 # define HAVE_ANSI_INCLUDES
 # undef FILES_HAVE_CRLF
+# define HAVE_UNISTD
+# undef HAVE_RUSAGE
+# define FILESYSTEM_TYPE FS_UNIX
 #endif
 
 #ifdef __BEOS__
@@ -366,7 +410,11 @@
 # define HAVE_STRDUP
 # define PHOST_LITTLE_ENDIAN
 # define HAVE_ANSI_INCLUDES
-# undef  FILES_HAVE_CRLF
+# undef FILES_HAVE_CRLF
+# undef HAVE_RUSAGE
+# undef FILES_HAVE_CRLF
+# undef HAVE_UNISTD /* ?? */
+# define FILESYSTEM_TYPE FS_UNIX
 #endif
 
 #if defined(__CYGWIN__)

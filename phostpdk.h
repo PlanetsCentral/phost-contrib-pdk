@@ -48,8 +48,13 @@ extern "C" {
 #define MAX_TUBES    20         /*!< Max number of tubes on a ship */
 #define MAX_BAYS    20          /*!< Max number of bays on a ship */
 #define MAX_PLANET_BAYS   50    /*!< max number of bays on a planet/SB */
-#define MAX_BASE_DEFENSE 200    /*!< Max defences for a base */
-#define MAX_BASE_FIGHTERS  60   /*!< Max fighters for a base */
+#ifdef PDK_PHOST4_SUPPORT
+#  define MAX_BASE_DEFENSE 2000    /*!< Max defences for a base. Hard limit. Use gConfigInfo->MaximumDefenseOnBase for actual limit. */
+#  define MAX_BASE_FIGHTERS 1000   /*!< Max fighters for a base. Hard limit. Use gConfigInfo->MaximumFightersOnBase for actual limit. */
+#else
+#  define MAX_BASE_DEFENSE 200    /*!< Max defences for a base */
+#  define MAX_BASE_FIGHTERS  60   /*!< Max fighters for a base */
+#endif
 #define MAX_TECH    10          /*!< Max tech level */
 #define MAX_DENSITY   100       /*!< Max mineral density in a planet */
 #define MAX_HAPPY   100         /*!< Max happiness for colonists and natives
