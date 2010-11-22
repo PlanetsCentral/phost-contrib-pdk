@@ -211,7 +211,12 @@
 #        define SYSTEM_ID "PC Linux"
 #        define PHOST_LITTLE_ENDIAN
 #      else
-#        error Unknown processor type
+#        ifdef __x86_64__
+#          define SYSTEM_ID "Linux/x64"
+#          define PHOST_LITTLE_ENDIAN
+#        else
+#          error Unknown processor type
+#        endif
 #      endif
 #    endif
 #  endif
