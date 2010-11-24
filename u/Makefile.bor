@@ -1,5 +1,5 @@
 #
-#  Makefile for tests, Unix version
+#  Makefile for tests, Windows/Borland version
 #
 
 CFLAGS = /I..
@@ -8,16 +8,17 @@ LDFLAGS = ..\pdk.lib
 CDEP = ..\*.h
 LDEP = ..\pdk.lib
 
-TESTS = t_stand.exe
+ALL = t_stand.exe t_vcr.exe t_sys.exe
 
-all: $(TESTS) t_sys.exe
+all: $(ALL)
 
 clean:
 	$(RM) *.obj
-	$(RM) $(TESTS)
+	$(RM) $(ALL)
 
 test: all
-	for %i in ($(TESTS)) do %i || exit /b 1
+	t_stand.exe
+	t_vcr.exe
 	@echo "*** ok ***"
 
 
@@ -33,4 +34,10 @@ t_sys.exe: t_sys.obj $(LDEP)
 	$(CC) /e$@ t_sys.obj $(LDFLAGS)
 
 t_sys.obj: t_sys.c $(CDEP)
+
+
+t_vcr.exe: t_vcr.obj $(LDEP)
+	$(CC) /e$@ t_vcr.obj $(LDFLAGS)
+
+t_vcr.obj: t_vcr.c $(CDEP)
 

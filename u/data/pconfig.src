@@ -1,0 +1,325 @@
+#  PHOST CONFIGURATION FILE  
+#  Wersja ostateczna, DOS
+#  ========================
+
+
+#  GENERAL OPTIONS
+#  ---------------
+
+  GameName                   = KKND
+
+  AllowRegisteredFunctions   = Yes
+  ScoringMethod              = None
+  TonsScoreCountsPlanets     = No
+  DisablePasswords           = No
+
+  CPEnableBigTargets         = Yes
+  AllowMoreThan50Targets     = Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes
+
+  CPEnableLanguage           = Yes
+  Language                   = English,English,English,English,English,English,English,English,English,English,English,English
+
+# First element of Language is the host's choice of language
+
+  FilterPlayerMessages       = No ,No ,No ,No ,No ,No ,No ,No ,No ,No ,No 
+
+  CPEnableRaceName           = No
+
+  RecycleRate                = 99
+  ScanRange                  = 170,170,170,170,170,170,170,170,170,170,170
+  SensorRange                = 170,170,170,170,170,170,170,170,170,170,170
+  AllowNewNatives            = Yes
+
+  AllowAlchemy               = Yes
+  AllowScienceMissions       = Yes
+  TerraformRate              = 3,3,3,3,3,3,5,3,3,3,3
+
+  CPEnableMessage            = Yes
+  AllowPlayerMessages        = Yes
+  DeleteOldMessages          = Yes
+  CPEnableRumor              = Yes
+
+  CPEnableAllies             = Yes
+  DelayAllianceCommands      = Yes
+
+  CPEnableGive               = Yes
+  CPEnableRemote             = Yes
+  AllowShipCloning           = Yes
+  ShipCloneCostRate          = 200,200,200,200,350,200,350,200,200,200,200
+
+  IonStormActivity           = 0
+
+  CPEnableSend               = Yes
+
+  AllowExtendedMissions      = Yes
+  ExtMissionsStartAt         = 20
+  WormholeUFOsStartAt        = 51
+
+  AllowWraparoundMap         = Yes
+  WraparoundRectangle        = 1000,1000,3000,3000
+
+  AllowBeamUpClans           = Yes
+  AllowBeamUpMultiple        = Yes
+
+#  MOVEMENT
+#  --------
+
+  AllowGravityWells              = Yes
+  GravityWellRange               = 3
+  RoundGravityWells              = Yes
+
+  AllowHyperWarps                = Yes
+  AllowHyperjumpGravWells        = Yes
+
+  AllowNoFuelMovement            = Yes
+  UseAccurateFuelModel           = No
+
+  AllowOneEngineTowing           = Yes
+  TowedShipsBreakFree            = Yes
+  AllowAlternativeTowing         = Yes
+
+#  RACIAL ABILITIES
+#  ----------------
+
+  PlayerRace                  = 1,2,3,4,5,6,7,8,9,10,11
+  MapTruehullByPlayerRace     = Yes
+
+  AllowFedCombatBonus         = Yes
+  AllowSuperRefit             = Yes
+  AllowAntiCloakShips         = Yes
+  AlternativeAntiCloak        = No
+  AntiCloakImmunity           = Yes,Yes,No,No,No,No,No,No,No,No,No
+
+  AllowHiss                   = Yes
+  HissEffectRate              = 5
+  MaxShipsHissing             = 7
+
+  AllowDeluxeSuperSpy         = Yes
+  SpyDetectionChance          = 15
+
+  AllowGloryDevice            = Yes
+  CumulativePillaging         = Yes
+
+  RobFailureOdds              = 0
+  AllowGamblingShips          = Yes
+  AllowBoardingParties        = Yes
+  AllowPrivateerTowCapture    = Yes
+
+  BorgAssimilationRate        = 75
+  AllowChunneling             = Yes
+  AllowAlliedChunneling       = Yes
+
+  AllowWebMines               = Yes
+  CrystalsPreferDeserts       = Yes
+  CrystalSinTempBehavior      = Yes
+  AllowCrystalTowCapture      = Yes
+
+  DarkSenseRange              = 150
+  AllowImperialAssault        = Yes
+
+  RobotsBuildFighters         = Yes
+
+  RebelsBuildFighters         = Yes
+  AllowRebelGroundAttack      = Yes
+  AllowRGAOnUnowned           = Yes
+  RGANeedsBeams               = Yes
+
+  ColoniesBuildFighters       = Yes
+  RamScoopFuelPerLY           = 1
+  AllowAdvancedRefinery       = Yes
+  AllowBioscanners            = Yes
+
+
+#  PLANETS (COMBAT-POPULATION-ECONOMY)
+#  -----------------------------------
+
+  AllowPlanetAttacks             = Yes
+  PlanetsAttackRebels            = No
+  PlanetsAttackKlingons          = No
+
+  DefenseForUndetectable         = 25
+  FactoriesForDetectable         = 15
+  MinesForDetectable             = 20
+
+  AllowEatingSupplies            = No
+  ClimateLimitsPopulation        = Yes
+  ClimateDeathRate               = 10
+  NativeClimateDeathRate         = 0
+  MaxColTempSlope                = 1000
+
+  TransuraniumDecayRate          = 5
+  StructureDecayPerTurn          = 5
+
+#                               1   2   3   4   5   6   7   8   9   10  11
+  RaceMiningRate             = 70 ,200,100,100,100, 80,125,100,100,100,100
+  ColonistTaxRate            = 200,100,100, 90,100, 80,115,100,100, 80,100
+  NativeTaxRate              = 200,100,100, 90,100, 80,115,100,100, 80,100
+  MaxPlanetaryIncome         = 9000
+  RaceGrowthRate             = 100,100,100,100,100,100,100,100,100,100,100
+  ProductionRate             = 100,100,100,100,100,100,100,100,100,100,100
+
+  FreeFighters               = 0,0,0,0,0,0,0,7,0,0,0
+
+  PlanetaryTorpsPerTube      = 3
+
+
+#  SPACEMINES
+#  ----------
+
+  AllowMinefields            = Yes
+  MaximumMinefieldRadius     = 150,150,150,150,150,150,150,150,150,150,150
+  UnitsPerTorpRate           = 100,100,100,100,100,100,100,100,400,100,100
+
+  AllowMinesDestroyMines     = Yes
+  AllowMinesDestroyWebs      = No
+
+  MineScanRange              = 150,150,150,150,150,150,150,150,150,150,150
+
+  MineHitOdds                = 1,1,1,1,1,1,1,1,1,1,1
+  MineOddsWarpBonusX100      = 0,0,0,0,0,0,0,0,0,0,0
+  MineTravelSafeWarp         = 0,0,0,0,0,0,0,0,0,0,0
+  MineHitDamageFor100KT      = 100
+  MineDecayRate              = 5,5,5,5,5,5,5,5,5,5,5
+  MineSweepRate              = 4,4,4,4,4,4,4,4,4,4,4
+  MineSweepRange             = 10,10,10,10,10,10,10,10,10,10,10
+
+  WebMineHitOdds             = 5,5,5,5,5,5,5,5,5,5,5
+  WebMineOddsWarpBonusX100   = 0,0,0,0,0,0,0,0,0,0,0
+  WebMineTravelSafeWarp      = 0,0,0,0,0,0,0,0,0,0,0
+  WebMineDecayRate           = 5
+  WebHitDamageFor100KT       = 15
+  WebDrainFuelLoss           = 25
+  WebMineSweepRate           = 3,3,3,3,3,3,3,3,3,3,3
+  WebMineSweepRange          = 0,0,0,0,0,0,0,0,0,0,0
+
+  FighterSweepRange          = 0,0,0,0,0,0,0,0,0,0,60
+  FighterSweepRate           = 0,0,0,0,0,0,0,0,0,0,20
+  AllowColoniesSweepWebs     = No
+
+  IonStormsHideMines         = Yes
+
+  HullTechNotSlowedByMines   = 0
+
+
+#  METEORS
+#  -------
+
+  RandomMeteorRate           = 0
+  MeteorShowerOdds           = 10
+  MeteorShowerOreRanges      = 10,10,10,10,200,200,200,200
+  LargeMeteorsImpacting      = 0
+  LargeMeteorOreRanges       = 100,100,100,100,10000,9000,9000,9000
+  AllowMeteorMessages        = Yes
+
+
+#  CLOAKING
+#  --------
+
+  CloakFailureRate           = 0
+  AllowCloakFailMessages     = Yes
+  RobCloakedShips            = No
+  RobCloakedChance           = 0
+  CloakFuelBurn              = 3
+  MineHitOddsWhenCloakedX10  = 5,5,5,5,5,5,5,5,5,5,5
+  CloakMineOddsWarpBonusX100 = 0,0,0,0,0,0,0,0,0,0,0
+  CloakedMineTravelSafeWarp  = 0,0,0,0,0,0,0,0,0,0,0
+  DamageLevelForCloakFail    = 1
+  AllowTowCloakedShips       = No
+  AllowCloakedShipsAttack    = No
+
+
+#  WORMHOLES
+#  ---------
+
+  AllowWormholes             = Yes
+  WrmDisplacement            = 1
+  WrmRandDisplacement        = 0
+  WrmStabilityAddX10         = 0
+  WrmRandStability           = 0
+  WrmMassAdd                 = 0
+  WrmRandMass                = 0
+  WrmVoluntaryTravel         = Yes
+  WrmTravelDistDivisor       = 100
+  WrmTravelWarpSpeed         = 9
+  WrmTravelCloaked           = No
+  WrmEntryPowerX100          = 25
+
+
+#  COMBAT OPTIONS
+#  --------------
+
+  GroundKillFactor           = 1,30,1,15,5,1,1,1,1,1,1
+  GroundDefenseFactor        = 1,10,1, 5,1,1,1,1,1,1,1
+
+  AllowEngineShieldBonus     = Yes
+  EngineShieldBonusRate      = 25
+  AllowESBonusAgainstPlanets = Yes
+
+  NativeCombatSurvivalRate   = 75
+
+  AllowInterceptAttack       = Yes
+
+
+#  COMBAT PARAMETERS
+#  -----------------
+
+  BayRechargeRate            = 40,40,40,40,40,40,40,40,40,40,40
+  BayRechargeBonus           = 1,1,1,1,1,1,1,1,1,1,1
+  BeamRechargeRate           = 4,4,4,4,4,4,4,4,4,4,4
+  BeamRechargeBonus          = 4,4,4,4,4,4,4,4,4,4,4
+  TubeRechargeRate           = 30,30,30,30,30,30,30,30,30,30,30
+  BeamHitFighterCharge       = 500,500,500,500,500,500,500,500,500,500,500
+  BeamHitShipCharge          = 600,600,600,600,600,600,600,600,600,600,600
+  TorpFiringRange            = 30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000
+  BeamFiringRange            = 25000,25000,25000,25000,25000,25000,25000,25000,25000,25000,25000
+  TorpHitOdds                = 55,55,55,55,55,55,55,55,55,55,55
+  BeamHitOdds                = 70,70,70,70,70,70,70,70,70,70,70
+  BeamHitBonus               = 12,12,12,12,12,12,12,12,12,12,12
+  StrikesPerFighter          = 5,5,5,5,5,5,5,5,5,5,5
+  FighterKillOdds            = 10,10,10,10,10,10,10,10,10,10,10
+  FighterBeamExplosive       = 8,8,8,8,8,8,8,8,8,8,8
+  FighterBeamKill            = 8,8,8,8,8,8,8,8,8,8,8
+  ShipMovementSpeed          = 100,100,100,100,100,100,100,100,100,100,100
+  FighterMovementSpeed       = 300,300,300,300,300,300,300,300,300,300,300
+  BayLaunchInterval          = 2,2,2,2,2,2,2,2,2,2,2
+  MaxFightersLaunched        = 30,30,30,30,30,30,30,30,30,30,30
+  AllowAlternativeCombat     = YES
+  StandoffDistance           = 10000
+  PlanetsHaveTubes           = Yes
+  FireOnAttackFighters       = Yes
+  TorpHitBonus               = 13,13,13,13,13,13,13,13,13,13,13
+  TubeRechargeBonus          = 7,7,7,7,7,7,7,7,7,7,7
+  ShieldDamageScaling        = 40,40,40,40,40,40,40,40,40,40,40
+  HullDamageScaling          = 20,20,20,20,20,20,20,20,20,20,20
+  CrewKillScaling            = 30,30,30,30,30,30,30,30,30,30,30
+  ExtraFighterBays           = 3,0,0,0,0,0,0,0,0,0,0
+  BeamHitFighterRange        = 100000,100000,100000,100000,100000,100000,100000,100000,100000,100000,100000
+  FighterFiringRange         = 3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000
+
+
+# Build Queue Parameters 
+# ----------------------
+
+  SBQBuildPALBoost              = 10
+  SBQNewBuildPALBoost           = 10
+  SBQPointsForAging             = 500
+  SBQBuildChangePenalty         = 2147483647
+# =2^31-1, can also be written simply as -1
+  PALDecayPerTurn               = 10
+  PALPlayerRate                 = 100
+  PALCombatAggressor            = 1
+  PALAggressorPointsPer10KT     = 10
+  PALOpponentPointsPer10KT      = 8
+  PALAggressorKillPointsPer10KT = 5
+  PALOpponentKillPointsPer10KT  = 3
+  PALCombatPlanetScaling        = 100
+  PALCombatBaseScaling          = 100
+  PALShipCapturePer10Crew       = 5
+  PALRecyclingPer10KT           = 1
+  PALBoardingPartyPer10Crew     = 3
+  PALGroundAttackPer100Clans    = 4
+  PALGloryDevice                = 5
+  PALGloryDamagePer10KT         = 2
+  PALImperialAssault            = 5
+  PALRGA                        = 5
+  PALPillage                    = 5

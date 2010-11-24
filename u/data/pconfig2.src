@@ -1,0 +1,439 @@
+#  PHOST CONFIGURATION FILE  (Original Combat/Original Ship List)
+#  ========================
+#
+# This configuration file was designed to emulate HOST 3.2 behavior
+# in as many ways as possible, including combat, when using the original
+# ship list. This does not mean the behavior is the same, just that it
+# is reasonably close.
+
+######################################################################
+#                                                                    #
+#                   P H O S T    S E C T I O N                       #
+#                                                                    #
+######################################################################
+
+% PHOST
+
+#  GENERAL OPTIONS
+#  ---------------
+
+  GameName                   = PHOST Game
+
+  AllowRegisteredFunctions   = Yes
+  ScoringMethod              = Compatible
+  TonsScoreCountsPlanets     = No
+  DisablePasswords           = No
+
+  # Allow players to receive more than 50 scanned ships
+  CPEnableBigTargets         = Yes
+  AllowMoreThan50Targets     = No,No,No,No,No,No,No,No,No,No,No
+
+  CPEnableLanguage           = Yes
+  Language                   = English,English,English,English,English,English,English,English,English,English,English,English
+  # First element of Language is the host's choice of language
+
+  FilterPlayerMessages       = No,No,No,No,No,No,No,No,No,No,No
+
+  CPEnableRaceName           = Yes
+
+  RecycleRate                = 75
+  ScanRange                  = 300
+  SensorRange                = 200
+  AllowNewNatives            = Yes
+
+  AllowAlchemy               = Yes
+  AllowScienceMissions       = Yes
+  TerraformRate              = 1
+  DamageLevelForTerraformFail = 100
+
+  CPEnableMessage            = Yes
+  AllowPlayerMessages        = Yes
+  DeleteOldMessages          = Yes
+  CPEnableRumor              = Yes
+
+  CPEnableAllies             = Yes
+  DelayAllianceCommands      = No
+
+  CPEnableGive               = Yes
+  CPEnableRemote             = Yes
+
+  AllowShipCloning           = Yes
+  ShipCloneCostRate          = 200,200,200,200,32767,200,32767,200,200,200,200
+
+  IonStormActivity           = 0
+
+  CPEnableSend               = Yes
+
+  AllowExtendedMissions      = Yes
+  ExtMissionsStartAt         = 20
+  WormholeUFOsStartAt        = 51
+
+  AllowWraparoundMap         = No
+  WraparoundRectangle        = 1000,1000,3000,3000
+
+  AllowBeamUpClans           = No
+  AllowBeamUpMultiple        = No
+
+
+#  MOVEMENT
+#  --------
+
+  AllowGravityWells          = Yes
+  GravityWellRange           = 3
+  RoundGravityWells          = No
+
+  AllowHyperWarps            = Yes
+  AllowHyperjumpGravWells    = Yes
+
+  AllowNoFuelMovement        = Yes
+  UseAccurateFuelModel       = No
+
+  AllowOneEngineTowing       = No
+  TowedShipsBreakFree        = No
+  AllowAlternativeTowing     = No
+
+
+#  RACIAL ABILITIES
+#  ----------------
+
+  PlayerRace                 = 1,2,3,4,5,6,7,8,9,10,11
+  MapTruehullByPlayerRace    = Yes
+
+  AllowFedCombatBonus        = Yes
+  AllowSuperRefit            = Yes
+  AllowAntiCloakShips        = Yes
+  AlternativeAntiCloak       = No
+  AntiCloakImmunity          = Yes, Yes, Yes, No, No, No, No, No, No, No, No
+  DamageLevelForAntiCloakFail = 20
+
+  AllowHiss                  = Yes
+  HissEffectRate             = 5
+  MaxShipsHissing            = 10
+
+  AllowDeluxeSuperSpy        = Yes
+  SpyDetectionChance         = 20
+
+  AllowGloryDevice           = Yes
+  CumulativePillaging        = No
+
+  RobFailureOdds             = 1
+  AllowGamblingShips         = Yes
+  AllowBoardingParties       = Yes
+  AllowPrivateerTowCapture   = Yes
+
+  BorgAssimilationRate       = 100
+  AllowChunneling            = Yes
+  AllowAlliedChunneling      = No
+  DamageLevelForChunnelFail  = 100
+
+  AllowWebMines              = Yes
+  CrystalsPreferDeserts      = Yes
+  CrystalSinTempBehavior     = No
+  AllowCrystalTowCapture     = Yes
+
+  DarkSenseRange             = 200
+  AllowImperialAssault       = Yes
+
+  RobotsBuildFighters        = Yes
+
+  RebelsBuildFighters        = Yes
+  AllowRebelGroundAttack     = Yes
+  AllowRGAOnUnowned          = No
+  RGANeedsBeams              = No
+
+  ColoniesBuildFighters      = Yes
+  RamScoopFuelPerLY          = 2
+  AllowAdvancedRefinery      = Yes
+  AllowBioscanners           = Yes
+
+
+#  PLANETS (COMBAT-POPULATION-ECONOMY)
+#  -----------------------------------
+
+  AllowPlanetAttacks         = Yes
+  PlanetsAttackRebels        = No
+  PlanetsAttackKlingons      = No
+
+  DefenseForUndetectable     = 15
+  FactoriesForDetectable     = 15
+  MinesForDetectable         = 20
+
+  AllowEatingSupplies        = No
+  ClimateLimitsPopulation    = Yes
+  ClimateDeathRate           = 10
+  NativeClimateDeathRate     = 0
+  MaxColTempSlope            = 1000
+
+  TransuraniumDecayRate      = 5
+  StructureDecayPerTurn      = 1
+
+  RaceMiningRate             = 70,200,100,100,100,100,100,100,100,100,100
+  ColonistTaxRate            = 200,100,100,100,100,100,100,100,100,100,100
+  NativeTaxRate              = 200,100,100,100,100,100,100,100,100,100,100
+  MaxPlanetaryIncome         = 5000
+  RaceGrowthRate             = 100,100,100,100,100,100,100,100,100,100,100
+  ProductionRate             = 100,100,100,100,100,100,100,100,100,100,100
+
+  FreeFighters               = 0,0,0,0,0,0,0,10,0,0,0
+
+  PlanetaryTorpsPerTube      = 3
+
+
+#  SPACEMINES
+#  ----------
+
+  AllowMinefields            = Yes
+
+  # Set this option to limit the number of minefields (1..10000)
+  CPNumMinefields            = 500
+  AllowMoreThan500Minefields = No,No,No,No,No,No,No,No,No,No,No
+
+  MaximumMinefieldsPerPlayer = 10000
+  MineIdNeedsPermission      = False
+
+  MaximumMinefieldRadius     = 150
+  UnitsPerTorpRate           = 100,100,100,100,100,100,100,100,400,100,100
+
+  AllowMinesDestroyMines     = Yes
+  AllowMinesDestroyWebs      = No
+
+  MineScanRange              = 200
+
+  MineHitOdds                = 1
+  MineOddsWarpBonusX100      = 0
+  MineTravelSafeWarp         = 0
+  MineHitDamageFor100KT      = 100
+  MineDecayRate              = 5
+  MineSweepRate              = 4
+  MineSweepRange             = 5
+
+  WebMineHitOdds             = 5
+  WebMineOddsWarpBonusX100   = 0
+  WebMineTravelSafeWarp      = 0
+  WebMineDecayRate           = 5
+  WebHitDamageFor100KT       = 10
+  WebDrainFuelLoss           = 25
+  WebMineSweepRate           = 3
+  WebMineSweepRange          = 0
+
+  FighterSweepRange          = 0,0,0,0,0,0,0,0,0,0,100
+  FighterSweepRate           = 0,0,0,0,0,0,0,0,0,0,20
+  AllowColoniesSweepWebs     = No
+
+  IonStormsHideMines         = Yes
+
+  HullTechNotSlowedByMines   = 7
+
+
+#  METEORS
+#  -------
+
+  RandomMeteorRate           = 2
+  MeteorShowerOdds           = 0
+  MeteorShowerOreRanges      = 10,10,10,10,200,200,200,200
+  LargeMeteorsImpacting      = 0
+  LargeMeteorOreRanges       = 100,100,100,100,10000,9000,9000,7000
+  AllowMeteorMessages        = Yes
+
+
+#  CLOAKING
+#  --------
+
+  CloakFailureRate           = 0
+  AllowCloakFailMessages     = Yes
+  RobCloakedShips            = No
+  RobCloakedChance           = 0
+  CloakFuelBurn              = 5
+  MineHitOddsWhenCloakedX10  = 5
+  CloakMineOddsWarpBonusX100 = 0
+  CloakedMineTravelSafeWarp  = 0
+  DamageLevelForCloakFail    = 1
+  AllowTowCloakedShips       = No
+  AllowCloakedShipsAttack    = Yes
+
+
+#  WORMHOLES
+#  ---------
+
+  AllowWormholes             = Yes
+  WrmDisplacement            = 1
+  WrmRandDisplacement        = 0
+  WrmStabilityAddX10         = 0
+  WrmRandStability           = 0
+  WrmMassAdd                 = 0
+  WrmRandMass                = 0
+  WrmVoluntaryTravel         = Yes
+  WrmTravelDistDivisor       = 100
+  WrmTravelWarpSpeed         = 9
+  WrmTravelCloaked           = No
+  WrmEntryPowerX100          = 25
+
+
+#  COMBAT OPTIONS
+#  --------------
+
+  GroundKillFactor           = 1,30,1,15,1,1,1,1,1,1,1
+  GroundDefenseFactor        = 1,10,1,5,1,1,1,1,1,1,1
+
+  AllowEngineShieldBonus     = No
+  EngineShieldBonusRate      = 0
+  AllowESBonusAgainstPlanets = No
+
+  NativeCombatSurvivalRate   = 75
+
+  AllowInterceptAttack       = Yes
+
+
+#  COMBAT PARAMETERS
+#  -----------------
+
+  BayRechargeRate            = 52
+  BayRechargeBonus           = 2
+  BeamRechargeRate           = 8
+  BeamRechargeBonus          = 0
+  TubeRechargeRate           = 45
+  BeamHitFighterCharge       = 500
+  BeamHitShipCharge          = 600
+  TorpFiringRange            = 30000
+  BeamFiringRange            = 20000
+  TorpHitOdds                = 65
+  BeamHitOdds                = 100
+  BeamHitBonus               = 0
+  StrikesPerFighter          = 7
+  FighterKillOdds            = 20
+  FighterBeamExplosive       = 2
+  FighterBeamKill            = 2
+  ShipMovementSpeed          = 75
+  FighterMovementSpeed       = 235
+  BayLaunchInterval          = 3
+  MaxFightersLaunched        = 19
+  AllowAlternativeCombat     = No
+  StandoffDistance           = 3000
+  PlanetsHaveTubes           = No
+  FireOnAttackFighters       = No
+  TorpHitBonus               = 0
+  TubeRechargeBonus          = 0
+  ShieldDamageScaling        = 80
+  HullDamageScaling          = 80
+  CrewKillScaling            = 80
+  ExtraFighterBays           = 3,0,0,0,0,0,0,0,0,0,0
+  BeamHitFighterRange        = 100000
+  FighterFiringRange         = 3000
+
+
+# BUILD QUEUE OPERATION
+# ---------------------
+#
+# Feel free to change these numbers, they have basically just been
+# pulled out of a hat and are by no means "optimal".
+#
+
+  BuildQueue                    = PAL
+  AllowPriorityBuild            = Yes
+
+  SBQBuildPALBoost              = 10
+  SBQNewBuildPALBoost           = 10
+  SBQPointsForAging             = 500
+  SBQBuildChangePenalty         = -1
+  SBQBoostExpX100               = 0
+
+  PBPCostPer100KT               = 200
+  PBPMinimumCost                = 400
+  PBPCloneCostRate              = 200
+
+  PALDecayPerTurn               = 10
+  PALPlayerRate                 = 100
+  PALCombatAggressor            = 1
+  PALAggressorPointsPer10KT     = 10
+  PALOpponentPointsPer10KT      = 8
+  PALAggressorKillPointsPer10KT = 5
+  PALOpponentKillPointsPer10KT  = 3
+#  PALIncludesESB                = Yes
+  PALShipMinekillPer10KT        = 0
+  PALCombatPlanetScaling        = 100
+  PALCombatBaseScaling          = 100
+  PALShipCapturePer10Crew       = 5
+  PALRecyclingPer10KT           = 1
+  PALBoardingPartyPer10Crew     = 3
+  PALGroundAttackPer100Clans    = 4
+  PALGloryDevice                = 5
+  PALGloryDamagePer10KT         = 2
+  PALImperialAssault            = 5
+  PALRGA                        = 5
+  PALPillage                    = 5
+
+######################################################################
+#                                                                    #
+#               P C O N T R O L    S E C T I O N                     #
+#                                                                    #
+######################################################################
+
+# This section controls fine-grain PHOST operation. See PCONTROL.HTM
+# for more details
+
+% PCONTROL
+
+LargeMeteors          = Normal
+MeteorShowers         = Normal
+TransferOwner         = Normal
+AntiCloak_1           = Normal
+DeluxeSuperSpy        = Normal
+NewNativesAppear      = Normal
+RobMission            = Normal
+GamblingShips         = Normal
+CargoDump             = Normal
+CargoTransfer         = Normal
+TrimShipCargo         = Normal
+BeamTransfers         = Normal
+GatherMission         = Normal
+BeamUpCredits         = Normal
+MinefieldDecay        = Normal
+MineLaying            = Normal
+MineSweeping          = Normal
+MinefieldScan         = Normal
+WormholeScan          = Normal
+WebDraining           = Normal
+SpecialMissions_1     = Normal
+BuildFighters         = Normal
+BuildTorpedoes        = Normal
+Alchemy               = Normal
+ShipBuilding_1        = Normal
+DumpOldBaseParts      = Normal
+BaseMissions_1        = Normal
+SupplyRepair_1        = Normal
+BoardingParties       = Normal
+FreeFighters          = Normal
+Movement              = Normal
+GloryDevices          = Normal
+AntiCloak_2           = Normal
+ColonizeMission       = Normal
+SupplyRepair_2        = Normal
+BaseMissions_2        = Normal
+Combat                = Normal
+SupplyRepair_3        = Normal
+Terraforming          = Normal
+SensorSweep           = Normal
+SpecialMissions_2     = Normal
+PlanetaryProduction   = Normal
+PlanetaryHappiness    = Normal
+PlanetaryTaxation     = Normal
+PlanetaryGrowth       = Normal
+PlanetaryLosses       = Normal
+ShipBuilding_2        = Normal
+Assimilation          = Normal
+SuperSpyMission       = Normal
+ShipExploration       = Normal
+
+########################################################################
+########################################################################
+
+# Configuration parameters for other programs go here. For example,
+#              % SOMEADDON
+#
+#              Parameter1 = 10
+#              Parameter2 = 20
+#
+#              % SOME_OTHER_ADDON
+#
+#              Parameter1 = 10
+#              Parameter2 = Yes

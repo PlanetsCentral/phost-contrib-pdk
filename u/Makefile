@@ -8,16 +8,17 @@ LDFLAGS = -L.. -lpdk -lm
 CDEP = ../*.h
 LDEP = ../libpdk.a
 
-TESTS = t_stand
+ALL = t_stand t_vcr t_sys
 
-all: $(TESTS) t_sys
+all: $(ALL)
 
 clean:
 	$(RM) *.o
-	$(RM) $(TESTS)
+	$(RM) $(ALL)
 
 test: all
-	for i in $(TESTS); do ./$$i || exit 1; done
+	./t_stand
+	./t_vcr
 	@echo "*** ok ***"
 
 
@@ -33,4 +34,10 @@ t_sys: t_sys.o $(LDEP)
 	$(CC) -o $@ t_sys.o $(LDFLAGS)
 
 t_sys.o: t_sys.c $(CDEP)
+
+
+t_vcr: t_vcr.o $(LDEP)
+	$(CC) -o $@ t_vcr.o $(LDFLAGS)
+
+t_vcr.o: t_vcr.c $(CDEP)
 
