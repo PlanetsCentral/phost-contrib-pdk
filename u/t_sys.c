@@ -1,5 +1,9 @@
 /**
   *  \file t_sys.c
+  *  \brief Platform Definition
+  *
+  *  THIS IS NOT AN AUTOMATIC TEST-CASE.  It is intended for humans
+  *  to check what the PDK thinks it runs on.
   */
 
 #include <stdio.h>
