@@ -265,6 +265,7 @@ CommandFileReaderFP(Uns16 pRace, Uns16 pFileIsFor, CommandReader_Func pFunc,
 void
 ComplainWithSubspaceMessage(Uns16 pRace, const char* pLine, const char* pReason, void* pData)
 {
+  (void) pData;
   if (pRace) {
     char lBuffer[700];
     sprintf(lBuffer,
@@ -283,6 +284,7 @@ ComplainWithSubspaceMessage(Uns16 pRace, const char* pLine, const char* pReason,
 void
 ComplainWithWarningMessage(Uns16 pRace, const char* pLine, const char* pReason, void* pData)
 {
+  (void) pData;
   if (!pRace)
     Warning("Error executing command `%s': %s", pLine, pReason);
   else

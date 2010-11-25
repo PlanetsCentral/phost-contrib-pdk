@@ -21,6 +21,7 @@ static const char *gClear = 0;
 static void
 usage(char *argv[])
 {
+    (void) argv;
     fprintf(stderr,
 "Usage: PALLY [Options] [GameDir [RootDir]]\n"
 "\n"

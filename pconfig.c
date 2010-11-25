@@ -197,6 +197,7 @@ static void
 Ignore(const char *pStr, ...)
 {
     /* intentionally left blank */
+    (void) pStr;
 }
 
 
@@ -674,6 +675,9 @@ parseLanguage(const ConfigItem_Struct* pItem,
                           "ENglish German French Spanish Italian Dutch Russian EStonian"
                           " NEWENglish Polish");
 
+    /* Ignore this parameter */
+    (void) pItem;
+
     /* PHost 3.5/4.1 allows other languages than our hardwired set.
        Thus, if we don't know it, assume it's NewEnglish. */
     if (match < 0)
@@ -690,6 +694,7 @@ parseScoreMethod(const ConfigItem_Struct* pItem,
                  char* pValue, int pIndex, void* pData)
 {
     int match = ListMatch(pValue, "None Compatible");
+    (void) pItem;
     if (match < 0) {
         Error("%s: invalid scoring method '%s'", CONFIG_FILE, pValue);
         return False;
@@ -706,6 +711,7 @@ parseBuildQueue(const ConfigItem_Struct* pItem,
                  char* pValue, int pIndex, void* pData)
 {
     int match = ListMatch(pValue, "PALs Fifo PBPs");
+    (void) pItem;
     if (match < 0) {
         Error("%s: invalid build queue mode '%s'", CONFIG_FILE, pValue);
         return False;
@@ -997,11 +1003,11 @@ Read_THost_HConfig_File(void)
           lData += 2;
           break;
        case CFType_Uns32:
-          sprintf(lPtr, "%lu", ReadDOSUns32(lData));
+          sprintf(lPtr, "%lu", (unsigned long) ReadDOSUns32(lData));
           lData += 4;
           break;
        case CFType_Uns16:
-          sprintf(lPtr, "%u", ReadDOSUns16(lData));
+          sprintf(lPtr, "%u", (unsigned int) ReadDOSUns16(lData));
           lData += 2;
           break;
        default:

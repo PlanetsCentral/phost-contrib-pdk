@@ -96,13 +96,6 @@ ShipSpeed(Uns16 pID)
   return (GetShip(pID)->Speed);
 }
 
-static Uns16
-ShipLocation(Uns16 pID, XYComponent_Def pIndex)
-{
-  passert((pIndex EQ 0) OR(pIndex EQ 1));
-  return (GetShip(pID)->Location[pIndex]);
-}
-
 Uns16
 ShipLocationX(Uns16 pID)
 {
@@ -114,17 +107,6 @@ ShipLocationY(Uns16 pID)
 {
   return (GetShip(pID)->Location[1]);
 }
-
-#if 0
-static Uns16
-ShipWaypoint(Uns16 pID, XYComponent_Def pIndex)
-{
-  passert((pIndex EQ 0) OR(pIndex EQ 1));
-
-  /* NEW */
-  return (GetShip(pID)->Waypoint[pIndex] + (Int16) ShipLocation(pID, pIndex));
-}
-#endif
 
 Uns16
 ShipWaypointX(Uns16 pID)
@@ -406,18 +388,6 @@ PutShipSpeed(Uns16 pID, Uns16 pSpeed)
   passert(pSpeed <= MAX_SPEED);
   GetShip(pID)->Speed = pSpeed;
 }
-
-#if 0
-static void
-PutShipWaypoint(Uns16 pID, XYComponent_Def pIndex, Uns16 pWaypoint)
-{
-  passert((pIndex EQ 0) OR(pIndex EQ 1));
-
-  /* NEW */
-  GetShip(pID)->Waypoint[pIndex] =
-        (Int16) pWaypoint - (Int16) ShipLocation(pID, pIndex);
-}
-#endif
 
 void
 PutShipWaypointX(Uns16 pID, Uns16 pWaypoint)

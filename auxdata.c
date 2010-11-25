@@ -312,8 +312,7 @@ FreeCLOAKC(void)
 Boolean
 IsShipCloaked(Uns16 pShip)
 {
-  Uns16 lMajor,
-    lMinor;
+  Uns16 lMajor = 0, lMinor = 0;
   Boolean lIsAuxdataPresent = GameFilesVersion(&lMajor, &lMinor);
 
   /* Preconditions for valid cloak info: (a) No auxdata (HOST) and CLOAKC.HST

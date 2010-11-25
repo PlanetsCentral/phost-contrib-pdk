@@ -675,7 +675,7 @@ GenerateScoreMessage(char *pBuffer)
 /* determine the number of columns we need */
       lScoreLength = 0;
       for (lRace = Federation; lRace <= Colonies; lRace++) {
-        sprintf(lTmpBuffer, "%lu", gScores[lRace][lScoreType]);
+        sprintf(lTmpBuffer, "%lu", (unsigned long) gScores[lRace][lScoreType]);
         lScoreLength = max(lScoreLength, strlen(lTmpBuffer));
       }
       lScoreLength = max(lScoreLength, strlen(ScoreNames[lScoreType])) + 1;
@@ -730,7 +730,7 @@ GenerateScoreMessage(char *pBuffer)
 
 #endif
 
-  sprintf(lFormatString, "%c%us  %cs", '%', strlen(lTmpLines[2]), '%');
+  sprintf(lFormatString, "%c%us  %cs", '%', (unsigned int) strlen(lTmpLines[2]), '%');
   for (lCount = 0; lCount <= ScoreEndLine; lCount++)
     if (strlen(lTmpLines[lCount])) {
       if (!MuteOperation) {

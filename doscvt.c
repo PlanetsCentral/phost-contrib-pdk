@@ -169,6 +169,9 @@ EndianSwap32(void *pData, Uns16 pNumber)
     memcpy(pData, &lVal, 4);
     pData = ((char *) pData) + 4;
   }
+#else
+  (void) pData;
+  (void) pNumber;
 #endif
 }
 
@@ -183,6 +186,9 @@ EndianSwap16(void *pData, Uns16 pNumber)
     memcpy(pData, &lVal, 2);
     pData = ((char *) pData) + 2;
   }
+#else
+  (void) pData;
+  (void) pNumber;
 #endif
 }
 
