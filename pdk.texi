@@ -319,7 +319,7 @@ The PDK defines and uses the following global variables.
 @end iftex
 
 @node gRootDirectory, gGameDirectory, Global Variables, Global Variables
-@subsection const char *gRootDirectory
+@section const char *gRootDirectory
 @vindex gRootDirectory
 
 This variable indicates the root (main) directory in which global data
@@ -333,7 +333,7 @@ the variable does not point to writable storage. Look at the example source
 files for models of how to use this variable.
 
 @node gGameDirectory, gLogFile, gRootDirectory, Global Variables
-@subsection const char *gGameDirectory
+@section const char *gGameDirectory
 @vindex gGameDirectory
 
 This variable indicates the game directory in which game-specific files
@@ -347,7 +347,7 @@ the variable does not point to writable storage. Look at the example source
 files for models of how to use this variable.
 
 @node gLogFile, gNewlyMastered, gGameDirectory, Global Variables
-@subsection FILE *gLogFile
+@section FILE *gLogFile
 @vindex gLogFile
 
 This variable indicates a file that is to store logging information
@@ -356,7 +356,7 @@ default value) then no file logging is performed. The Error(), Info(), etc.
 functions write to this file pointer if it is non-zero.
 
 @node gNewlyMastered, gPconfigInfo, gLogFile, Global Variables
-@subsection Boolean gNewlyMastered
+@section Boolean gNewlyMastered
 @vindex gNewlyMastered
 
 This variable is False by default but is set to True by the ReadHostData()
@@ -364,7 +364,7 @@ routine when a newly-mastered game is encountered (that is, the
 NEXTTURN.HST file is of 0 length).
 
 @node gPconfigInfo, poptarg, gNewlyMastered, Global Variables
-@subsection Pconfig_Struct *gPconfigInfo
+@section Pconfig_Struct *gPconfigInfo
 @vindex gPconfigInfo
 
 This variable points to the data contained in the game configuration file,
@@ -374,8 +374,8 @@ PCONFIG.SRC file. Changing the PCONFIG.SRC file (if desired) is up to the
 application.
 
 @node poptarg, gNonPHOSTWarnings, gPconfigInfo, Global Variables
-@subsection char *poptarg
-@subheading int   poptind
+@section char *poptarg
+@heading int   poptind
 @vindex poptarg
 @vindex poptind
 
@@ -384,7 +384,7 @@ pgetopt(). Please see the description of pgetopt() below for usage
 information on these global variables.
 
 @node gNonPHOSTWarnings, gUsingTHost, poptarg, Global Variables
-@subsection Boolean gNonPHOSTWarnings
+@section Boolean gNonPHOSTWarnings
 @vindex gNonPHOSTWarnings
 
 This variable should be set to True if the PDK is to display warnings about
@@ -396,7 +396,7 @@ HOST games as for PHOST games then it is better to set this variable to
 False in order to not generate warning messages that are irrelevant.
 
 @node gUsingTHost,  , gNonPHOSTWarnings, Global Variables
-@subsection  Boolean gUsingTHost
+@section  Boolean gUsingTHost
 @vindex gUsingTHost
 
 This variable is set to True by ReadHostData() if the game configuration
