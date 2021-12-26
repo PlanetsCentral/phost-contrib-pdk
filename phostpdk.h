@@ -1073,15 +1073,20 @@ Pconfig_Struct;
   extern void MemFree(void *pPtr);
 
 /*! Reporting */
-  extern void Error(const char *pStr, ...);
+#ifdef __GNUC__
+#  define PDK_FORMAT_ARGS __attribute__((format(printf, 1, 2)))
+#else
+#  define PDK_FORMAT_ARGS
+#endif
+  extern void Error(const char *pStr, ...) PDK_FORMAT_ARGS;
   extern void VError(const char *pStr, va_list pAP);
-  extern void ErrorExit(const char *pStr, ...);
+  extern void ErrorExit(const char *pStr, ...) PDK_FORMAT_ARGS;
   extern void VErrorExit(const char *pStr, va_list pAP);
-  extern void ErrorAssert(const char *pStr, ...);
+  extern void ErrorAssert(const char *pStr, ...) PDK_FORMAT_ARGS;
   extern void VErrorAssert(const char *pStr, va_list pAP);
-  extern void Warning(const char *pStr, ...);
+  extern void Warning(const char *pStr, ...)  PDK_FORMAT_ARGS;
   extern void VWarning(const char *pStr, va_list pAP);
-  extern void Info(const char *pStr, ...);
+  extern void Info(const char *pStr, ...) PDK_FORMAT_ARGS;
   extern void VInfo(const char *pStr, va_list pAP);
   extern void AssertFail(const char *pExpr, const char *pFile, int pLine);
 #ifdef NDEBUG
