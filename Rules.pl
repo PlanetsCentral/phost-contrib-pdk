@@ -51,7 +51,7 @@ generate(doc => [@doc]);
 rule_set_phony('doc');
 
 # Installation
-my $result = add_variable(PREFIX => 'result');
+my $result = add_variable(prefix => 'result');
 generate(install => [
              generate('install-bin', [
                           generate_copy_to_dir("$result/bin", @utils),
