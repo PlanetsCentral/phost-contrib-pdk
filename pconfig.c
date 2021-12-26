@@ -118,7 +118,7 @@ ConfigFileReaderEx(FILE * pInFile, const char *pFileName, const char *pSection,
     }
 
     p = SkipWS(inbuf);
-    if ((p EQ 0) OR(*p EQ '#')) {
+    if ((p EQ 0) OR(*p EQ '#') OR(*p EQ ';')) {
       (*pAssignFunc) (0, 0, inbuf); /* Allow copy of line */
       continue;
     }
