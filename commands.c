@@ -184,9 +184,13 @@ CommandFileReaderFP(Uns16 pRace, Uns16 pFileIsFor, CommandReader_Func pFunc,
   if (!pComplain)
     pComplain = ComplainWithWarningMessage;
   while ((lLine = GetLine(pFile)) != 0) {
-    if (lFirst && !pFileIsFor && sscanf(lLine, "%d %18[:0-9-]", &lTurn, lTime) == 2) {
+    if (lFirst && !pFileIsFor
+        && (sscanf(lLine, "%d %18[:0-9-]", &lTurn, lTime) == 2
+            || (lLine[strspn(lLine, " 0")] == '\0')))
+    {
       /* looks like a timestamp. We can't test it, though, because all
-         current PHost versions handle `lastturn.hst' wrong. */
+         current PHost versions handle `lastturn.hst' wrong.
+         As a special case, on the first turn, the file starts with a line "0 " with no timestamp. */
     } else {
       /* might be a command line */
       lPtr = lLine + strspn(lLine, " \t\r");
