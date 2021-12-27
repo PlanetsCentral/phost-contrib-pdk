@@ -185,7 +185,7 @@ ProcessTransferCommand(Uns16 pRace, const char* pArgs, const char* pWholeLine)
     PutPlanetCargo(lSrc, CREDITS, PlanetCargo(lSrc, CREDITS) - lAmount);
     PutPlanetCargo(lDest, CREDITS, PlanetCargo(lDest, CREDITS) + lAmount);
     if (sVerbose)
-        Info("Player %d transferred %ld mc from %ld to %ld.", pRace, lAmount, lSrc, lDest);
+        Info("Player %d transferred %ld mc from %ld to %ld.", (int)pRace, (long)lAmount, (long)lSrc, (long)lDest);
 }
 
 /** Command handler. This is the CommandReader_Func. It handles
@@ -212,7 +212,7 @@ ProcessCommand(Uns16 pRace, const char* pCommand, const char* pArgs,
                             "Prefix commands with 'bank:'. Example:\015"
                             "  bank: transfer 100 from 132 to 367\015");
         if (sVerbose)
-            Info("Player %d asked for help");
+            Info("Player %d asked for help", (int) pRace);
         return True;
     }
 

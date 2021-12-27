@@ -393,13 +393,12 @@ RaceScoreForShips( RaceType_Def Race,
                  PointsType_Def CountType,
                   ShipsType_Def ShipsType)
 {
-  Uns16 lCount,lCount_2;
+  Uns16 lCount;
   Uns32 lScore=0;
 
   if (CountType==THOST_POINTS)
   {
       lCount   = RaceShipsNumber(Race,WAR_SHIPS);
-      lCount_2 = RaceShipsNumber(Race,FREIGHTER_SHIPS);
 
       if ((ShipsType==WAR_SHIPS)||(ShipsType==ALL_SHIPS))
          lScore += lCount*10;   // 10 points for each armed ship in THost
@@ -1089,13 +1088,12 @@ RaceMineralsForShips( RaceType_Def Race,
                   ShipsType_Def ShipsType,
                   CargoType_Def CargoType)
 {
-  Uns16 lCount,lCount_2;
+  Uns16 lCount;
   Uns32 lScore=0;
 
   if (CountType==THOST_POINTS)
   {
       lCount   = RaceShipsNumber(Race,WAR_SHIPS);
-      lCount_2 = RaceShipsNumber(Race,FREIGHTER_SHIPS);
 
       if ((ShipsType==WAR_SHIPS)||(ShipsType==ALL_SHIPS))
          lScore += lCount*0;   //  0 points for each armed ship in THost

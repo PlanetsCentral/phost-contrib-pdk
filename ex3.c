@@ -183,7 +183,7 @@ int main (int args, char* cline[]) {
     if ((hws[x] != 0) && (hws[x] < 501)) {
       if ((PlanetOwner(hws[x]) != NoOwner)
        && (PlanetOwner(hws[x]) <= RACE_NR)
-       && (PlanetOwner(hws[x]) != x)) {
+       && (PlanetOwner(hws[x]) != (RaceType_Def)x)) {
           newpts[PlanetOwner(hws[x])] += hwval;
       }
     }
@@ -199,7 +199,7 @@ int main (int args, char* cline[]) {
     }
   }
 
-  Info("Now opening and writing inv1.hst\n", filename);
+  Info("Now opening and writing inv1.hst\n");
   planfile = OpenOutputFile("inv1.hst", GAME_DIR_ONLY | TEXT_MODE);
   for (x = 1; x <= 11; x++) {
     pts[x] += newpts[x];

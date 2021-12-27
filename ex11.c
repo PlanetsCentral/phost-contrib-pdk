@@ -16,6 +16,7 @@ int main(int argc, char** argv)
 {
     int lPlayer;
     Uns32 lTotal[4] = { 0, 0, 0, 0 };
+    (void) argc;
 
     if (*++argv)
         gGameDirectory = *argv;
@@ -37,10 +38,10 @@ int main(int argc, char** argv)
         if (PlayerIsActive(lPlayer)) {
             printf("%4d    %7ld %7ld %7ld %7ld\n",
                    lPlayer,
-                   GetTons(Tons_DestroyedThisTurn, lPlayer),
-                   GetTons(Tons_LostThisTurn, lPlayer),
-                   GetTons(Tons_Destroyed, lPlayer),
-                   GetTons(Tons_Lost, lPlayer));
+                   (long)GetTons(Tons_DestroyedThisTurn, lPlayer),
+                   (long)GetTons(Tons_LostThisTurn, lPlayer),
+                   (long)GetTons(Tons_Destroyed, lPlayer),
+                   (long)GetTons(Tons_Lost, lPlayer));
             lTotal[0] += GetTons(Tons_DestroyedThisTurn, lPlayer);
             lTotal[1] += GetTons(Tons_LostThisTurn, lPlayer);
             lTotal[2] += GetTons(Tons_Destroyed, lPlayer);
@@ -49,7 +50,7 @@ int main(int argc, char** argv)
     }
     printf("------  ------- ------- ------- -------\n"
            "TOTAL:  %7ld %7ld %7ld %7ld\n",
-           lTotal[0], lTotal[1], lTotal[2], lTotal[3]);
+           (long)lTotal[0], (long)lTotal[1], (long)lTotal[2], (long)lTotal[3]);
     FreePHOSTLib();
     return 0;
 }

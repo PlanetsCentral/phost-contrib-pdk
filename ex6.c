@@ -329,20 +329,30 @@ void DrawInitTubes(Uns16 pShip, Uns16 pNumTubes, Uns16 pCharge)
 void DrawBeamRecharge(Uns16 pShip, Uns16 pBeam, Uns16 pCharge)
 {
     /* Too microscopic an event to write about */
+    (void) pShip;
+    (void) pBeam;
+    (void) pCharge;
 }
 
 void DrawTubeRecharge(Uns16 pShip, Uns16 pTube, Uns16 pCharge)
 {
     /* Too microscopic an event to write about */
+    (void) pShip;
+    (void) pTube;
+    (void) pCharge;
 }
 
 void DrawBayRecharge(Uns16 pShip, Uns16 pBay, Uns16 pCharge)
 {
     /* Too microscopic an event to write about */
+    (void) pShip;
+    (void) pBay;
+    (void) pCharge;
 }
 
 void DrawFighterAttack(Uns16 pShip, Uns16 pFighter, Int32 pPos)
 {
+    (void) pPos;
     if (gFighterStatus[pShip][pFighter] NEQ 1) {
         Info("%s launches a fighter!", gShip[pShip].Name);
         gFighterStatus[pShip][pFighter] = 1;
@@ -352,20 +362,28 @@ void DrawFighterAttack(Uns16 pShip, Uns16 pFighter, Int32 pPos)
 void DrawEraseFighterAttack(Uns16 pShip, Uns16 pFighter, Int32 pPos)
 {
     /* Don't care */
+    (void) pShip;
+    (void) pFighter;
+    (void) pPos;
 }
 
 void DrawFighterReturn(Uns16 pShip, Uns16 pFighter, Int32 pPos)
 {
+    (void) pPos;
     gFighterStatus[pShip][pFighter] = 2;
 }
 
 void DrawEraseFighterReturn(Uns16 pShip, Uns16 pFighter, Int32 pPos)
 {
     /* Don't care */
+    (void) pShip;
+    (void) pFighter;
+    (void) pPos;
 }
 
 void DrawShipShields(Uns16 pShip, Int32 pPos, double pShields)
 {
+    (void) pPos;
     if (pShields EQ 0) {
         Info("%s's shields have fallen!", gShip[pShip].Name);
     }
@@ -386,85 +404,120 @@ void DrawShipCaptured(Uns16 pShip)
 
 void DrawShipDestroyed(Uns16 pShip, Int32 pPos, Boolean pIsPlanet)
 {
+    (void) pIsPlanet;
+    (void) pPos;
     Info("%s has been destroyed", gShip[pShip].Name);
 }
 
 void DrawStalemateResult(Boolean pIsPlanet2)
 {
+    (void) pIsPlanet2;
     Info("Both ships are out of ammunition.");
 }
 
 void DrawShipCrew(Uns16 pShip, double pCrew)
 {
     /* Echh. */
+    (void) pShip;
+    (void) pCrew;
 }
 
 void DrawTorpNumber(Uns16 pShip, Uns16 pTorps)
 {
     /* Uchh. */
+    (void) pShip;
+    (void) pTorps;
 }
 
 void DrawFighterNumber(Uns16 pShip, Uns16 pFighters)
 {
     /* Ichh. */
+    (void) pShip;
+    (void) pFighters;
 }
 
 void DrawFighterHit(Uns16 pShip, Uns16 pFighter, Int32 pPos, Int32 pEnemyPos)
 {
     Info("Fighter hit on %s!", gShip[1-pShip].Name);
+    (void) pFighter;
+    (void) pPos;
+    (void) pEnemyPos;
 }
 
 void DrawFighterHitFighter(Int32 pPos, Uns16 pFighter1, Uns16 pFighter2)
 {
     /* Not enough info to say anything useful */
+    (void) pPos;
+    (void) pFighter1;
+    (void) pFighter2;
 }
 
 void DrawTorpHit(Uns16 pShip, Int32 pPos, Int32 pEnemyPos)
 {
+    (void) pPos;
+    (void) pEnemyPos;
     Info("%s scores a torp hit on the enemy", gShip[pShip].Name);
 }
 
 void DrawTorpMiss(Uns16 pShip, Int32 pPos, Int32 pEnemyPos)
 {
+    (void) pPos;
+    (void) pEnemyPos;
     Info("%s fires a torpedo and misses the enemy", gShip[pShip].Name);
 }
 
 void DrawBeamHitFighter(Uns16 pShip, Uns16 pBeam, Int32 pPos,
                              Uns16 lFighter, Int32 pEnemyFighterPos)
 {
+    (void) pBeam;
+    (void) pPos;
+    (void) lFighter;
+    (void) pEnemyFighterPos;
     Info("%s destroys an incoming enemy fighter", gShip[pShip].Name);
 }
 
 void DrawBeamMissedFighter(Uns16 pShip, Uns16 pBeam, Int32 pPos,
                              Uns16 lFighter, Int32 pEnemyFighterPos)
 {
+    (void) pBeam;
+    (void) pPos;
+    (void) lFighter;
+    (void) pEnemyFighterPos;
     Info("%s fires upon but misses an enemy fighter", gShip[pShip].Name);
 }
 
 void DrawBeamHitShip(Uns16 pShip, Int32 pPos, Int32 pEnemyPos)
 {
+    (void) pPos;
+    (void) pEnemyPos;
     Info("%s scores a beam weapon hit on the enemy", gShip[pShip].Name);
 }
 
 void DrawBeamMissedShip(Uns16 pShip, Int32 pPos, Int32 pEnemyPos)
 {
+    (void) pPos;
+    (void) pEnemyPos;
     Info("%s fires beam weapons but misses the enemy", gShip[pShip].Name);
 }
 
 void DrawEraseShip(Uns16 pShip, Int32 pPos)
 {
     /* Ooch. */
+    (void) pShip;
+    (void) pPos;
 }
 
 void DrawShip(Uns16 pShip, Int32 pPos)
 {
     /* Ycch. */
+    (void) pShip;
+    (void) pPos;
 }
 
 void DrawDistance(Int32 pDist)
 {
     if (gLastDist - pDist > 10000L) {
-        Info("Enemy ships are now %ld meters apart", pDist);
+        Info("Enemy ships are now %ld meters apart", (long)pDist);
         gLastDist = pDist;
     }
 }

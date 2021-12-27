@@ -799,7 +799,7 @@ doFighterDamage(void)
         lRemaining--;
 
         /* Check distance to target */
-        if (labs(lOtherPtr->mPos - lCurrPtr->mFPos[lFighter])
+        if ((Uns32)labs(lOtherPtr->mPos - lCurrPtr->mFPos[lFighter])
               <= MIN_FIGHTER_SHIP_HIT_DISTANCE(lCount)) {
           DrawFighterHit(lCount, lFighter, lCurrPtr->mFPos[lFighter],
                 lOtherPtr->mPos);
@@ -967,7 +967,7 @@ doBeamFire(void)
         if (lClosest >= 0) {
           /* If closest fighter is out of range, don't fire */
 
-          if (lClosestPos > MIN_BEAM_FIGHTER_HIT_DISTANCE(lCount)) {
+          if ((Uns32)lClosestPos > MIN_BEAM_FIGHTER_HIT_DISTANCE(lCount)) {
             /* Just wait until the fighter reaches us */
             continue;
           }
@@ -1046,7 +1046,7 @@ doBeamFire(void)
      no_fighters:
       
       if ((lCurrPtr->mBeamCharge[lBeam] >= MIN_BEAM_CHARGE_FOR_SHIPS(lCount))
-            AND(lShipDistance <= MIN_BEAM_SHIP_HIT_DISTANCE(lCount))
+            AND(lShipDistance <= (Int32)MIN_BEAM_SHIP_HIT_DISTANCE(lCount))
             ) {
         /* Beams can miss */
         Uns16 lMissed = RandomRange(100) >= lCurrPtr->mBeamHitOdds;
@@ -1443,7 +1443,6 @@ void
 CombatEx(Combat_Struct * pShip1, Combat_Struct * pShip2, Uns16 pFlags)
 {
   Uns16 lCount;
-  Boolean lTerminate;           /* True if user wants to immediately quit */
 
   /* Fill in missing fields */
   if ((pFlags & Combat_Experience) == 0) {
@@ -1573,7 +1572,7 @@ CombatEx(Combat_Struct * pShip1, Combat_Struct * pShip2, Uns16 pFlags)
   gStatus[0] = gInitialStatus[0];
   gStatus[1] = gInitialStatus[1];
   checkCombatActivityInit();
-  lTerminate = DisplayBattle(gInitialStatus[0], gInitialStatus[1]);
+  DisplayBattle(gInitialStatus[0], gInitialStatus[1]);
 
   /* Festivities are over, now we have to sort out the results. */
   for (lCount = 0; lCount < 2; lCount++) {

@@ -70,8 +70,8 @@ main(int argc, char *argv[])
       MinefieldScore = RaceScoreForMinefields(Race,USED_POINTS,True);
       TotalScore     = ShipScore + PlanetScore + BaseScore + MinefieldScore;
     
-      Info("%2d %7d %7d %7d %7d %7d",Race,ShipScore,PlanetScore,
-       BaseScore,MinefieldScore,TotalScore);
+      Info("%2d %7d %7d %7d %7d %7d",(int)Race,(int)ShipScore,(int)PlanetScore,
+       (int)BaseScore,(int)MinefieldScore,(int)TotalScore);
     }
     Info("------------------------------------------");
 
@@ -89,8 +89,8 @@ main(int argc, char *argv[])
       BaseScore      = RaceScoreForBases(Race,THOST_POINTS);
       TotalScore     = ShipScore + PlanetScore + BaseScore ;
     
-      Info("%2d %7d %7d %7d %7d",Race,ShipScore,PlanetScore,
-       BaseScore,TotalScore);
+      Info("%2d %7d %7d %7d %7d",(int)Race,(int)ShipScore,(int)PlanetScore,
+       (int)BaseScore,(int)TotalScore);
     }
     Info("------------------------------------------");
 

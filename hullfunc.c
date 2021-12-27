@@ -396,7 +396,7 @@ giveAllShips(Uns16 (*pFunc)(Uns16), RaceType_Def pRace, Special_Def pSpecial)
 static void
 addDefaultSpecials(void)
 {
-  int i;
+  size_t i;
   Uns16 lMask;
   SpecialInfo_Struct *lInfo;
   Special_Struct lDev;
@@ -494,7 +494,7 @@ shipHasSynthSpecial(Uns16 pShip, int pIndex)
     lChunkSize = AuxdataChunkSize(lChunk);
     if (lChunkSize > 2) {
       Uns16 lRecordSize = ReadDOSUns16(AuxdataChunkData(lChunk));
-      if (lBit < lRecordSize*8 && lChunkSize >= 2 + lRecordSize * pShip) {
+      if (lBit < lRecordSize*8 && lChunkSize >= 2U + lRecordSize * pShip) {
         unsigned char* lEle = AuxdataChunkData(lChunk);
         lEle += 2;
         if (lEle[lRecordSize * (pShip-1) + lBit / 8] & (1 << (lBit & 7)))
@@ -541,7 +541,7 @@ shipHasSpecial(Uns16 pShip, Special_Def pSpecial)
 
   /* now check modified devices */
   for (i = 0; i < sNumSynthSpecials; ++i) {
-    if (sSynthSpecials[i].mFunction != pSpecial)
+    if (sSynthSpecials[i].mFunction != (Int16)pSpecial)
       continue;
     if ((sSynthSpecials[i].mLevelMask & (1 << ExperienceLevel(ShipExperience(pShip)))) == 0)
       continue;
@@ -1304,7 +1304,7 @@ ParseHullFunction(const char* pName)
   strupr(lName);
 
   lLen = strlen(lName);
-  for (lVal = 0; lVal < NumSpecialNames; lVal++) {
+  for (lVal = 0; lVal < (int)NumSpecialNames; lVal++) {
     strcpy(lStr, gSpecialNames[lVal]);
     strupr(lStr);
     if (memcmp(lName, lStr, lLen) EQ 0)

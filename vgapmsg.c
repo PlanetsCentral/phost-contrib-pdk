@@ -129,7 +129,7 @@ WriteExternalMessage(RaceType_Def pRace, const char *pMessage)
 
     lFPos = 2 + gNumExtMessages * EXT_MESSAGE_SIZE;
     fseek(gPointerFile, lFPos, SEEK_SET);
-    if (ftell(gPointerFile) NEQ lFPos) {
+    if (ftell(gPointerFile) NEQ (long)lFPos) {
       Error("External message file is corrupt");
       MemFree(lStr);
       return False;

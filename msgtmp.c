@@ -124,7 +124,7 @@ WriteAUXHOSTMessage(RaceType_Def pRace, const char *pMessage)
 
     lFPos = sizeof(gNumExtMessages) + gNumExtMessages * EXT_MESSAGE_SIZE;
     fseek(gPointerFile, lFPos, SEEK_SET);
-    if (ftell(gPointerFile) NEQ lFPos) {
+    if (ftell(gPointerFile) NEQ (long)lFPos) {
       Error("Host message file is corrupt");
       MemFree(lStr);
       return False;

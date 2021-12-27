@@ -9,6 +9,7 @@ my $OUT = get_variable('OUT');
 
 add_variable(LM => '-lm');
 add_to_variable(CFLAGS => "-I$IN");
+add_to_variable(CFLAGS => "-Wall -W -Wno-type-limits -Wno-format-zero-length");
 
 # Sources
 my @SRCS = qw(auxdata.c pconfig.c crc.c enum.c hostio.c main.c portable.c

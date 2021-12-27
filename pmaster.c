@@ -365,7 +365,7 @@ DoAssignment(const char *name, char *val)
 static void
 DoDefaultAssignments(void)
 {
-  int ix;
+  size_t ix;
   char defstr[1024];
 
   doInit();
@@ -380,7 +380,7 @@ DoDefaultAssignments(void)
 static void
 PrintDefaultSets(void)
 {
-  int ix;
+  size_t ix;
 
   for (ix = 0; ix < CF_NumItems; ix++) {
     if (!UserSet[ix]) {
@@ -464,7 +464,7 @@ readUns16(Uns16 ix, char *val)
     if (!getLong(val, &uval))
       return 0;
     val = 0;
-    if (uval < 0 OR uval > 65535U) {
+    if (uval < 0 OR uval > 65535L) {
       fprintf(stderr, "Illegal 16-bit unsigned quantity '%ld'\n", uval);
       return 0;
     }
@@ -1056,8 +1056,8 @@ doPlanetRandomize(void)
                             1])));
   }
 
-  Info("Natives will range from %lu to %lu clans.", cfg->mNativeClansRange[0],
-        cfg->mNativeClansRange[1]);
+  Info("Natives will range from %lu to %lu clans.", (unsigned long)cfg->mNativeClansRange[0],
+       (unsigned long)cfg->mNativeClansRange[1]);
 
   for (planet = 1; planet <= PLANET_NR; planet++) {
     if (!IsPlanetExist(planet))

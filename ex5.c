@@ -166,7 +166,7 @@ main(int argc, char *argv[])
                           "%lu %s were transported\x0D"
                           "from %s #%u\x0D"
                           "to %s #%u\x0D",
-                                transfer, transferString[cargoType],
+                                (unsigned long)transfer, transferString[cargoType],
                                 PlanetName(*basePtr, planName1), *basePtr,
                                 PlanetName(*receiver, planName2), *receiver);
                         WriteAUXHOSTMessage(race, playerMessage);

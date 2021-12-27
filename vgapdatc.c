@@ -186,7 +186,7 @@ void
 PutPlayerPassword(RaceType_Def pPlayer, const char *pPasswd)
 {
   char lPwd[10];
-  int i;
+  size_t i;
 
   InitGen();
 

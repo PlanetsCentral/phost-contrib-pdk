@@ -280,7 +280,7 @@ FindGravityPlanet(Int16 pX, Int16 pY)
 
     if ((!gConfigInfo->RoundWarpWells)
           OR(((Int32) lDistX * lDistX + (Int32) lDistY * lDistY)
-                <= ((Uns32) lRange * lRange))
+                <= ((Int32) lRange * lRange))
           ) {
       return lPlanet;
     }
@@ -328,7 +328,7 @@ EnumeratePlanetsWithin(Int16 pX, Int16 pY, Uns16 pRadius)
       continue;
 
     if (((Int32) lDistX * lDistX + (Int32) lDistY * lDistY)
-          <= ((Uns32) pRadius * pRadius)) {
+          <= ((Int32) pRadius * pRadius)) {
       PushEnum(lPlanet);
     }
   }
@@ -584,7 +584,7 @@ Boolean
 IsDistanceLTRadius(Int16 pX1, Int16 pY1, Int16 pX2, Int16 pY2, Uns32 pRadius)
 {
   return (Boolean)
-        (DistanceSquared(pX1, pY1, pX2, pY2) <= (pRadius * pRadius));
+        ((Uns32)DistanceSquared(pX1, pY1, pX2, pY2) <= (pRadius * pRadius));
 }
 
 /*************************************************************

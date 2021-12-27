@@ -549,8 +549,8 @@ parseInteger(const ConfigItem_Struct* pItem,
            to guarantee correct operation when for example users run a
            non-999 enabled program on a game directory with
            NumShips = 999 */
-        ErrorExit("%s: value %ld outside allowed range [%d, %d] in assignment to '%s'",
-                  CONFIG_FILE, i, pItem->mMin, pItem->mMax, pItem->mName);
+        ErrorExit("%s: value %ld outside allowed range [%ld, %ld] in assignment to '%s'",
+                  CONFIG_FILE, i, (long)pItem->mMin, (long)pItem->mMax, pItem->mName);
         return False;
     }
 
@@ -970,7 +970,8 @@ Read_THost_HConfig_File(void)
   char   *lBuffer;
   Hconfig_Import_Struct* lItem;
   int    lSize;
-  int    i, j;
+  size_t i;
+  int    j;
 
   lConfigFile = OpenInputFile(HCONFIG_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR);
   if (lConfigFile == NULL)
