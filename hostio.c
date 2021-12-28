@@ -57,19 +57,33 @@ Read_Turntime_File(void)
 
     gAuxTime = gTurntime;
     if (gNewlyMastered) {
+        /* Newly mastered, and host never ran, so previous turn does not exist. */
         memset(&gTurntime, 0, sizeof(gTurntime));
         memset(&gAuxTime, 0, sizeof(gAuxTime));
     } else if (gUsingTHost || lMajor >= 4) {
-        /* Get real timestamp. Should we do something interesting
-           when an error occurs? */
+        /* Get real timestamp.
+           We have three cases:
+           (a) During a host-run in mid-game, LASTTURN.HST contains the previous turn number which is used to mark AUXDATA.HST,
+               so we need to set gAuxTime accordingly.
+           (b) During the first host-run, LASTTURN.HST may not exist or be empty,
+               so we need to use an all-zero gAuxTime, as above.
+           (c) Outside a host run, NEXTTURN.HST and LASTTURN.HST are the same. */
+        Boolean ok = False;
         lTurntimeFile = OpenInputFile(LASTTURN_FILE, GAME_DIR_ONLY | NO_MISSING_ERROR);
         if (lTurntimeFile) {
-            fread(&gTurntime.HostTime, sizeof gTurntime.HostTime, 1, lTurntimeFile);
+            ok = (fread(&gTurntime.HostTime, sizeof gTurntime.HostTime, 1, lTurntimeFile) == 1);
             fclose(lTurntimeFile);
-            if (memcmp(gAuxTime.HostTime, gTurntime.HostTime, sizeof gTurntime.HostTime) != 0) {
-                gAuxTime = gTurntime;
-                gAuxTime.TurnNumber--;
-            }
+        }
+
+        if (!ok) {
+            /* case (b) */
+            memset(&gAuxTime, 0, sizeof(gAuxTime));
+        } else if (memcmp(gAuxTime.HostTime, gTurntime.HostTime, sizeof gTurntime.HostTime) != 0) {
+            /* case (a) */
+            gAuxTime = gTurntime;
+            gAuxTime.TurnNumber--;
+        } else {
+            /* case (c) */
         }
     }
 
