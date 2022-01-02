@@ -7,9 +7,27 @@ load_module('Compiler.pl');
 my $IN = get_variable('IN');
 my $OUT = get_variable('OUT');
 
+add_variable(CC => 'gcc');
+add_variable(CFLAGS => '');
 add_variable(LM => '-lm');
+add_variable(DEPFLAGS => '');
 add_to_variable(CFLAGS => "-I$IN");
-add_to_variable(CFLAGS => "-Wall -W -Wno-type-limits -Wno-format-zero-length");
+
+# Determine supported options
+my $file = "$V{TMP}/conftest/empty.c";
+file_update($file, "int main() { return 0; }\n");
+foreach (qw(-Wall -W -Wno-type-limits -Wno-format-zero-length)) {
+    if (system("$V{CC} $V{CFLAGS} $_ -c $file -o $file.o >/dev/null 2>&1") == 0) {
+        log_trace("Compiler supports '$_'");
+        add_to_variable(CFLAGS => $_);
+    }
+}
+foreach (qw(-MMD -MP)) {
+    if (system("$V{CC} $V{CFLAGS} $V{DEPFLAGS} $_ -c $file -o $file.o >/dev/null 2>&1") == 0) {
+        log_trace("Compiler supports '$_'");
+        add_to_variable(DEPFLAGS => $_);
+    }
+}
 
 # Sources
 my @SRCS = qw(auxdata.c pconfig.c crc.c enum.c hostio.c main.c portable.c
